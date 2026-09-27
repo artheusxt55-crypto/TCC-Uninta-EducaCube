@@ -1,522 +1,576 @@
+import admin from "firebase-admin";
 
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    }),
+  });
+}
+
+const auth = admin.auth();
+
+
+import { construirContextoRAG } from "./rag/index.js";
+
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL =
   process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
-const GEMINI_URL =
-  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_MODEL =
+  process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
-const MAX_PROMPT_LENGTH = 6000;
-const MAX_CONTEXT_ITEMS = 8;
-const MAX_CONTEXT_ITEM_LENGTH = 2000;
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+const USER_RATE_LIMIT = 20;
+const USER_RATE_WINDOW_SECONDS = 300;
 
 
-const RATE_LIMIT_MAX_REQUESTS = 20;
-const RATE_LIMIT_WINDOW_SECONDS = 300; // 5 minutos
+const IP_RATE_LIMIT = 300;
+const IP_RATE_WINDOW_SECONDS = 300;
 
-function pegarIP(req) {
-  const forwarded = req.headers["x-forwarded-for"];
 
-  if (forwarded) {
-    const ip = forwarded.split(",")[0].trim();
-
-    if (ip) {
-      return ip;
-    }
-  }
-
-  return (
-    req.headers["x-real-ip"] ||
-    req.socket?.remoteAddress ||
-    "desconhecido"
-  );
-}
-
-/**
- * Retorna:
- * {
- *   limitado: boolean
- * }
- *
- * Em caso de falha do Upstash ou ausência das variáveis,
- * o sistema continua funcionando.
- */
-async function checkRateLimit(ip) {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-
-  if (!url || !token) {
-    console.warn(
-      "Rate limit desativado: UPSTASH_REDIS_REST_URL/TOKEN não configuradas."
-    );
-
-    return {
-      limitado: false,
-    };
+async function redisCommand(command) {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    return null;
   }
 
   try {
-    const key = `ratelimit:chat:${ip}`;
-
-    // ----------------------------------------------------------
-    // Incrementa contador
-    // ----------------------------------------------------------
-
-    const incrResponse = await fetch(`${url}/incr/${key}`, {
+    const response = await fetch(UPSTASH_URL, {
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${UPSTASH_TOKEN}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(command),
     });
 
-    const incrData = await incrResponse.json();
-
-    const contagem = incrData?.result;
-
-    if (typeof contagem !== "number") {
-      console.error(
-        "Resposta inesperada do rate limit:",
-        incrData
-      );
-
-      return {
-        limitado: false,
-      };
+    if (!response.ok) {
+      return null;
     }
 
-    // ----------------------------------------------------------
-    // Primeira requisição da janela
-    // ----------------------------------------------------------
-
-    if (contagem === 1) {
-      await fetch(
-        `${url}/expire/${key}/${RATE_LIMIT_WINDOW_SECONDS}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-    }
-
-    return {
-      limitado: contagem > RATE_LIMIT_MAX_REQUESTS,
-    };
-  } catch (error) {
-    console.error(
-      "Erro ao checar rate limit:",
-      error
-    );
-
-    // Falha aberta:
-    // se o rate limit cair, a AURA continua funcionando.
-    return {
-      limitado: false,
-    };
+    return await response.json();
+  } catch {
+    return null;
   }
 }
 
-// ============================================================
-// SYSTEM PROMPT DA AURA
-// ============================================================
 
-const AURA_SYSTEM_PROMPT = `
-Você é a AURA, a assistente pedagógica do EducaCube.
+async function checkUserRateLimit(uid) {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    return {
+      allowed: true,
+      remaining: USER_RATE_LIMIT,
+    };
+  }
 
-Sua função é ajudar professores e educadores a:
-- planejar aulas;
-- criar exercícios;
-- criar avaliações;
-- elaborar atividades;
-- explicar conceitos pedagógicos;
-- organizar planejamentos;
-- trabalhar conteúdos educacionais;
-- alinhar conteúdos à BNCC quando solicitado.
+  const key = `aura:ratelimit:user:${uid}`;
 
-Responda sempre em português do Brasil.
+  const result = await redisCommand([
+    ["INCR", key],
+  ]);
 
-Seu estilo deve ser:
-- claro;
-- natural;
-- profissional;
-- pedagógico;
-- objetivo;
-- útil;
-- humanizado.
+  const count = Number(result?.result ?? 0);
 
-Evite respostas excessivamente genéricas.
+  if (count === 1) {
+    await redisCommand([
+      ["EXPIRE", key, USER_RATE_WINDOW_SECONDS],
+    ]);
+  }
 
-Quando necessário, explique o raciocínio de forma organizada.
+  return {
+    allowed: count <= USER_RATE_LIMIT,
+    remaining: Math.max(USER_RATE_LIMIT - count, 0),
+  };
+}
 
-Use Markdown quando isso melhorar a leitura:
-- títulos;
-- listas;
-- tabelas;
-- passos numerados.
 
-Não exagere na formatação.
+async function checkIpRateLimit(ip) {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    return {
+      allowed: true,
+      remaining: IP_RATE_LIMIT,
+    };
+  }
 
-Se a pergunta não tiver relação direta com educação, ensino ou EducaCube,
-você pode responder normalmente, mas mantenha o tom de uma assistente
-educacional séria e confiável.
-`.trim();
+  const key = `aura:ratelimit:ip:${ip}`;
 
-// ============================================================
-// HELPERS
-// ============================================================
+  const result = await redisCommand([
+    ["INCR", key],
+  ]);
 
-function sanitizeContexto(contexto) {
+  const count = Number(result?.result ?? 0);
+
+  if (count === 1) {
+    await redisCommand([
+      ["EXPIRE", key, IP_RATE_WINDOW_SECONDS],
+    ]);
+  }
+
+  return {
+    allowed: count <= IP_RATE_LIMIT,
+    remaining: Math.max(IP_RATE_LIMIT - count, 0),
+  };
+}
+
+
+async function registrarMetrica(uid, dados = {}) {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    return;
+  }
+
+  try {
+    const key = `aura:metrics:${uid}`;
+
+    await redisCommand([
+      ["HINCRBY", key, "requests", 1],
+    ]);
+
+    if (dados.provider === "gemini") {
+      await redisCommand([
+        ["HINCRBY", key, "gemini_requests", 1],
+      ]);
+    }
+
+    if (dados.provider === "groq") {
+      await redisCommand([
+        ["HINCRBY", key, "groq_requests", 1],
+      ]);
+    }
+
+    if (dados.fallback) {
+      await redisCommand([
+        ["HINCRBY", key, "fallbacks", 1],
+      ]);
+    }
+
+    if (dados.error) {
+      await redisCommand([
+        ["HINCRBY", key, "errors", 1],
+      ]);
+    }
+  } catch {
+   
+
+async function autenticarUsuario(req) {
+  const authorization = req.headers.authorization || "";
+
+  if (!authorization.startsWith("Bearer ")) {
+    throw new Error("AUTH_REQUIRED");
+  }
+
+  const token = authorization.slice(7).trim();
+
+  if (!token) {
+    throw new Error("AUTH_REQUIRED");
+  }
+
+  return await auth.verifyIdToken(token);
+}
+
+
+
+function sanitizarTexto(texto, limite = 12000) {
+  if (typeof texto !== "string") {
+    return "";
+  }
+
+  return texto
+    .trim()
+    .slice(0, limite);
+}
+
+function sanitizarContexto(contexto) {
   if (!Array.isArray(contexto)) {
     return [];
   }
 
   return contexto
-    .filter(
-      (item) =>
-        typeof item === "string" &&
-        item.trim().length > 0
-    )
-    .slice(-MAX_CONTEXT_ITEMS)
-    .map((item) =>
-      item.slice(0, MAX_CONTEXT_ITEM_LENGTH)
-    );
+    .filter((item) => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(-12)
+    .map((item) => item.slice(0, 4000));
 }
 
-// ============================================================
-// CONSTRUTOR DO CONTEXTO
-// ============================================================
 
-function buildContents(prompt, contextoSeguro) {
-  const contents = [];
 
-  // ----------------------------------------------------------
-  // Contexto anterior da conversa
-  // ----------------------------------------------------------
+function esperar(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
-  if (contextoSeguro.length > 0) {
-    contents.push({
-      role: "user",
-      parts: [
-        {
-          text:
-            "Resumo da conversa até agora " +
-            "(apenas para contexto, não responda a isso diretamente):\n" +
-            contextoSeguro.join("\n"),
-        },
-      ],
-    });
+function erroPodeTentarNovamente(status) {
+  return (
+    status === 408 ||
+    status === 429 ||
+    status === 500 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504
+  );
+}
 
-    contents.push({
-      role: "model",
-      parts: [
-        {
-          text:
-            "Entendido. Vou levar esse contexto em consideração.",
-        },
-      ],
-    });
+
+
+async function chamarGemini({
+  prompt,
+  contextoRAG,
+}) {
+  if (!GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY não configurada.");
   }
 
-  // ----------------------------------------------------------
-  // Nova pergunta
-  // ----------------------------------------------------------
+  const url =
+    `https://generativelanguage.googleapis.com/v1beta/models/` +
+    `${encodeURIComponent(GEMINI_MODEL)}:generateContent` +
+    `?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
-  contents.push({
-    role: "user",
-    parts: [
+  const body = {
+    contents: [
       {
-        text: prompt,
+        role: "user",
+        parts: [
+          {
+            text: `${contextoRAG}
+
+PERGUNTA DO USUÁRIO:
+${prompt}`,
+          },
+        ],
       },
     ],
-  });
 
-  return contents;
+    generationConfig: {
+      temperature: 0.4,
+      maxOutputTokens: 2048,
+    },
+  };
+
+  let ultimoErro = null;
+
+  for (let tentativa = 1; tentativa <= 2; tentativa++) {
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        const texto =
+          data?.candidates?.[0]?.content?.parts
+            ?.map((part) => part?.text || "")
+            .join("")
+            .trim();
+
+        if (!texto) {
+          throw new Error("Gemini retornou uma resposta vazia.");
+        }
+
+        return {
+          resposta: texto,
+          provider: "gemini",
+          tentativa,
+        };
+      }
+
+      const erroTexto = await response.text();
+
+      ultimoErro = new Error(
+        `Gemini ${response.status}: ${erroTexto}`
+      );
+
+      if (
+        tentativa < 2 &&
+        erroPodeTentarNovamente(response.status)
+      ) {
+        await esperar(500 * tentativa);
+        continue;
+      }
+
+      throw ultimoErro;
+    } catch (error) {
+      ultimoErro = error;
+
+      if (tentativa < 2) {
+        await esperar(500 * tentativa);
+        continue;
+      }
+    }
+  }
+
+  throw ultimoErro || new Error("Erro desconhecido no Gemini.");
 }
 
-// ============================================================
-// HANDLER
-// ============================================================
+
+async function chamarGroq({
+  prompt,
+  contextoRAG,
+}) {
+  if (!GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY não configurada.");
+  }
+
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+
+        messages: [
+          {
+            role: "user",
+            content: `${contextoRAG}
+
+PERGUNTA DO USUÁRIO:
+${prompt}`,
+          },
+        ],
+
+        temperature: 0.4,
+        max_tokens: 2048,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const erroTexto = await response.text();
+
+    throw new Error(
+      `Groq ${response.status}: ${erroTexto}`
+    );
+  }
+
+  const data = await response.json();
+
+  const texto =
+    data?.choices?.[0]?.message?.content
+      ?.trim();
+
+  if (!texto) {
+    throw new Error("Groq retornou uma resposta vazia.");
+  }
+
+  return {
+    resposta: texto,
+    provider: "groq",
+    tentativa: 1,
+  };
+}
+
+
 
 export default async function handler(req, res) {
-  // ==========================================================
-  // MÉTODO
-  // ==========================================================
+  /*
+   * CORS / método
+   */
+
+  res.setHeader(
+    "Cache-Control",
+    "no-store"
+  );
 
   if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-
     return res.status(405).json({
       error: "Método não permitido.",
     });
   }
 
-  // ==========================================================
-  // API KEY
-  // ==========================================================
-
-  if (!process.env.GEMINI_API_KEY) {
-    console.error(
-      "GEMINI_API_KEY não configurada no ambiente."
-    );
-
-    return res.status(500).json({
-      error:
-        "A AURA não está configurada no servidor.",
-    });
-  }
-
-  // ==========================================================
-  // RATE LIMIT
-  // ==========================================================
-
-  const ip = pegarIP(req);
-
-  const { limitado } =
-    await checkRateLimit(ip);
-
-  if (limitado) {
-    return res.status(429).json({
-      error:
-        "Muitas mensagens em pouco tempo. Aguarde alguns minutos e tente novamente.",
-    });
-  }
-
-  // ==========================================================
-  // BODY
-  // ==========================================================
-
-  const { prompt, contexto } = req.body ?? {};
-
-  // ==========================================================
-  // VALIDAÇÃO DO PROMPT
-  // ==========================================================
-
-  if (
-    typeof prompt !== "string" ||
-    !prompt.trim()
-  ) {
-    return res.status(400).json({
-      error: "Envie uma pergunta válida.",
-    });
-  }
-
-  // ==========================================================
-  // LIMITE DO PROMPT
-  // ==========================================================
-
-  if (prompt.length > MAX_PROMPT_LENGTH) {
-    return res.status(400).json({
-      error:
-        `Sua pergunta é muito longa ` +
-        `(limite de ${MAX_PROMPT_LENGTH} caracteres).`,
-    });
-  }
-
-  // ==========================================================
-  // SANITIZAÇÃO DO CONTEXTO
-  // ==========================================================
-
-  const contextoSeguro =
-    sanitizeContexto(contexto);
-
-  // ==========================================================
-  // CHAMADA AO GEMINI
-  // ==========================================================
+  let uid = null;
 
   try {
-    console.log(
-      `[AURA] Enviando requisição para Gemini. Modelo: ${GEMINI_MODEL}`
-    );
+   
 
-    const geminiResponse = await fetch(
-      `${GEMINI_URL}?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
+    const usuario = await autenticarUsuario(req);
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+    uid = usuario.uid;
 
-        body: JSON.stringify({
-          // --------------------------------------------------
-          // Conteúdo
-          // --------------------------------------------------
+    
 
-          contents:
-            buildContents(
-              prompt,
-              contextoSeguro
-            ),
+    const limiteUsuario =
+      await checkUserRateLimit(uid);
 
-          // --------------------------------------------------
-          // Instruções da AURA
-          // --------------------------------------------------
-
-          systemInstruction: {
-            parts: [
-              {
-                text: AURA_SYSTEM_PROMPT,
-              },
-            ],
-          },
-
-          // --------------------------------------------------
-          // Configuração da geração
-          // --------------------------------------------------
-
-          generationConfig: {
-            maxOutputTokens: 2048,
-          },
-        }),
-      }
-    );
-
-    // ========================================================
-    // LÊ RESPOSTA DO GEMINI
-    // ========================================================
-
-    const data = await geminiResponse.json();
-
-    // ========================================================
-    // ERRO DO GEMINI
-    // ========================================================
-
-    if (!geminiResponse.ok) {
-      console.error(
-        "=================================================="
-      );
-
-      console.error(
-        "[AURA] ERRO REAL RETORNADO PELO GEMINI"
-      );
-
-      console.error(
-        "Status:",
-        geminiResponse.status
-      );
-
-      console.error(
-        "Status Text:",
-        geminiResponse.statusText
-      );
-
-      console.error(
-        "Modelo:",
-        GEMINI_MODEL
-      );
-
-      console.error(
-        "Resposta:",
-        JSON.stringify(
-          data,
-          null,
-          2
-        )
-      );
-
-      console.error(
-        "=================================================="
-      );
-
-      // ------------------------------------------------------
-      // IMPORTANTE:
-      // Durante o diagnóstico, retornamos o status real.
-      // ------------------------------------------------------
-
-      return res
-        .status(geminiResponse.status)
-        .json({
-          error:
-            "Erro retornado pela API do Gemini.",
-
-          geminiStatus:
-            geminiResponse.status,
-
-          geminiStatusText:
-            geminiResponse.statusText,
-
-          geminiDetails:
-            data,
-        });
-    }
-
-    // ========================================================
-    // CANDIDATO
-    // ========================================================
-
-    const candidate =
-      data?.candidates?.[0];
-
-    // ========================================================
-    // TEXTO DA RESPOSTA
-    // ========================================================
-
-    const respostaIA =
-      candidate?.content?.parts
-        ?.map(
-          (part) =>
-            part.text ?? ""
-        )
-        .join("")
-        .trim();
-
-    // ========================================================
-    // RESPOSTA VAZIA
-    // ========================================================
-
-    if (!respostaIA) {
-      const bloqueada =
-        candidate?.finishReason ===
-        "SAFETY";
-
-      console.warn(
-        "[AURA] Gemini retornou resposta sem texto.",
-        {
-          finishReason:
-            candidate?.finishReason,
-
-          candidate,
-        }
-      );
-
-      return res.status(502).json({
-        error: bloqueada
-          ? "Não posso responder a essa pergunta."
-          : "A AURA não conseguiu gerar uma resposta agora. Tente novamente.",
+    if (!limiteUsuario.allowed) {
+      return res.status(429).json({
+        error:
+          "Você atingiu o limite temporário de uso da AURA. Tente novamente em alguns minutos.",
+        code: "USER_RATE_LIMIT",
+        remaining: 0,
       });
     }
 
-    // ========================================================
-    // SUCESSO
-    // ========================================================
+    const forwardedFor =
+      req.headers["x-forwarded-for"];
 
-    console.log(
-      `[AURA] Resposta gerada com sucesso pelo modelo ${GEMINI_MODEL}.`
-    );
+    const ip =
+      typeof forwardedFor === "string"
+        ? forwardedFor.split(",")[0].trim()
+        : req.socket?.remoteAddress || "unknown";
 
-    return res.status(200).json({
-      resposta: respostaIA,
-    });
+    const limiteIp =
+      await checkIpRateLimit(ip);
+
+    if (!limiteIp.allowed) {
+      return res.status(429).json({
+        error:
+          "Muitas solicitações foram realizadas a partir desta rede. Tente novamente em alguns minutos.",
+        code: "IP_RATE_LIMIT",
+      });
+    }
+
+   
+
+    const {
+      prompt: promptOriginal,
+      contexto: contextoOriginal = [],
+    } = req.body || {};
+
+    const prompt =
+      sanitizarTexto(promptOriginal);
+
+    const contexto =
+      sanitizarContexto(contextoOriginal);
+
+    if (!prompt) {
+      return res.status(400).json({
+        error: "A pergunta não pode estar vazia.",
+      });
+    }
+
+   
+
+    const contextoRAG =
+      await construirContextoRAG({
+        pergunta: prompt,
+        contexto,
+        uid,
+      });
+
+
+    try {
+      const resultado =
+        await chamarGemini({
+          prompt,
+          contextoRAG,
+        });
+
+      await registrarMetrica(uid, {
+        provider: "gemini",
+      });
+
+      return res.status(200).json({
+        resposta: resultado.resposta,
+        provider: "gemini",
+        attempts: resultado.tentativa,
+        usage: {
+          remaining:
+            limiteUsuario.remaining,
+        },
+      });
+    } catch (geminiError) {
+      console.error(
+        "[AURA] Gemini falhou:",
+        geminiError?.message
+      );
+
+
+      try {
+        const resultado =
+          await chamarGroq({
+            prompt,
+            contextoRAG,
+          });
+
+        await registrarMetrica(uid, {
+          provider: "groq",
+          fallback: true,
+        });
+
+        return res.status(200).json({
+          resposta: resultado.resposta,
+          provider: "groq",
+          fallback: true,
+          attempts: resultado.tentativa,
+          usage: {
+            remaining:
+              limiteUsuario.remaining,
+          },
+        });
+      } catch (groqError) {
+        console.error(
+          "[AURA] Groq também falhou:",
+          groqError?.message
+        );
+
+        await registrarMetrica(uid, {
+          error: true,
+        });
+
+        return res.status(503).json({
+          error:
+            "A AURA está temporariamente indisponível. Tente novamente em instantes.",
+          code: "AI_UNAVAILABLE",
+        });
+      }
+    }
   } catch (error) {
-    // ========================================================
-    // ERRO DE REDE / SERVIDOR
-    // ========================================================
-
     console.error(
-      "=================================================="
+      "[AURA] Erro:",
+      error?.message
     );
 
-    console.error(
-      "[AURA] ERRO AO CONECTAR COM O GEMINI"
-    );
+    if (error?.message === "AUTH_REQUIRED") {
+      return res.status(401).json({
+        error:
+          "É necessário estar autenticado para utilizar a AURA.",
+        code: "AUTH_REQUIRED",
+      });
+    }
 
-    console.error(error);
+    /*
+     * Erro de token Firebase
+     */
+    if (
+      error?.code ===
+        "auth/id-token-expired" ||
+      error?.code ===
+        "auth/argument-error" ||
+      error?.code ===
+        "auth/id-token-revoked"
+    ) {
+      return res.status(401).json({
+        error:
+          "Sua sessão expirou. Faça login novamente.",
+        code: "AUTH_INVALID",
+      });
+    }
 
-    console.error(
-      "=================================================="
-    );
+    if (uid) {
+      await registrarMetrica(uid, {
+        error: true,
+      });
+    }
 
     return res.status(500).json({
       error:
-        "Erro ao processar sua mensagem.",
+        "Não foi possível processar a solicitação.",
+      code: "AURA_INTERNAL_ERROR",
     });
   }
 }
