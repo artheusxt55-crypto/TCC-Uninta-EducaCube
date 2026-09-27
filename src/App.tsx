@@ -3,26 +3,54 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuraAI from "./pages/AuraAI";
 import LabPage from "./pages/LabPage";
 import LoginPage from "./pages/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-/* =========================================================
- * APP — ROTEADOR
- *
- * A Home (LabPage) e seus módulos vivem em ./pages/LabPage e
- * ./components/home. Rotas inalteradas: /login, /aura e a Home
- * como fallback (/*).
- * ========================================================= */
+
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/login/" element={<LoginPage />} />
 
-                <Route path="/aura" element={<AuraAI />} />
-                <Route path="/aura/" element={<AuraAI />} />
+                {
+                <Route
+                    path="/login"
+                    element={<LoginPage />}
+                />
 
-                <Route path="/*" element={<LabPage />} />
+                <Route
+                    path="/login/"
+                    element={<LoginPage />}
+                />
+
+
+                {
+
+                <Route
+                    path="/aura"
+                    element={
+                        <ProtectedRoute>
+                            <AuraAI />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/aura/"
+                    element={
+                        <ProtectedRoute>
+                            <AuraAI />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+               
+                <Route
+                    path="/*"
+                    element={<LabPage />}
+                />
+
             </Routes>
         </BrowserRouter>
     );
