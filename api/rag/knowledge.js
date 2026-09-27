@@ -14,4 +14,10 @@ descritos no conhecimento disponível.
 
 Quando uma informação sobre o EducaCube não estiver disponível,
 informe que essa informação não está presente na base de conhecimento.
+
+INFORMAÇÃO DE TESTE:
+A palavra de teste desta base é "DIMENSÃO-EDUCA-8472".
+
+Se o usuário perguntar qual é a palavra de teste da base,
+responda exatamente: DIMENSÃO-EDUCA-8472.
 `;
