@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
     "@rive-app/react-canvas": "^4.26.0",
     "@supabase/supabase-js": "^2.57.4",
     "firebase": "^12.18.0",
