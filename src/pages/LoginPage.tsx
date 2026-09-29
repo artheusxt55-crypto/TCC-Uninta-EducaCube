@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
@@ -32,6 +31,7 @@ import {
 import "../styles/login.css";
 
 type ModoAutenticacao = "login" | "cadastro";
+type TipoUsuario = "aluno" | "professor";
 
 const EMAIL_SALVO_KEY = "educacube_saved_email";
 
@@ -92,6 +92,7 @@ function obterMensagemErroFirebase(error: unknown): string {
 async function registrarUsuarioFirestore(
   user: User,
   nome?: string,
+  tipoUsuario?: TipoUsuario,
 ) {
   const referencia = doc(db, "usuarios", user.uid);
 
@@ -105,6 +106,7 @@ async function registrarUsuarioFirestore(
         "Usuário EducaCube",
       email: user.email || "",
       foto: user.photoURL || "",
+      ...(tipoUsuario ? { tipoUsuario } : {}),
       ultimoLogin: serverTimestamp(),
       criadoEm: serverTimestamp(),
     },
@@ -150,6 +152,9 @@ export default function LoginPage() {
   const [modo, setModo] =
     useState<ModoAutenticacao>("login");
 
+  const [tipoUsuario, setTipoUsuario] =
+    useState<TipoUsuario>("aluno");
+
   const [emailInput, setEmailInput] = useState("");
   const [senhaInput, setSenhaInput] = useState("");
   const [confirmarSenhaInput, setConfirmarSenhaInput] =
@@ -190,7 +195,7 @@ export default function LoginPage() {
   }
 
   async function finalizarLogin(user: User) {
-    await registrarUsuarioFirestore(user);
+    await registrarUsuarioFirestore(user, undefined, tipoUsuario);
     await registrarAcessoApi(user);
 
     if (lembrarLogin) {
@@ -202,7 +207,10 @@ export default function LoginPage() {
       window.localStorage.removeItem(EMAIL_SALVO_KEY);
     }
 
-    window.location.href = "/aura";
+    window.location.href =
+      tipoUsuario === "professor"
+        ? "/app/dashboard/professor"
+        : "/app/dashboard/aluno";
   }
 
   async function handleLogin(
@@ -290,12 +298,16 @@ export default function LoginPage() {
       await registrarUsuarioFirestore(
         resultado.user,
         nome,
+        tipoUsuario,
       );
 
       await registrarAcessoApi(resultado.user);
       await enviarVerificacaoApi(resultado.user);
 
-      window.location.href = "/aura";
+      window.location.href =
+        tipoUsuario === "professor"
+          ? "/app/dashboard/professor"
+          : "/app/dashboard/aluno";
     } catch (error) {
       setMensagemErro(
         obterMensagemErroFirebase(error),
@@ -315,10 +327,13 @@ export default function LoginPage() {
         googleProvider,
       );
 
-      await registrarUsuarioFirestore(resultado.user);
+      await registrarUsuarioFirestore(resultado.user, undefined, tipoUsuario);
       await registrarAcessoApi(resultado.user);
 
-      window.location.href = "/aura";
+      window.location.href =
+        tipoUsuario === "professor"
+          ? "/app/dashboard/professor"
+          : "/app/dashboard/aluno";
     } catch (error) {
       setMensagemErro(
         obterMensagemErroFirebase(error),
@@ -386,7 +401,9 @@ export default function LoginPage() {
                 <span className="login-eyebrow">
                   {estaNoCadastro
                     ? "NOVO ACESSO"
-                    : "ÁREA DO ALUNO"}
+                    : tipoUsuario === "professor"
+                      ? "ÁREA DO PROFESSOR"
+                      : "ÁREA DO ALUNO"}
                 </span>
 
                 <h1 className="login-title">
@@ -406,9 +423,38 @@ export default function LoginPage() {
                 <p className="login-description">
                   {estaNoCadastro
                     ? "Preencha seus dados para acessar o EducaCube."
-                    : "Acesse sua conta para continuar seus estudos no EducaCube."}
+                    : tipoUsuario === "professor"
+                      ? "Acesse sua conta para continuar seu trabalho no EducaCube."
+                      : "Acesse sua conta para continuar seus estudos no EducaCube."}
                 </p>
               </header>
+
+              <div className="login-role-selector" aria-label="Escolha seu perfil">
+                <span className="login-role-label">Você está entrando como</span>
+                <div className="login-role-options">
+                  <button
+                    type="button"
+                    className={`login-role-option ${tipoUsuario === "aluno" ? "is-active" : ""}`}
+                    onClick={() => setTipoUsuario("aluno")}
+                    disabled={carregandoAuth}
+                    aria-pressed={tipoUsuario === "aluno"}
+                  >
+                    <span className="login-role-option-title">Aluno</span>
+                    <span className="login-role-option-description">Acessar meus estudos</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`login-role-option ${tipoUsuario === "professor" ? "is-active" : ""}`}
+                    onClick={() => setTipoUsuario("professor")}
+                    disabled={carregandoAuth}
+                    aria-pressed={tipoUsuario === "professor"}
+                  >
+                    <span className="login-role-option-title">Professor</span>
+                    <span className="login-role-option-description">Gerenciar minhas turmas</span>
+                  </button>
+                </div>
+              </div>
 
               {mensagemErro && (
                 <div
@@ -720,7 +766,7 @@ export default function LoginPage() {
             </div>
 
             <footer className="login-footer">
-              EducaCube · Área do Aluno
+              EducaCube · Área do {tipoUsuario === "professor" ? "Professor" : "Aluno"}
             </footer>
 
           </div>
@@ -742,7 +788,7 @@ export default function LoginPage() {
             <div className="login-right-main">
 
               <span className="login-right-kicker">
-                ÁREA DO ALUNO
+                {tipoUsuario === "professor" ? "ÁREA DO PROFESSOR" : "ÁREA DO ALUNO"}
               </span>
 
               <h2>
