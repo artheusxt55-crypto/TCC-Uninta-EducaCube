@@ -1,6 +1,6 @@
-import '../styles/DashboardProfessor.css';
+import '../styles/Dashboardprofessor.css';
 import { Shell, Card, List, Calendar, StateBox, useMockData, type NavItem } from '../components/dashboard/shared';
-import { professorMock } from '../mocks/dashboardMocks';
+import { professorMock } from '../components/mocks/dashboardMocks';
 
 const nav: NavItem[] = [
   { label: 'Início', icon: '⌂', to: '/app/dashboard/professor' },
