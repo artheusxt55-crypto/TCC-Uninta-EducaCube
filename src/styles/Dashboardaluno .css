@@ -1,0 +1,7 @@
+/* Específico do Aluno */
+.dsh-aluno .goal{display:flex;gap:12px;align-items:center}.dsh-aluno .goal .dsh-bar{flex:1}
+.dsh-aluno .well{text-align:center;background:radial-gradient(300px 200px at 50% 20%,#3a1fa855,transparent),#0b0822}
+.dsh-aluno .well .art{font-size:64px}.dsh-aluno .well h3{margin:6px 0}
+.dsh-aluno .chat{width:100%;margin-top:10px;background:#0c0824;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--lav);font-size:13px}
+.dsh-aluno .mascot-card{min-height:190px;display:flex;align-items:flex-end;justify-content:space-between;font-size:110px;line-height:1;padding-bottom:0}
+.dsh-aluno .mascot-card blockquote{margin:0 0 40px;font-size:13px;border:1px solid var(--line);border-radius:12px;padding:12px;max-width:150px}
