@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { Status, Item } from '../../mocks/dashboardMocks';
-import '../../pages/dashboard-shared.css';
+import '../../styles/dashboard-shared.css';
 
 export interface NavItem { label: string; icon: string; badge?: number; to: string; isExit?: boolean }
 
