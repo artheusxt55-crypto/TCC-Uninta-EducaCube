@@ -1,0 +1,18 @@
+/* Específico do Professor */
+.dsh-prof .tabs{display:grid;grid-template-columns:repeat(3,1fr);background:#120c33;border-radius:8px;padding:3px;margin-bottom:12px;font-size:12px;text-align:center}
+.dsh-prof .tabs span{padding:7px;border-radius:6px;color:var(--mut)}.dsh-prof .tabs .on{background:#6d3df0;color:#fff}
+.dsh-prof .perf{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:center}
+.dsh-prof .donut{width:130px;height:130px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#6d3df0 82%,#1e1655 0)}
+.dsh-prof .donut div{width:98px;height:98px;border-radius:50%;background:#0b0822;display:grid;place-items:center;text-align:center;font-size:24px}
+.dsh-prof .legend{font-size:12px;display:grid;gap:8px}.dsh-prof .legend b{display:block;font-size:14px;font-weight:500}
+.dsh-prof .line{width:100%;height:90px;margin-top:8px}
+.dsh-prof .tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.dsh-prof .tool{border:1px solid var(--line);border-radius:10px;padding:12px;background:#0c0824;display:grid;gap:4px;font-size:13px;min-height:110px}
+.dsh-prof .tool:hover{border-color:var(--pri)}
+.dsh-prof .dsh-bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px}
+.dsh-prof .today-row{border-left:3px solid #d0409a}
+.dsh-prof .promo{position:relative;overflow:hidden}.dsh-prof .promo p{max-width:200px;font-size:13px;color:#cfc7f5}
+.dsh-prof .promo .art{position:absolute;right:6px;bottom:0;font-size:90px;opacity:.85}
+@media (max-width:1180px){.dsh-prof .tools{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:900px){.dsh-prof .dsh-bottom{grid-template-columns:1fr}.dsh-prof .tools{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.dsh-prof .perf{grid-template-columns:1fr;justify-items:center}}
