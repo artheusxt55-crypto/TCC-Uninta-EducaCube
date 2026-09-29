@@ -1,10 +1,4 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400&family=Poppins:wght@700&display=swap");
-
-/* =========================================================
-   EDUCACUBE — LOGIN
-   PRETO + ROXO #170033
-   ========================================================= */
 
 .login-page {
   --login-black: #0A0A0A;
@@ -928,5 +922,77 @@
   .login-page .login-primary-button,
   .login-page .login-google-button {
     transition: none;
+  }
+}
+
+/* Seleção de perfil: aluno ou professor */
+.login-role-selector {
+  margin: 0 0 22px;
+}
+
+.login-role-label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+
+.login-role-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.login-role-option {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  color: inherit;
+  padding: 13px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.login-role-option:hover:not(:disabled) {
+  border-color: rgba(143, 108, 255, 0.45);
+  background: rgba(143, 108, 255, 0.07);
+  transform: translateY(-1px);
+}
+
+.login-role-option.is-active {
+  border-color: rgba(143, 108, 255, 0.85);
+  background: rgba(143, 108, 255, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(143, 108, 255, 0.16);
+}
+
+.login-role-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.login-role-option-title,
+.login-role-option-description {
+  display: block;
+}
+
+.login-role-option-title {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.login-role-option-description {
+  margin-top: 3px;
+  font-size: 0.72rem;
+  opacity: 0.58;
+}
+
+@media (max-width: 520px) {
+  .login-role-options {
+    grid-template-columns: 1fr;
   }
 }
