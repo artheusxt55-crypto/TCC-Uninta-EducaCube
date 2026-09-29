@@ -1,6 +1,6 @@
-import '../styles/DashboardAluno.css';
+import '../styles/Dashboardaluno.css';
 import { Shell, Card, List, Calendar, AuraCard, StateBox, useMockData, type NavItem } from '../components/dashboard/shared';
-import { alunoMock } from '../mocks/dashboardMocks';
+import { alunoMock } from '../components/mocks/dashboardMocks';
 
 const nav: NavItem[] = [
   { label: 'Início', icon: '⌂', to: '/app/dashboard/aluno' },
