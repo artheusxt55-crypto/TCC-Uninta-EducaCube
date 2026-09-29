@@ -4,6 +4,8 @@ import AuraAI from "./pages/AuraAI";
 import LabPage from "./pages/LabPage";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardAluno from "./pages/DashboardAluno";
+import DashboardProfessor from "./pages/DashboardProfessor";
 
 function App() {
   return (
@@ -12,6 +14,25 @@ function App() {
         {/* Página de login */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/login/" element={<LoginPage />} />
+
+        {/* Dashboards protegidos por autenticação */}
+        <Route
+          path="/app/dashboard/aluno/*"
+          element={
+            <ProtectedRoute>
+              <DashboardAluno />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/app/dashboard/professor/*"
+          element={
+            <ProtectedRoute>
+              <DashboardProfessor />
+            </ProtectedRoute>
+          }
+        />
 
         {/* AURA protegida por autenticação */}
         <Route
