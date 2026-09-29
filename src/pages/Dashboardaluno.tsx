@@ -1,4 +1,4 @@
-import './DashboardAluno.css';
+import '../styles/DashboardAluno.css';
 import { Shell, Card, List, Calendar, AuraCard, StateBox, useMockData, type NavItem } from '../components/dashboard/shared';
 import { alunoMock } from '../mocks/dashboardMocks';
 
