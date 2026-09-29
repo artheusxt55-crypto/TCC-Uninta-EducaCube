@@ -1,4 +1,4 @@
-import './DashboardProfessor.css';
+import '../styles/DashboardProfessor.css';
 import { Shell, Card, List, Calendar, StateBox, useMockData, type NavItem } from '../components/dashboard/shared';
 import { professorMock } from '../mocks/dashboardMocks';
 
