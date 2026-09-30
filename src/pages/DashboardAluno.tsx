@@ -1,4 +1,8 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 
 import { StateBox } from '../components/dashboard/shared';
 
@@ -12,12 +16,12 @@ import {
   dataExtenso,
   useLoggedUser,
   useMockData,
-  type EcItem,
   type EcNavItem,
+  type EcItem,
   type IconName,
 } from '../components/dashboard/ecShared';
 
-import { alunoMock } from '../components/mocks/dashboardMocks';
+import { professorMock } from '../components/mocks/dashboardMocks';
 
 const A = '/assets/dashboard';
 
@@ -25,100 +29,133 @@ const nav: EcNavItem[] = [
   {
     label: 'Dashboard',
     icon: 'home',
-    to: '/app/dashboard/aluno',
+    to: '/app/dashboard/professor',
   },
   {
-    label: 'Minhas Disciplinas',
+    label: 'Turmas',
+    icon: 'users',
+    to: '/app/dashboard/professor/turmas',
+  },
+  {
+    label: 'Meus Alunos',
+    icon: 'user',
+    to: '/app/dashboard/professor/alunos',
+  },
+  {
+    label: 'Conteúdos',
     icon: 'book',
-    to: '/app/dashboard/aluno/disciplinas',
-  },
-  {
-    label: 'Atividades',
-    icon: 'file',
-    to: '/app/dashboard/aluno/atividades',
+    to: '/app/dashboard/professor/conteudos',
   },
   {
     label: 'Avaliações',
     icon: 'editsq',
-    to: '/app/dashboard/aluno/avaliacoes',
+    to: '/app/dashboard/professor/avaliacoes',
   },
   {
-    label: 'Notas',
-    icon: 'chart',
-    to: '/app/dashboard/aluno/notas',
+    label: 'Atividades',
+    icon: 'file',
+    to: '/app/dashboard/professor/atividades',
   },
   {
-    label: 'Calendário',
-    icon: 'cal',
-    to: '/app/dashboard/aluno/calendario',
+    label: 'Correções',
+    icon: 'checksq',
+    to: '/app/dashboard/professor/correcoes',
   },
   {
     label: 'Biblioteca',
     icon: 'tasks',
-    to: '/app/dashboard/aluno/biblioteca',
+    to: '/app/dashboard/professor/biblioteca',
   },
   {
-    label: 'Aura IA',
+    label: 'IA - Aura',
     icon: 'spark',
-    to: '/app/dashboard/aluno/aura',
+    to: '/app/dashboard/professor/aura',
+  },
+  {
+    label: 'Relatórios',
+    icon: 'chart',
+    to: '/app/dashboard/professor/relatorios',
+  },
+  {
+    label: 'Calendário',
+    icon: 'cal',
+    to: '/app/dashboard/professor/calendario',
   },
   {
     label: 'Configurações',
     icon: 'gear',
-    to: '/app/dashboard/aluno/configuracoes',
+    to: '/app/dashboard/professor/configuracoes',
   },
 ];
 
 const KPI_ICONS: IconName[] = [
+  'users',
+  'users',
   'editsq',
   'checksq',
-  'chart',
+];
+
+const TOOL_ICONS: IconName[] = [
+  'editsq',
+  'checksq',
+  'spark',
+  'upload',
   'book',
 ];
 
-const DISC_ICONS: IconName[] = [
-  'pi',
-  'lang',
-  'flask',
-  'bank',
-  'editsq',
-];
-
-const ATIV_COLORS = [
+const TURMA_COLORS = [
   '#6d28f9',
   '#1f6be8',
   '#12a97a',
   '#f0a01c',
+  '#d0289f',
+];
+
+const HOJE_COLORS = [
+  '#c0269f',
+  '#12a394',
+  '#c0269f',
+];
+
+const ATIV_COLORS = [
+  '#c0269f',
+  '#c0269f',
+  '#4b1fc7',
 ];
 
 const AVATARS = [
-  `${A}/aluno-av1.png`,
-  `${A}/aluno-av2.png`,
-  `${A}/aluno-av3.png`,
+  `${A}/prof-av1.png`,
+  `${A}/prof-av2.png`,
+  `${A}/prof-av3.png`,
 ];
 
-const str = (v: unknown): string | undefined =>
-  typeof v === 'string' ? v : undefined;
+const TABS = [
+  'Visão geral',
+  'Por turma',
+  'Por matéria',
+];
 
-function slug(s = ''): string {
-  return s
+const slug = (s = '') =>
+  s
     .normalize('NFD')
     .replace(/[\u0300-\u036f\s]/g, '')
     .toLowerCase();
-}
 
-function disciplinaIcon(nome: string): IconName {
-  const s = slug(nome);
+function turmaIcon(t: string): IconName {
+  const s = slug(t);
 
   if (s.includes('matem')) return 'pi';
   if (s.includes('ingl')) return 'lang';
   if (s.includes('cienc')) return 'flask';
   if (s.includes('hist')) return 'bank';
 
-  return 'book';
+  return 'editsq';
 }
 
-function Gate(props: {
+const str = (v: unknown): string | undefined =>
+  typeof v === 'string' ? v : undefined;
+
+function Gate(p: {
   status: string;
   items?: readonly unknown[];
   empty: string;
@@ -127,67 +164,72 @@ function Gate(props: {
   children: ReactNode;
 }) {
   if (
-    props.status !== 'ready' ||
-    !props.items?.length
+    p.status !== 'ready' ||
+    !p.items?.length
   ) {
     return (
       <StateBox
         status={
-          (props.status === 'ready'
+          (p.status === 'ready'
             ? 'empty'
-            : props.status) as React.ComponentProps<
+            : p.status) as React.ComponentProps<
             typeof StateBox
           >['status']
         }
-        empty={props.empty}
-        emptyText={props.emptyText}
-        onRetry={props.retry}
+        empty={p.empty}
+        emptyText={p.emptyText}
+        onRetry={p.retry}
       />
     );
   }
 
-  return <>{props.children}</>;
+  return <>{p.children}</>;
 }
 
-export default function DashboardAluno() {
-  const { status, data, retry } =
-    useMockData(alunoMock);
+export default function DashboardProfessor() {
+  const {
+    status,
+    data,
+    retry,
+  } = useMockData(professorMock);
 
-  const d = data ?? alunoMock;
+  const d = data ?? professorMock;
 
-  const { full } = useLoggedUser('Aluno');
+  const { full } =
+    useLoggedUser('João Silva');
 
   const [tab, setTab] = useState(0);
 
-  const desempenho = d.desempenho;
+  const des = d.desempenho;
 
-  const media =
-    typeof desempenho.media === 'number'
-      ? desempenho.media
-      : 0;
+  const media = des.media;
 
-  const evolucao: number[] =
-    Array.isArray(desempenho.evolucao)
-      ? desempenho.evolucao.map((value) =>
-          Number(value),
+  const evo: number[] =
+    Array.isArray(des.evolucao)
+      ? des.evolucao.map(
+          (value: number) =>
+            Number(value),
         )
       : [];
 
-  const yOf = (v: number): number =>
+  const yOf = (v: number) =>
     Math.min(
       100,
       Math.max(
         0,
-        100 - ((v - 20) / 80) * 100,
+        100 -
+          ((v - 20) / 80) *
+            100,
       ),
     );
 
-  const xOf = (i: number): number =>
-    evolucao.length > 1
-      ? (i / (evolucao.length - 1)) * 100
+  const xOf = (i: number) =>
+    evo.length > 1
+      ? (i / (evo.length - 1)) *
+        100
       : 0;
 
-  const line = evolucao
+  const line = evo
     .map(
       (v: number, i: number) =>
         `${xOf(i)},${yOf(v)}`,
@@ -197,39 +239,43 @@ export default function DashboardAluno() {
   const legend = [
     {
       c: '#12c192',
-      t: 'Acima da média',
-      v: desempenho.acima,
+      t: 'Aprovados',
+      v: des.aprovados,
     },
     {
       c: '#f0a01c',
-      t: 'Na média',
-      v: desempenho.mediaQtd,
+      t: 'Em recuperação',
+      v: des.recuperacao,
     },
     {
       c: '#ef3b4a',
       t: 'Abaixo da média',
-      v: desempenho.abaixo,
+      v: des.abaixo,
     },
   ];
 
   return (
     <EcShell
-      pageClass="dsh-aluno"
+      pageClass="dsh-prof"
       nav={nav}
       active="Dashboard"
-      role="Aluno"
-      userName={full}
-      searchPlaceholder="Buscar disciplinas, atividades, conteúdos..."
+      role="Professor"
+      userName={
+        /^prof/i.test(full)
+          ? full
+          : `Prof. ${full}`
+      }
+      searchPlaceholder="Buscar alunos, turmas, conteúdos, avaliações..."
       themeToggle
-      mascotImg={`${A}/aluno-mascot-sidebar.png`}
-      footerLogo={`${A}/aluno-logo-outline.png`}
+      mascotImg={`${A}/prof-owl-sidebar.png`}
+      footerLogo={`${A}/prof-logo-outline.png`}
       mascotText={
         <>
-          Continue
+          Juntos por
           <br />
-          aprendendo e
+          uma educação
           <br />
-          evoluindo!
+          mais inteligente.
         </>
       }
       aside={
@@ -238,7 +284,9 @@ export default function DashboardAluno() {
             <div className="ec-hoje-h">
               <h2>Hoje</h2>
 
-              <small>{dataExtenso()}</small>
+              <small>
+                {dataExtenso()}
+              </small>
 
               <Icon
                 name="cal"
@@ -249,23 +297,29 @@ export default function DashboardAluno() {
             <Gate
               status={status}
               items={d.hoje}
-              empty="Nada para hoje"
-              emptyText="Suas atividades do dia aparecem aqui."
+              empty="Nada na agenda hoje"
+              emptyText="Seus compromissos do dia aparecem aqui."
               retry={retry}
             >
               <div className="ec-acc-list">
-                {(d.hoje as unknown as EcItem[]).map(
-                  (h: EcItem, i: number) => (
+                {(
+                  d.hoje as unknown as EcItem[]
+                ).map(
+                  (
+                    h: EcItem,
+                    i: number,
+                  ) => (
                     <a
-                      key={h.id ?? i}
+                      key={
+                        h.id ?? i
+                      }
                       href="#"
                       className="ec-acc"
                       style={
                         {
                           '--c':
-                            ATIV_COLORS[
-                              i %
-                                ATIV_COLORS.length
+                            HOJE_COLORS[
+                              i % 3
                             ],
                         } as CSSProperties
                       }
@@ -275,20 +329,27 @@ export default function DashboardAluno() {
                           name={
                             i === 1
                               ? 'lang'
-                              : i === 2
-                                ? 'checksq'
-                                : 'editsq'
+                              : 'editsq'
                           }
                           size={18}
                         />
                       </span>
 
                       <div className="ec-rb">
-                        <b>{h.title}</b>
-                        <small>{h.sub}</small>
+                        <b>
+                          {h.title}
+                        </b>
+
+                        <small>
+                          {h.sub}
+                        </small>
                       </div>
 
-                      <Pill text={h.pill} />
+                      <Pill
+                        text={
+                          h.pill
+                        }
+                      />
                     </a>
                   ),
                 )}
@@ -297,38 +358,41 @@ export default function DashboardAluno() {
           </EcCard>
 
           <EcCalendar
-            title="Meu calendário"
+            title="Calendário de aulas e atividades"
             link={false}
           />
 
           <EcCard
             title="Próximas atividades"
             link="Ver todas"
-            href="/app/dashboard/aluno/atividades"
+            href="/app/dashboard/professor/atividades"
           >
             <Gate
               status={status}
               items={d.proximas}
               empty="Nenhuma atividade"
-              emptyText="As próximas atividades aparecerão aqui."
+              emptyText="Crie uma atividade para vê-la aqui."
               retry={retry}
             >
               <div className="ec-acc-list flat">
-                {(d.proximas as unknown as EcItem[]).map(
+                {(
+                  d.proximas as unknown as EcItem[]
+                ).map(
                   (
-                    item: EcItem,
+                    h: EcItem,
                     i: number,
                   ) => (
                     <a
-                      key={item.id ?? i}
+                      key={
+                        h.id ?? i
+                      }
                       href="#"
                       className="ec-acc"
                       style={
                         {
                           '--c':
                             ATIV_COLORS[
-                              i %
-                                ATIV_COLORS.length
+                              i % 3
                             ],
                         } as CSSProperties
                       }
@@ -338,27 +402,35 @@ export default function DashboardAluno() {
                         style={{
                           background:
                             ATIV_COLORS[
-                              i %
-                                ATIV_COLORS.length
+                              i % 3
                             ],
                         }}
                       >
                         <Icon
                           name={
-                            i % 2 === 0
-                              ? 'editsq'
-                              : 'book'
+                            i === 2
+                              ? 'bank'
+                              : 'editsq'
                           }
                           size={18}
                         />
                       </span>
 
                       <div className="ec-rb">
-                        <b>{item.title}</b>
-                        <small>{item.sub}</small>
+                        <b>
+                          {h.title}
+                        </b>
+
+                        <small>
+                          {h.sub}
+                        </small>
                       </div>
 
-                      <Pill text={item.pill} />
+                      <Pill
+                        text={
+                          h.pill
+                        }
+                      />
                     </a>
                   ),
                 )}
@@ -374,7 +446,7 @@ export default function DashboardAluno() {
 
             <div className="ec-aura-h slim">
               <img
-                src={`${A}/aluno-aura-icon.png`}
+                src={`${A}/prof-aura-icon.png`}
                 alt=""
                 width={26}
                 height={26}
@@ -382,14 +454,17 @@ export default function DashboardAluno() {
               />
 
               <b>
-                Aura IA <em>Beta</em>
+                Aura IA{' '}
+                <em>Beta</em>
               </b>
             </div>
 
             <p>
-              Tire dúvidas, revise conteúdos,
-              organize seus estudos e aprenda
-              de forma mais inteligente.
+              Planeje aulas, crie
+              atividades, gere
+              avaliações e muito
+              mais com o poder da
+              IA.
             </p>
 
             <a
@@ -408,15 +483,15 @@ export default function DashboardAluno() {
       }
     >
       <EcHero
-        title="Olá, Aluno!"
-        sub="Vamos continuar aprendendo?"
-        text="Acompanhe suas atividades, notas, disciplinas e tudo o que você precisa para evoluir nos estudos."
-        cta="Ver minhas atividades"
-        ctaLeft="editsq"
-        ctaRight="arrow"
-        href="/app/dashboard/aluno/atividades"
-        quote="Cada novo conhecimento é um passo a mais na sua evolução."
-        art={`${A}/aluno-hero-scene.png`}
+        title="Olá, Professor!"
+        sub="Você está fazendo a diferença!"
+        text="Aqui você encontra todas as ferramentas para planejar, ensinar, acompanhar e evoluir com seus alunos."
+        cta="Criar nova atividade"
+        ctaLeft="plusc"
+        ctaRight="plus"
+        href="/app/atividades/nova"
+        quote="Grandes conquistas começam com bons professores."
+        art={`${A}/prof-hero-scene.png`}
         artWidth={506}
       />
 
@@ -425,96 +500,87 @@ export default function DashboardAluno() {
           (
             k: {
               label: string;
-              value: string;
+              value: string | number;
               sub?: string;
-              of?: string;
-              pct?: number;
-              trend?: string;
-              icon?: string;
             },
             i: number,
-          ) => {
-            const sub =
-              k.sub ??
-              k.trend ??
-              k.of ??
-              '';
+          ) => (
+            <EcCard
+              key={`${k.label}-${i}`}
+              className="ec-kpi"
+            >
+              <span className="ec-kic pr">
+                <Icon
+                  name={
+                    KPI_ICONS[
+                      i % 4
+                    ]
+                  }
+                  size={26}
+                />
+              </span>
 
-            return (
-              <EcCard
-                key={`${k.label}-${i}`}
-                className="ec-kpi"
-              >
-                <span className="ec-kic pr">
-                  <Icon
-                    name={
-                      KPI_ICONS[
-                        i %
-                          KPI_ICONS.length
-                      ]
-                    }
-                    size={26}
-                  />
+              <div className="ec-rb">
+                <small>
+                  {k.label}
+                </small>
+
+                <b>
+                  {status ===
+                  'loading'
+                    ? '–'
+                    : k.value}
+                </b>
+
+                <span
+                  className={`ec-sub ${
+                    String(
+                      k.sub ?? '',
+                    ).startsWith(
+                      '+',
+                    )
+                      ? 'up'
+                      : ''
+                  }`}
+                >
+                  {k.sub}
                 </span>
-
-                <div className="ec-rb">
-                  <small>{k.label}</small>
-
-                  <b>
-                    {status === 'loading'
-                      ? '–'
-                      : k.value}
-                  </b>
-
-                  <span
-                    className={`ec-sub ${
-                      String(sub).startsWith('+') ||
-                      String(sub).startsWith('↑')
-                        ? 'up'
-                        : ''
-                    }`}
-                  >
-                    {sub}
-                  </span>
-                </div>
-              </EcCard>
-            );
-          },
+              </div>
+            </EcCard>
+          ),
         )}
       </div>
 
       <div className="ec-cols turmas">
         <EcCard
-          title="Minhas disciplinas"
+          title="Minhas turmas"
           link="Ver todas"
-          href="/app/dashboard/aluno/disciplinas"
+          href="/app/dashboard/professor/turmas"
         >
           <Gate
             status={status}
-            items={d.disciplinas}
-            empty="Nenhuma disciplina"
-            emptyText="Suas disciplinas aparecerão aqui."
+            items={d.turmas}
+            empty="Nenhuma turma"
+            emptyText="Crie sua primeira turma para começar."
             retry={retry}
           >
             <div className="ec-turmas">
               {(
-                d.disciplinas as unknown as EcItem[]
+                d.turmas as unknown as EcItem[]
               ).map(
                 (
-                  disciplina: EcItem,
+                  t: EcItem,
                   i: number,
                 ) => {
                   const c =
-                    ATIV_COLORS[
-                      i %
-                        ATIV_COLORS.length
+                    TURMA_COLORS[
+                      i % 5
                     ];
 
                   return (
                     <a
                       key={
-                        disciplina.id ??
-                        i
+                        t.id ?? i
                       }
                       href="#"
                       className="ec-turma"
@@ -526,8 +592,8 @@ export default function DashboardAluno() {
                         }}
                       >
                         <Icon
-                          name={disciplinaIcon(
-                            disciplina.title,
+                          name={turmaIcon(
+                            t.title,
                           )}
                           size={26}
                         />
@@ -535,21 +601,22 @@ export default function DashboardAluno() {
 
                       <div className="ec-rb">
                         <b>
-                          {disciplina.title}
+                          {t.title}
                         </b>
 
                         <small>
-                          {disciplina.sub}
+                          {t.sub}
                         </small>
 
                         <div className="ec-bar">
                           <i
                             style={{
                               width: `${
-                                disciplina.pct ??
+                                t.pct ??
                                 0
                               }%`,
-                              background: c,
+                              background:
+                                c,
                             }}
                           />
                         </div>
@@ -557,13 +624,13 @@ export default function DashboardAluno() {
 
                       <div className="ec-tr">
                         <b>
-                          {disciplina.pct ??
+                          {t.pct ??
                             0}
                           %
                         </b>
 
                         <small>
-                          concluído
+                          em andamento
                         </small>
                       </div>
 
@@ -579,16 +646,12 @@ export default function DashboardAluno() {
           </Gate>
         </EcCard>
 
-        <EcCard title="Meu desempenho">
+        <EcCard title="Desempenho dos alunos">
           <div
             className="ec-seg"
             role="tablist"
           >
-            {[
-              'Visão geral',
-              'Por disciplina',
-              'Evolução',
-            ].map(
+            {TABS.map(
               (
                 t: string,
                 i: number,
@@ -630,10 +693,12 @@ export default function DashboardAluno() {
                   }}
                 >
                   <div>
-                    <b>{media}%</b>
+                    <b>
+                      {media}%
+                    </b>
 
                     <small>
-                      Minha média
+                      Média geral
                     </small>
                   </div>
                 </div>
@@ -641,7 +706,7 @@ export default function DashboardAluno() {
                 <div className="ec-leg">
                   {legend.map(
                     (
-                      item: {
+                      l: {
                         c: string;
                         t: string;
                         v: [
@@ -652,23 +717,22 @@ export default function DashboardAluno() {
                       i: number,
                     ) => (
                       <div
-                        key={item.t}
+                        key={l.t}
                       >
                         <i
                           style={{
                             background:
-                              item.c,
+                              l.c,
                           }}
                         />
 
                         <span>
                           <small>
-                            {item.t}
+                            {l.t}
                           </small>
 
                           <b>
-                            {item.v?.[0] ??
-                              0}
+                            {l.v[0]}
                           </b>
                         </span>
 
@@ -679,9 +743,7 @@ export default function DashboardAluno() {
                               : ''
                           }
                         >
-                          {item.v?.[1] ??
-                            0}
-                          %
+                          {l.v[1]}%
                         </em>
                       </div>
                     ),
@@ -690,13 +752,13 @@ export default function DashboardAluno() {
               </div>
 
               <b className="ec-evo-t">
-                Minha evolução
+                Evolução da turma
               </b>
 
               <div
                 className="ec-chart"
                 role="img"
-                aria-label="Evolução do desempenho nas últimas semanas"
+                aria-label="Evolução da turma nas últimas semanas"
               >
                 <div className="ec-ylab">
                   {[100, 75, 50, 25].map(
@@ -730,9 +792,9 @@ export default function DashboardAluno() {
                       ),
                     )}
 
-                    {evolucao.map(
+                    {evo.map(
                       (
-                        _: number,
+                        _v: number,
                         i: number,
                       ) => (
                         <line
@@ -753,7 +815,7 @@ export default function DashboardAluno() {
                     />
                   </svg>
 
-                  {evolucao.map(
+                  {evo.map(
                     (
                       v: number,
                       i: number,
@@ -775,7 +837,6 @@ export default function DashboardAluno() {
                     'Sem 2',
                     'Sem 3',
                     'Sem 4',
-                    'Sem 5',
                   ].map(
                     (s: string) => (
                       <span key={s}>
@@ -791,22 +852,20 @@ export default function DashboardAluno() {
       </div>
 
       <div className="ec-cols bottom">
-        <EcCard title="Acesso rápido">
+        <EcCard title="Ferramentas rápidas">
           <div className="ec-tools5">
             {d.ferramentas
               .slice(0, 5)
               .map(
                 (
-                  ferramenta: {
+                  f: {
                     t: string;
                     s: string;
                   },
                   i: number,
                 ) => (
                   <a
-                    key={
-                      ferramenta.t
-                    }
+                    key={f.t}
                     href="#"
                   >
                     <span className="top">
@@ -819,9 +878,8 @@ export default function DashboardAluno() {
                       >
                         <Icon
                           name={
-                            DISC_ICONS[
-                              i %
-                                DISC_ICONS.length
+                            TOOL_ICONS[
+                              i % 5
                             ]
                           }
                           size={18}
@@ -834,16 +892,10 @@ export default function DashboardAluno() {
                       />
                     </span>
 
-                    <b>
-                      {
-                        ferramenta.t
-                      }
-                    </b>
+                    <b>{f.t}</b>
 
                     <small>
-                      {
-                        ferramenta.s
-                      }
+                      {f.s}
                     </small>
                   </a>
                 ),
@@ -852,16 +904,16 @@ export default function DashboardAluno() {
         </EcCard>
 
         <EcCard
-          title="Últimas atividades"
+          title="Últimas entregas"
           link="Ver todas"
-          href="/app/dashboard/aluno/atividades"
+          href="/app/dashboard/professor/correcoes"
           className="ec-entregas"
         >
           <Gate
             status={status}
             items={d.entregas}
-            empty="Nenhuma atividade recente"
-            emptyText="Suas atividades recentes aparecerão aqui."
+            empty="Nenhuma entrega"
+            emptyText="As entregas dos alunos aparecem aqui."
             retry={retry}
           >
             <div className="ec-ent-list">
@@ -869,13 +921,12 @@ export default function DashboardAluno() {
                 d.entregas as unknown as EcItem[]
               ).map(
                 (
-                  entrega: EcItem,
+                  e: EcItem,
                   i: number,
                 ) => (
                   <a
                     key={
-                      entrega.id ??
-                      i
+                      e.id ?? i
                     }
                     href="#"
                     className="ec-ent"
@@ -883,8 +934,7 @@ export default function DashboardAluno() {
                     <img
                       src={
                         AVATARS[
-                          i %
-                            AVATARS.length
+                          i % 3
                         ]
                       }
                       alt=""
@@ -893,34 +943,30 @@ export default function DashboardAluno() {
 
                     <div className="ec-rb">
                       <b>
-                        {
-                          entrega.title
-                        }
+                        {e.title}
                       </b>
 
                       <small>
-                        {
-                          entrega.sub
-                        }
+                        {e.sub}
                       </small>
                     </div>
 
                     <small className="when">
                       {str(
-                        entrega.hora,
+                        e.hora,
                       ) ??
                         str(
-                          entrega.time,
+                          e.time,
                         ) ??
                         str(
-                          entrega.quando,
+                          e.quando,
                         ) ??
                         ''}
                     </small>
 
                     <span className="ec-pill ok">
-                      {entrega.pill ??
-                        'Concluído'}
+                      {e.pill ??
+                        'Entregue'}
                     </span>
                   </a>
                 ),
