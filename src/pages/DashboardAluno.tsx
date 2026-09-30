@@ -13,6 +13,7 @@ import {
   useLoggedUser,
   useMockData,
   type EcItem,
+  type EcNavItem,
   type IconName,
 } from '../components/dashboard/ecShared';
 
@@ -20,7 +21,7 @@ import { alunoMock } from '../components/mocks/dashboardMocks';
 
 const A = '/assets/dashboard';
 
-const nav = [
+const nav: EcNavItem[] = [
   {
     label: 'Dashboard',
     icon: 'home',
@@ -66,7 +67,7 @@ const nav = [
     icon: 'gear',
     to: '/app/dashboard/aluno/configuracoes',
   },
-] as const;
+];
 
 const KPI_ICONS: IconName[] = [
   'editsq',
@@ -125,7 +126,10 @@ function Gate(props: {
   retry: () => void;
   children: ReactNode;
 }) {
-  if (props.status !== 'ready' || !props.items?.length) {
+  if (
+    props.status !== 'ready' ||
+    !props.items?.length
+  ) {
     return (
       <StateBox
         status={
@@ -146,7 +150,8 @@ function Gate(props: {
 }
 
 export default function DashboardAluno() {
-  const { status, data, retry } = useMockData(alunoMock);
+  const { status, data, retry } =
+    useMockData(alunoMock);
 
   const d = data ?? alunoMock;
 
@@ -161,13 +166,12 @@ export default function DashboardAluno() {
       ? desempenho.media
       : 0;
 
-  const evolucao: number[] = Array.isArray(
-    desempenho.evolucao,
-  )
-    ? desempenho.evolucao.map((value) =>
-        Number(value),
-      )
-    : [];
+  const evolucao: number[] =
+    Array.isArray(desempenho.evolucao)
+      ? desempenho.evolucao.map((value) =>
+          Number(value),
+        )
+      : [];
 
   const yOf = (v: number): number =>
     Math.min(
