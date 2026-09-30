@@ -1,7 +1,9 @@
+
 import {
   useState,
   type CSSProperties,
   type ReactNode,
+  type ComponentProps,
 } from 'react';
 
 import { StateBox } from '../components/dashboard/shared';
@@ -24,6 +26,10 @@ import {
 import { professorMock } from '../components/mocks/dashboardMocks';
 
 const A = '/assets/dashboard';
+
+/* =========================================================
+   NAVEGAÇÃO
+========================================================= */
 
 const nav: EcNavItem[] = [
   {
@@ -88,6 +94,10 @@ const nav: EcNavItem[] = [
   },
 ];
 
+/* =========================================================
+   CONSTANTES VISUAIS
+========================================================= */
+
 const KPI_ICONS: IconName[] = [
   'users',
   'users',
@@ -135,27 +145,49 @@ const TABS = [
   'Por matéria',
 ];
 
-const slug = (s = '') =>
-  s
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const slug = (value = '') =>
+  value
     .normalize('NFD')
     .replace(/[\u0300-\u036f\s]/g, '')
     .toLowerCase();
 
-function turmaIcon(t: string): IconName {
-  const s = slug(t);
+function turmaIcon(title: string): IconName {
+  const value = slug(title);
 
-  if (s.includes('matem')) return 'pi';
-  if (s.includes('ingl')) return 'lang';
-  if (s.includes('cienc')) return 'flask';
-  if (s.includes('hist')) return 'bank';
+  if (value.includes('matem')) {
+    return 'pi';
+  }
+
+  if (value.includes('ingl')) {
+    return 'lang';
+  }
+
+  if (value.includes('cienc')) {
+    return 'flask';
+  }
+
+  if (value.includes('hist')) {
+    return 'bank';
+  }
 
   return 'editsq';
 }
 
-const str = (v: unknown): string | undefined =>
-  typeof v === 'string' ? v : undefined;
+function stringValue(value: unknown): string | undefined {
+  return typeof value === 'string'
+    ? value
+    : undefined;
+}
 
-function Gate(p: {
+/* =========================================================
+   GATE DE ESTADO
+========================================================= */
+
+function Gate(props: {
   status: string;
   items?: readonly unknown[];
   empty: string;
@@ -163,28 +195,36 @@ function Gate(p: {
   retry: () => void;
   children: ReactNode;
 }) {
-  if (
-    p.status !== 'ready' ||
-    !p.items?.length
-  ) {
+  const {
+    status,
+    items,
+    empty,
+    emptyText,
+    retry,
+    children,
+  } = props;
+
+  if (status !== 'ready' || !items?.length) {
     return (
       <StateBox
         status={
-          (p.status === 'ready'
-            ? 'empty'
-            : p.status) as React.ComponentProps<
+          (status === 'ready' ? 'empty' : status) as ComponentProps<
             typeof StateBox
           >['status']
         }
-        empty={p.empty}
-        emptyText={p.emptyText}
-        onRetry={p.retry}
+        empty={empty}
+        emptyText={emptyText}
+        onRetry={retry}
       />
     );
   }
 
-  return <>{p.children}</>;
+  return <>{children}</>;
 }
+
+/* =========================================================
+   DASHBOARD PROFESSOR
+========================================================= */
 
 export default function DashboardProfessor() {
   const {
@@ -195,44 +235,42 @@ export default function DashboardProfessor() {
 
   const d = data ?? professorMock;
 
-  const { full } =
-    useLoggedUser('João Silva');
+  const {
+    full,
+  } = useLoggedUser('João Silva');
 
-  const [tab, setTab] = useState(0);
+  const [
+    tab,
+    setTab,
+  ] = useState(0);
+
+  /* =======================================================
+     DESEMPENHO
+  ======================================================= */
 
   const des = d.desempenho;
 
   const media = des.media;
+  const evo = des.evolucao;
 
-  const evo: number[] =
-    Array.isArray(des.evolucao)
-      ? des.evolucao.map(
-          (value: number) =>
-            Number(value),
-        )
-      : [];
-
-  const yOf = (v: number) =>
+  const yOf = (value: number) =>
     Math.min(
       100,
       Math.max(
         0,
-        100 -
-          ((v - 20) / 80) *
-            100,
+        100 - ((value - 20) / 80) * 100,
       ),
     );
 
-  const xOf = (i: number) =>
+  const xOf = (index: number) =>
     evo.length > 1
-      ? (i / (evo.length - 1)) *
-        100
+      ? (index / (evo.length - 1)) * 100
       : 0;
 
   const line = evo
     .map(
-      (v: number, i: number) =>
-        `${xOf(i)},${yOf(v)}`,
+      (value, index) =>
+        `${xOf(index)},${yOf(value)}`,
     )
     .join(' ');
 
@@ -253,6 +291,10 @@ export default function DashboardProfessor() {
       v: des.abaixo,
     },
   ];
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
 
   return (
     <EcShell
@@ -280,6 +322,10 @@ export default function DashboardProfessor() {
       }
       aside={
         <>
+          {/* ===============================================
+              HOJE
+          =============================================== */}
+
           <EcCard className="ec-hoje">
             <div className="ec-hoje-h">
               <h2>Hoje</h2>
@@ -304,63 +350,65 @@ export default function DashboardProfessor() {
               <div className="ec-acc-list">
                 {(
                   d.hoje as unknown as EcItem[]
-                ).map(
-                  (
-                    h: EcItem,
-                    i: number,
-                  ) => (
-                    <a
-                      key={
-                        h.id ?? i
-                      }
-                      href="#"
-                      className="ec-acc"
-                      style={
-                        {
-                          '--c':
-                            HOJE_COLORS[
-                              i % 3
-                            ],
-                        } as CSSProperties
-                      }
-                    >
-                      <span className="ec-tile sm">
-                        <Icon
-                          name={
-                            i === 1
-                              ? 'lang'
-                              : 'editsq'
-                          }
-                          size={18}
-                        />
-                      </span>
-
-                      <div className="ec-rb">
-                        <b>
-                          {h.title}
-                        </b>
-
-                        <small>
-                          {h.sub}
-                        </small>
-                      </div>
-
-                      <Pill
-                        text={
-                          h.pill
+                ).map((item, index) => (
+                  <a
+                    key={
+                      item.id ?? index
+                    }
+                    href="#"
+                    className="ec-acc"
+                    style={
+                      {
+                        '--c':
+                          HOJE_COLORS[
+                            index %
+                              HOJE_COLORS.length
+                          ],
+                      } as CSSProperties
+                    }
+                  >
+                    <span className="ec-tile sm">
+                      <Icon
+                        name={
+                          index === 1
+                            ? 'lang'
+                            : 'editsq'
                         }
+                        size={18}
                       />
-                    </a>
-                  ),
-                )}
+                    </span>
+
+                    <div className="ec-rb">
+                      <b>
+                        {item.title}
+                      </b>
+
+                      <small>
+                        {item.sub}
+                      </small>
+                    </div>
+
+                    <Pill
+                      text={item.pill}
+                    />
+                  </a>
+                ))}
               </div>
             </Gate>
           </EcCard>
+
+          {/* ===============================================
+              CALENDÁRIO
+          =============================================== */}
 
           <EcCalendar
             title="Calendário de aulas e atividades"
             link={false}
           />
+
+          {/* ===============================================
+              PRÓXIMAS ATIVIDADES
+          =============================================== */}
 
           <EcCard
             title="Próximas atividades"
@@ -377,66 +425,65 @@ export default function DashboardProfessor() {
               <div className="ec-acc-list flat">
                 {(
                   d.proximas as unknown as EcItem[]
-                ).map(
-                  (
-                    h: EcItem,
-                    i: number,
-                  ) => (
-                    <a
-                      key={
-                        h.id ?? i
-                      }
-                      href="#"
-                      className="ec-acc"
-                      style={
-                        {
-                          '--c':
-                            ATIV_COLORS[
-                              i % 3
-                            ],
-                        } as CSSProperties
-                      }
+                ).map((item, index) => (
+                  <a
+                    key={
+                      item.id ?? index
+                    }
+                    href="#"
+                    className="ec-acc"
+                    style={
+                      {
+                        '--c':
+                          ATIV_COLORS[
+                            index %
+                              ATIV_COLORS.length
+                          ],
+                      } as CSSProperties
+                    }
+                  >
+                    <span
+                      className="ec-tile sm"
+                      style={{
+                        background:
+                          ATIV_COLORS[
+                            index %
+                              ATIV_COLORS.length
+                          ],
+                      }}
                     >
-                      <span
-                        className="ec-tile sm"
-                        style={{
-                          background:
-                            ATIV_COLORS[
-                              i % 3
-                            ],
-                        }}
-                      >
-                        <Icon
-                          name={
-                            i === 2
-                              ? 'bank'
-                              : 'editsq'
-                          }
-                          size={18}
-                        />
-                      </span>
-
-                      <div className="ec-rb">
-                        <b>
-                          {h.title}
-                        </b>
-
-                        <small>
-                          {h.sub}
-                        </small>
-                      </div>
-
-                      <Pill
-                        text={
-                          h.pill
+                      <Icon
+                        name={
+                          index === 2
+                            ? 'bank'
+                            : 'editsq'
                         }
+                        size={18}
                       />
-                    </a>
-                  ),
-                )}
+                    </span>
+
+                    <div className="ec-rb">
+                      <b>
+                        {item.title}
+                      </b>
+
+                      <small>
+                        {item.sub}
+                      </small>
+                    </div>
+
+                    <Pill
+                      text={item.pill}
+                    />
+                  </a>
+                ))}
               </div>
             </Gate>
           </EcCard>
+
+          {/* ===============================================
+              AURA
+          =============================================== */}
 
           <EcCard className="ec-promo">
             <div
@@ -454,17 +501,14 @@ export default function DashboardProfessor() {
               />
 
               <b>
-                Aura IA{' '}
-                <em>Beta</em>
+                Aura IA <em>Beta</em>
               </b>
             </div>
 
             <p>
-              Planeje aulas, crie
-              atividades, gere
-              avaliações e muito
-              mais com o poder da
-              IA.
+              Planeje aulas, crie atividades,
+              gere avaliações e muito mais com
+              o poder da IA.
             </p>
 
             <a
@@ -482,6 +526,10 @@ export default function DashboardProfessor() {
         </>
       }
     >
+      {/* =====================================================
+          HERO
+      ===================================================== */}
+
       <EcHero
         title="Olá, Professor!"
         sub="Você está fazendo a diferença!"
@@ -495,63 +543,62 @@ export default function DashboardProfessor() {
         artWidth={506}
       />
 
+      {/* =====================================================
+          KPIs
+      ===================================================== */}
+
       <div className="ec-kpis">
-        {d.kpis.map(
-          (
-            k: {
-              label: string;
-              value: string | number;
-              sub?: string;
-            },
-            i: number,
-          ) => (
-            <EcCard
-              key={`${k.label}-${i}`}
-              className="ec-kpi"
-            >
-              <span className="ec-kic pr">
-                <Icon
-                  name={
-                    KPI_ICONS[
-                      i % 4
-                    ]
-                  }
-                  size={26}
-                />
+        {d.kpis.map((kpi, index) => (
+          <EcCard
+            key={kpi.label}
+            className="ec-kpi"
+          >
+            <span className="ec-kic pr">
+              <Icon
+                name={
+                  KPI_ICONS[
+                    index %
+                      KPI_ICONS.length
+                  ]
+                }
+                size={26}
+              />
+            </span>
+
+            <div className="ec-rb">
+              <small>
+                {kpi.label}
+              </small>
+
+              <b>
+                {status === 'loading'
+                  ? '–'
+                  : kpi.value}
+              </b>
+
+              <span
+                className={`ec-sub ${
+                  String(kpi.sub).startsWith('+')
+                    ? 'up'
+                    : ''
+                }`}
+              >
+                {kpi.sub}
               </span>
-
-              <div className="ec-rb">
-                <small>
-                  {k.label}
-                </small>
-
-                <b>
-                  {status ===
-                  'loading'
-                    ? '–'
-                    : k.value}
-                </b>
-
-                <span
-                  className={`ec-sub ${
-                    String(
-                      k.sub ?? '',
-                    ).startsWith(
-                      '+',
-                    )
-                      ? 'up'
-                      : ''
-                  }`}
-                >
-                  {k.sub}
-                </span>
-              </div>
-            </EcCard>
-          ),
-        )}
+            </div>
+          </EcCard>
+        ))}
       </div>
 
+      {/* =====================================================
+          TURMAS + DESEMPENHO
+      ===================================================== */}
+
       <div className="ec-cols turmas">
+        {/* ===============================================
+            MINHAS TURMAS
+        =============================================== */}
+
         <EcCard
           title="Minhas turmas"
           link="Ver todas"
@@ -567,84 +614,80 @@ export default function DashboardProfessor() {
             <div className="ec-turmas">
               {(
                 d.turmas as unknown as EcItem[]
-              ).map(
-                (
-                  t: EcItem,
-                  i: number,
-                ) => {
-                  const c =
-                    TURMA_COLORS[
-                      i % 5
-                    ];
+              ).map((turma, index) => {
+                const color =
+                  TURMA_COLORS[
+                    index %
+                      TURMA_COLORS.length
+                  ];
 
-                  return (
-                    <a
-                      key={
-                        t.id ?? i
-                      }
-                      href="#"
-                      className="ec-turma"
+                return (
+                  <a
+                    key={
+                      turma.id ?? index
+                    }
+                    href="#"
+                    className="ec-turma"
+                  >
+                    <span
+                      className="ec-tile"
+                      style={{
+                        background:
+                          color,
+                      }}
                     >
-                      <span
-                        className="ec-tile"
-                        style={{
-                          background: c,
-                        }}
-                      >
-                        <Icon
-                          name={turmaIcon(
-                            t.title,
-                          )}
-                          size={26}
-                        />
-                      </span>
-
-                      <div className="ec-rb">
-                        <b>
-                          {t.title}
-                        </b>
-
-                        <small>
-                          {t.sub}
-                        </small>
-
-                        <div className="ec-bar">
-                          <i
-                            style={{
-                              width: `${
-                                t.pct ??
-                                0
-                              }%`,
-                              background:
-                                c,
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="ec-tr">
-                        <b>
-                          {t.pct ??
-                            0}
-                          %
-                        </b>
-
-                        <small>
-                          em andamento
-                        </small>
-                      </div>
-
                       <Icon
-                        name="right"
-                        size={16}
+                        name={turmaIcon(
+                          turma.title,
+                        )}
+                        size={26}
                       />
-                    </a>
-                  );
-                },
-              )}
+                    </span>
+
+                    <div className="ec-rb">
+                      <b>
+                        {turma.title}
+                      </b>
+
+                      <small>
+                        {turma.sub}
+                      </small>
+
+                      <div className="ec-bar">
+                        <i
+                          style={{
+                            width: `${turma.pct ?? 0}%`,
+                            background:
+                              color,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="ec-tr">
+                      <b>
+                        {turma.pct ?? 0}%
+                      </b>
+
+                      <small>
+                        em andamento
+                      </small>
+                    </div>
+
+                    <Icon
+                      name="right"
+                      size={16}
+                    />
+                  </a>
+                );
+              })}
             </div>
           </Gate>
         </EcCard>
+
+        {/* ===============================================
+            DESEMPENHO
+        =============================================== */}
 
         <EcCard title="Desempenho dos alunos">
           <div
@@ -652,27 +695,24 @@ export default function DashboardProfessor() {
             role="tablist"
           >
             {TABS.map(
-              (
-                t: string,
-                i: number,
-              ) => (
+              (tabName, index) => (
                 <button
-                  key={t}
+                  key={tabName}
                   type="button"
                   role="tab"
                   aria-selected={
-                    tab === i
+                    tab === index
                   }
                   className={
-                    tab === i
+                    tab === index
                       ? 'on'
                       : ''
                   }
                   onClick={() =>
-                    setTab(i)
+                    setTab(index)
                   }
                 >
-                  {t}
+                  {tabName}
                 </button>
               ),
             )}
@@ -680,7 +720,11 @@ export default function DashboardProfessor() {
 
           {status !== 'ready' ? (
             <StateBox
-              status={status}
+              status={
+                status as ComponentProps<
+                  typeof StateBox
+                >['status']
+              }
               onRetry={retry}
             />
           ) : (
@@ -705,45 +749,40 @@ export default function DashboardProfessor() {
 
                 <div className="ec-leg">
                   {legend.map(
-                    (
-                      l: {
-                        c: string;
-                        t: string;
-                        v: [
-                          number,
-                          number,
-                        ];
-                      },
-                      i: number,
-                    ) => (
+                    (item, index) => (
                       <div
-                        key={l.t}
+                        key={item.t}
                       >
                         <i
                           style={{
                             background:
-                              l.c,
+                              item.c,
                           }}
                         />
 
                         <span>
                           <small>
-                            {l.t}
+                            {item.t}
                           </small>
 
                           <b>
-                            {l.v[0]}
+                            {
+                              item.v[0]
+                            }
                           </b>
                         </span>
 
                         <em
                           className={
-                            i === 0
+                            index === 0
                               ? 'first'
                               : ''
                           }
                         >
-                          {l.v[1]}%
+                          {
+                            item.v[1]
+                          }
+                          %
                         </em>
                       </div>
                     ),
@@ -761,15 +800,20 @@ export default function DashboardProfessor() {
                 aria-label="Evolução da turma nas últimas semanas"
               >
                 <div className="ec-ylab">
-                  {[100, 75, 50, 25].map(
-                    (v: number) => (
+                  {[
+                    100,
+                    75,
+                    50,
+                    25,
+                  ].map(
+                    (value) => (
                       <span
-                        key={v}
+                        key={value}
                         style={{
-                          top: `${yOf(v)}%`,
+                          top: `${yOf(value)}%`,
                         }}
                       >
-                        {v}%
+                        {value}%
                       </span>
                     ),
                   )}
@@ -780,28 +824,30 @@ export default function DashboardProfessor() {
                     viewBox="0 0 100 100"
                     preserveAspectRatio="none"
                   >
-                    {[100, 75, 50, 25].map(
-                      (v: number) => (
+                    {[
+                      100,
+                      75,
+                      50,
+                      25,
+                    ].map(
+                      (value) => (
                         <line
-                          key={v}
+                          key={value}
                           x1="0"
                           x2="100"
-                          y1={yOf(v)}
-                          y2={yOf(v)}
+                          y1={yOf(value)}
+                          y2={yOf(value)}
                         />
                       ),
                     )}
 
                     {evo.map(
-                      (
-                        _v: number,
-                        i: number,
-                      ) => (
+                      (_, index) => (
                         <line
-                          key={i}
+                          key={index}
                           className="v"
-                          x1={xOf(i)}
-                          x2={xOf(i)}
+                          x1={xOf(index)}
+                          x2={xOf(index)}
                           y1="0"
                           y2="100"
                         />
@@ -816,15 +862,12 @@ export default function DashboardProfessor() {
                   </svg>
 
                   {evo.map(
-                    (
-                      v: number,
-                      i: number,
-                    ) => (
+                    (value, index) => (
                       <i
-                        key={i}
+                        key={index}
                         style={{
-                          left: `${xOf(i)}%`,
-                          top: `${yOf(v)}%`,
+                          left: `${xOf(index)}%`,
+                          top: `${yOf(value)}%`,
                         }}
                       />
                     ),
@@ -838,9 +881,9 @@ export default function DashboardProfessor() {
                     'Sem 3',
                     'Sem 4',
                   ].map(
-                    (s: string) => (
-                      <span key={s}>
-                        {s}
+                    (week) => (
+                      <span key={week}>
+                        {week}
                       </span>
                     ),
                   )}
@@ -851,21 +894,23 @@ export default function DashboardProfessor() {
         </EcCard>
       </div>
 
+      {/* =====================================================
+          FERRAMENTAS + ENTREGAS
+      ===================================================== */}
+
       <div className="ec-cols bottom">
+        {/* ===============================================
+            FERRAMENTAS
+        =============================================== */}
+
         <EcCard title="Ferramentas rápidas">
           <div className="ec-tools5">
             {d.ferramentas
               .slice(0, 5)
               .map(
-                (
-                  f: {
-                    t: string;
-                    s: string;
-                  },
-                  i: number,
-                ) => (
+                (tool, index) => (
                   <a
-                    key={f.t}
+                    key={tool.t}
                     href="#"
                   >
                     <span className="top">
@@ -879,7 +924,8 @@ export default function DashboardProfessor() {
                         <Icon
                           name={
                             TOOL_ICONS[
-                              i % 5
+                              index %
+                                TOOL_ICONS.length
                             ]
                           }
                           size={18}
@@ -892,16 +938,22 @@ export default function DashboardProfessor() {
                       />
                     </span>
 
-                    <b>{f.t}</b>
+                    <b>
+                      {tool.t}
+                    </b>
 
                     <small>
-                      {f.s}
+                      {tool.s}
                     </small>
                   </a>
                 ),
               )}
           </div>
         </EcCard>
+
+        {/* ===============================================
+            ÚLTIMAS ENTREGAS
+        =============================================== */}
 
         <EcCard
           title="Últimas entregas"
@@ -920,13 +972,11 @@ export default function DashboardProfessor() {
               {(
                 d.entregas as unknown as EcItem[]
               ).map(
-                (
-                  e: EcItem,
-                  i: number,
-                ) => (
+                (entrega, index) => (
                   <a
                     key={
-                      e.id ?? i
+                      entrega.id ??
+                      index
                     }
                     href="#"
                     className="ec-ent"
@@ -934,7 +984,8 @@ export default function DashboardProfessor() {
                     <img
                       src={
                         AVATARS[
-                          i % 3
+                          index %
+                            AVATARS.length
                         ]
                       }
                       alt=""
@@ -943,29 +994,29 @@ export default function DashboardProfessor() {
 
                     <div className="ec-rb">
                       <b>
-                        {e.title}
+                        {entrega.title}
                       </b>
 
                       <small>
-                        {e.sub}
+                        {entrega.sub}
                       </small>
                     </div>
 
                     <small className="when">
-                      {str(
-                        e.hora,
+                      {stringValue(
+                        entrega.hora,
                       ) ??
-                        str(
-                          e.time,
+                        stringValue(
+                          entrega.time,
                         ) ??
-                        str(
-                          e.quando,
+                        stringValue(
+                          entrega.quando,
                         ) ??
                         ''}
                     </small>
 
                     <span className="ec-pill ok">
-                      {e.pill ??
+                      {entrega.pill ??
                         'Entregue'}
                     </span>
                   </a>
@@ -978,3 +1029,4 @@ export default function DashboardProfessor() {
     </EcShell>
   );
 }
+
