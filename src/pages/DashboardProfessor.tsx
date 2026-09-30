@@ -6,6 +6,8 @@ import {
   type ComponentProps,
 } from 'react';
 
+import '../styles/educacube-professor.css';
+
 import { StateBox } from '../components/dashboard/shared';
 
 import {
@@ -26,10 +28,6 @@ import {
 import { professorMock } from '../components/mocks/dashboardMocks';
 
 const A = '/assets/dashboard';
-
-/* =========================================================
-   NAVEGAÇÃO
-========================================================= */
 
 const nav: EcNavItem[] = [
   {
@@ -94,10 +92,6 @@ const nav: EcNavItem[] = [
   },
 ];
 
-/* =========================================================
-   CONSTANTES VISUAIS
-========================================================= */
-
 const KPI_ICONS: IconName[] = [
   'users',
   'users',
@@ -145,10 +139,6 @@ const TABS = [
   'Por matéria',
 ];
 
-/* =========================================================
-   HELPERS
-========================================================= */
-
 const slug = (value = '') =>
   value
     .normalize('NFD')
@@ -183,10 +173,6 @@ function stringValue(value: unknown): string | undefined {
     : undefined;
 }
 
-/* =========================================================
-   GATE DE ESTADO
-========================================================= */
-
 function Gate(props: {
   status: string;
   items?: readonly unknown[];
@@ -208,7 +194,9 @@ function Gate(props: {
     return (
       <StateBox
         status={
-          (status === 'ready' ? 'empty' : status) as ComponentProps<
+          (status === 'ready'
+            ? 'empty'
+            : status) as ComponentProps<
             typeof StateBox
           >['status']
         }
@@ -222,10 +210,6 @@ function Gate(props: {
   return <>{children}</>;
 }
 
-/* =========================================================
-   DASHBOARD PROFESSOR
-========================================================= */
-
 export default function DashboardProfessor() {
   const {
     status,
@@ -235,21 +219,12 @@ export default function DashboardProfessor() {
 
   const d = data ?? professorMock;
 
-  const {
-    full,
-  } = useLoggedUser('João Silva');
+  const { full } =
+    useLoggedUser('João Silva');
 
-  const [
-    tab,
-    setTab,
-  ] = useState(0);
-
-  /* =======================================================
-     DESEMPENHO
-  ======================================================= */
+  const [tab, setTab] = useState(0);
 
   const des = d.desempenho;
-
   const media = des.media;
   const evo = des.evolucao;
 
@@ -292,10 +267,6 @@ export default function DashboardProfessor() {
     },
   ];
 
-  /* =======================================================
-     RENDER
-  ======================================================= */
-
   return (
     <EcShell
       pageClass="dsh-prof"
@@ -322,10 +293,6 @@ export default function DashboardProfessor() {
       }
       aside={
         <>
-          {/* ===============================================
-              HOJE
-          =============================================== */}
-
           <EcCard className="ec-hoje">
             <div className="ec-hoje-h">
               <h2>Hoje</h2>
@@ -397,18 +364,10 @@ export default function DashboardProfessor() {
             </Gate>
           </EcCard>
 
-          {/* ===============================================
-              CALENDÁRIO
-          =============================================== */}
-
           <EcCalendar
             title="Calendário de aulas e atividades"
             link={false}
           />
-
-          {/* ===============================================
-              PRÓXIMAS ATIVIDADES
-          =============================================== */}
 
           <EcCard
             title="Próximas atividades"
@@ -481,10 +440,6 @@ export default function DashboardProfessor() {
             </Gate>
           </EcCard>
 
-          {/* ===============================================
-              AURA
-          =============================================== */}
-
           <EcCard className="ec-promo">
             <div
               className="ec-promo-art"
@@ -526,10 +481,6 @@ export default function DashboardProfessor() {
         </>
       }
     >
-      {/* =====================================================
-          HERO
-      ===================================================== */}
-
       <EcHero
         title="Olá, Professor!"
         sub="Você está fazendo a diferença!"
@@ -542,10 +493,6 @@ export default function DashboardProfessor() {
         art={`${A}/prof-hero-scene.png`}
         artWidth={506}
       />
-
-      {/* =====================================================
-          KPIs
-      ===================================================== */}
 
       <div className="ec-kpis">
         {d.kpis.map((kpi, index) => (
@@ -590,15 +537,7 @@ export default function DashboardProfessor() {
         ))}
       </div>
 
-      {/* =====================================================
-          TURMAS + DESEMPENHO
-      ===================================================== */}
-
       <div className="ec-cols turmas">
-        {/* ===============================================
-            MINHAS TURMAS
-        =============================================== */}
-
         <EcCard
           title="Minhas turmas"
           link="Ver todas"
@@ -684,10 +623,6 @@ export default function DashboardProfessor() {
             </div>
           </Gate>
         </EcCard>
-
-        {/* ===============================================
-            DESEMPENHO
-        =============================================== */}
 
         <EcCard title="Desempenho dos alunos">
           <div
@@ -894,15 +829,7 @@ export default function DashboardProfessor() {
         </EcCard>
       </div>
 
-      {/* =====================================================
-          FERRAMENTAS + ENTREGAS
-      ===================================================== */}
-
       <div className="ec-cols bottom">
-        {/* ===============================================
-            FERRAMENTAS
-        =============================================== */}
-
         <EcCard title="Ferramentas rápidas">
           <div className="ec-tools5">
             {d.ferramentas
@@ -950,10 +877,6 @@ export default function DashboardProfessor() {
               )}
           </div>
         </EcCard>
-
-        {/* ===============================================
-            ÚLTIMAS ENTREGAS
-        =============================================== */}
 
         <EcCard
           title="Últimas entregas"
@@ -1029,4 +952,3 @@ export default function DashboardProfessor() {
     </EcShell>
   );
 }
-
