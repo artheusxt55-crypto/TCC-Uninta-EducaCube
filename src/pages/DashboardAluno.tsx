@@ -16,12 +16,12 @@ import {
   dataExtenso,
   useLoggedUser,
   useMockData,
-  type EcNavItem,
   type EcItem,
+  type EcNavItem,
   type IconName,
 } from '../components/dashboard/ecShared';
 
-import { professorMock } from '../components/mocks/dashboardMocks';
+import { alunoMock } from '../components/mocks/dashboardMocks';
 
 const A = '/assets/dashboard';
 
@@ -29,131 +29,98 @@ const nav: EcNavItem[] = [
   {
     label: 'Dashboard',
     icon: 'home',
-    to: '/app/dashboard/professor',
+    to: '/app/dashboard/aluno',
   },
   {
-    label: 'Turmas',
-    icon: 'users',
-    to: '/app/dashboard/professor/turmas',
-  },
-  {
-    label: 'Meus Alunos',
-    icon: 'user',
-    to: '/app/dashboard/professor/alunos',
-  },
-  {
-    label: 'Conteúdos',
+    label: 'Minhas Disciplinas',
     icon: 'book',
-    to: '/app/dashboard/professor/conteudos',
-  },
-  {
-    label: 'Avaliações',
-    icon: 'editsq',
-    to: '/app/dashboard/professor/avaliacoes',
+    to: '/app/dashboard/aluno/disciplinas',
   },
   {
     label: 'Atividades',
     icon: 'file',
-    to: '/app/dashboard/professor/atividades',
+    to: '/app/dashboard/aluno/atividades',
   },
   {
-    label: 'Correções',
-    icon: 'checksq',
-    to: '/app/dashboard/professor/correcoes',
+    label: 'Avaliações',
+    icon: 'editsq',
+    to: '/app/dashboard/aluno/avaliacoes',
   },
   {
-    label: 'Biblioteca',
-    icon: 'tasks',
-    to: '/app/dashboard/professor/biblioteca',
-  },
-  {
-    label: 'IA - Aura',
-    icon: 'spark',
-    to: '/app/dashboard/professor/aura',
-  },
-  {
-    label: 'Relatórios',
+    label: 'Notas',
     icon: 'chart',
-    to: '/app/dashboard/professor/relatorios',
+    to: '/app/dashboard/aluno/notas',
   },
   {
     label: 'Calendário',
     icon: 'cal',
-    to: '/app/dashboard/professor/calendario',
+    to: '/app/dashboard/aluno/calendario',
+  },
+  {
+    label: 'Biblioteca',
+    icon: 'tasks',
+    to: '/app/dashboard/aluno/biblioteca',
+  },
+  {
+    label: 'Aura IA',
+    icon: 'spark',
+    to: '/app/dashboard/aluno/aura',
   },
   {
     label: 'Configurações',
     icon: 'gear',
-    to: '/app/dashboard/professor/configuracoes',
+    to: '/app/dashboard/aluno/configuracoes',
   },
 ];
 
 const KPI_ICONS: IconName[] = [
-  'users',
-  'users',
   'editsq',
   'checksq',
-];
-
-const TOOL_ICONS: IconName[] = [
-  'editsq',
-  'checksq',
-  'spark',
-  'upload',
+  'chart',
   'book',
 ];
 
-const TURMA_COLORS = [
+const DISC_ICONS: IconName[] = [
+  'pi',
+  'lang',
+  'flask',
+  'bank',
+  'editsq',
+];
+
+const ATIV_COLORS = [
   '#6d28f9',
   '#1f6be8',
   '#12a97a',
   '#f0a01c',
-  '#d0289f',
-];
-
-const HOJE_COLORS = [
-  '#c0269f',
-  '#12a394',
-  '#c0269f',
-];
-
-const ATIV_COLORS = [
-  '#c0269f',
-  '#c0269f',
-  '#4b1fc7',
 ];
 
 const AVATARS = [
-  `${A}/prof-av1.png`,
-  `${A}/prof-av2.png`,
-  `${A}/prof-av3.png`,
+  `${A}/aluno-av1.png`,
+  `${A}/aluno-av2.png`,
+  `${A}/aluno-av3.png`,
 ];
 
-const TABS = [
-  'Visão geral',
-  'Por turma',
-  'Por matéria',
-];
+const str = (v: unknown): string | undefined =>
+  typeof v === 'string' ? v : undefined;
 
-const slug = (s = '') =>
-  s
+function slug(s = ''): string {
+  return s
     .normalize('NFD')
     .replace(/[\u0300-\u036f\s]/g, '')
     .toLowerCase();
+}
 
-function turmaIcon(t: string): IconName {
-  const s = slug(t);
+function disciplinaIcon(nome: string): IconName {
+  const s = slug(nome);
 
   if (s.includes('matem')) return 'pi';
   if (s.includes('ingl')) return 'lang';
   if (s.includes('cienc')) return 'flask';
   if (s.includes('hist')) return 'bank';
 
-  return 'editsq';
+  return 'book';
 }
-
-const str = (v: unknown): string | undefined =>
-  typeof v === 'string' ? v : undefined;
 
 function Gate(p: {
   status: string;
@@ -186,33 +153,36 @@ function Gate(p: {
   return <>{p.children}</>;
 }
 
-export default function DashboardProfessor() {
+export default function DashboardAluno() {
   const {
     status,
     data,
     retry,
-  } = useMockData(professorMock);
+  } = useMockData(alunoMock);
 
-  const d = data ?? professorMock;
+  const d = data ?? alunoMock;
 
   const { full } =
-    useLoggedUser('João Silva');
+    useLoggedUser('Aluno');
 
   const [tab, setTab] = useState(0);
 
-  const des = d.desempenho;
+  const desempenho = d.desempenho;
 
-  const media = des.media;
+  const media =
+    typeof desempenho.media === 'number'
+      ? desempenho.media
+      : 0;
 
-  const evo: number[] =
-    Array.isArray(des.evolucao)
-      ? des.evolucao.map(
+  const evolucao: number[] =
+    Array.isArray(desempenho.evolucao)
+      ? desempenho.evolucao.map(
           (value: number) =>
             Number(value),
         )
       : [];
 
-  const yOf = (v: number) =>
+  const yOf = (v: number): number =>
     Math.min(
       100,
       Math.max(
@@ -223,13 +193,13 @@ export default function DashboardProfessor() {
       ),
     );
 
-  const xOf = (i: number) =>
-    evo.length > 1
-      ? (i / (evo.length - 1)) *
+  const xOf = (i: number): number =>
+    evolucao.length > 1
+      ? (i / (evolucao.length - 1)) *
         100
       : 0;
 
-  const line = evo
+  const line = evolucao
     .map(
       (v: number, i: number) =>
         `${xOf(i)},${yOf(v)}`,
@@ -239,43 +209,39 @@ export default function DashboardProfessor() {
   const legend = [
     {
       c: '#12c192',
-      t: 'Aprovados',
-      v: des.aprovados,
+      t: 'Acima da média',
+      v: desempenho.acima,
     },
     {
       c: '#f0a01c',
-      t: 'Em recuperação',
-      v: des.recuperacao,
+      t: 'Na média',
+      v: desempenho.mediaQtd,
     },
     {
       c: '#ef3b4a',
       t: 'Abaixo da média',
-      v: des.abaixo,
+      v: desempenho.abaixo,
     },
   ];
 
   return (
     <EcShell
-      pageClass="dsh-prof"
+      pageClass="dsh-aluno"
       nav={nav}
       active="Dashboard"
-      role="Professor"
-      userName={
-        /^prof/i.test(full)
-          ? full
-          : `Prof. ${full}`
-      }
-      searchPlaceholder="Buscar alunos, turmas, conteúdos, avaliações..."
+      role="Aluno"
+      userName={full}
+      searchPlaceholder="Buscar disciplinas, atividades, conteúdos..."
       themeToggle
-      mascotImg={`${A}/prof-owl-sidebar.png`}
-      footerLogo={`${A}/prof-logo-outline.png`}
+      mascotImg={`${A}/aluno-mascot-sidebar.png`}
+      footerLogo={`${A}/aluno-logo-outline.png`}
       mascotText={
         <>
-          Juntos por
+          Continue
           <br />
-          uma educação
+          aprendendo e
           <br />
-          mais inteligente.
+          evoluindo!
         </>
       }
       aside={
@@ -297,8 +263,8 @@ export default function DashboardProfessor() {
             <Gate
               status={status}
               items={d.hoje}
-              empty="Nada na agenda hoje"
-              emptyText="Seus compromissos do dia aparecem aqui."
+              empty="Nada para hoje"
+              emptyText="Suas atividades do dia aparecem aqui."
               retry={retry}
             >
               <div className="ec-acc-list">
@@ -318,8 +284,9 @@ export default function DashboardProfessor() {
                       style={
                         {
                           '--c':
-                            HOJE_COLORS[
-                              i % 3
+                            ATIV_COLORS[
+                              i %
+                                ATIV_COLORS.length
                             ],
                         } as CSSProperties
                       }
@@ -329,7 +296,9 @@ export default function DashboardProfessor() {
                           name={
                             i === 1
                               ? 'lang'
-                              : 'editsq'
+                              : i === 2
+                                ? 'checksq'
+                                : 'editsq'
                           }
                           size={18}
                         />
@@ -358,20 +327,20 @@ export default function DashboardProfessor() {
           </EcCard>
 
           <EcCalendar
-            title="Calendário de aulas e atividades"
+            title="Meu calendário"
             link={false}
           />
 
           <EcCard
             title="Próximas atividades"
             link="Ver todas"
-            href="/app/dashboard/professor/atividades"
+            href="/app/dashboard/aluno/atividades"
           >
             <Gate
               status={status}
               items={d.proximas}
               empty="Nenhuma atividade"
-              emptyText="Crie uma atividade para vê-la aqui."
+              emptyText="As próximas atividades aparecerão aqui."
               retry={retry}
             >
               <div className="ec-acc-list flat">
@@ -379,12 +348,12 @@ export default function DashboardProfessor() {
                   d.proximas as unknown as EcItem[]
                 ).map(
                   (
-                    h: EcItem,
+                    item: EcItem,
                     i: number,
                   ) => (
                     <a
                       key={
-                        h.id ?? i
+                        item.id ?? i
                       }
                       href="#"
                       className="ec-acc"
@@ -392,7 +361,8 @@ export default function DashboardProfessor() {
                         {
                           '--c':
                             ATIV_COLORS[
-                              i % 3
+                              i %
+                                ATIV_COLORS.length
                             ],
                         } as CSSProperties
                       }
@@ -402,15 +372,16 @@ export default function DashboardProfessor() {
                         style={{
                           background:
                             ATIV_COLORS[
-                              i % 3
+                              i %
+                                ATIV_COLORS.length
                             ],
                         }}
                       >
                         <Icon
                           name={
-                            i === 2
-                              ? 'bank'
-                              : 'editsq'
+                            i % 2 === 0
+                              ? 'editsq'
+                              : 'book'
                           }
                           size={18}
                         />
@@ -418,17 +389,17 @@ export default function DashboardProfessor() {
 
                       <div className="ec-rb">
                         <b>
-                          {h.title}
+                          {item.title}
                         </b>
 
                         <small>
-                          {h.sub}
+                          {item.sub}
                         </small>
                       </div>
 
                       <Pill
                         text={
-                          h.pill
+                          item.pill
                         }
                       />
                     </a>
@@ -446,7 +417,7 @@ export default function DashboardProfessor() {
 
             <div className="ec-aura-h slim">
               <img
-                src={`${A}/prof-aura-icon.png`}
+                src={`${A}/aluno-aura-icon.png`}
                 alt=""
                 width={26}
                 height={26}
@@ -460,11 +431,10 @@ export default function DashboardProfessor() {
             </div>
 
             <p>
-              Planeje aulas, crie
-              atividades, gere
-              avaliações e muito
-              mais com o poder da
-              IA.
+              Tire dúvidas, revise
+              conteúdos, organize
+              seus estudos e aprenda
+              de forma mais inteligente.
             </p>
 
             <a
@@ -483,15 +453,15 @@ export default function DashboardProfessor() {
       }
     >
       <EcHero
-        title="Olá, Professor!"
-        sub="Você está fazendo a diferença!"
-        text="Aqui você encontra todas as ferramentas para planejar, ensinar, acompanhar e evoluir com seus alunos."
-        cta="Criar nova atividade"
-        ctaLeft="plusc"
-        ctaRight="plus"
-        href="/app/atividades/nova"
-        quote="Grandes conquistas começam com bons professores."
-        art={`${A}/prof-hero-scene.png`}
+        title="Olá, Aluno!"
+        sub="Vamos continuar aprendendo?"
+        text="Acompanhe suas atividades, notas, disciplinas e tudo o que você precisa para evoluir nos estudos."
+        cta="Ver minhas atividades"
+        ctaLeft="editsq"
+        ctaRight="arrow"
+        href="/app/dashboard/aluno/atividades"
+        quote="Cada novo conhecimento é um passo a mais na sua evolução."
+        art={`${A}/aluno-hero-scene.png`}
         artWidth={506}
       />
 
@@ -500,87 +470,107 @@ export default function DashboardProfessor() {
           (
             k: {
               label: string;
-              value: string | number;
+              value: string;
               sub?: string;
+              of?: string;
+              pct?: number;
+              trend?: string;
+              icon?: string;
             },
             i: number,
-          ) => (
-            <EcCard
-              key={`${k.label}-${i}`}
-              className="ec-kpi"
-            >
-              <span className="ec-kic pr">
-                <Icon
-                  name={
-                    KPI_ICONS[
-                      i % 4
-                    ]
-                  }
-                  size={26}
-                />
-              </span>
+          ) => {
+            const sub =
+              k.sub ??
+              k.trend ??
+              k.of ??
+              '';
 
-              <div className="ec-rb">
-                <small>
-                  {k.label}
-                </small>
-
-                <b>
-                  {status ===
-                  'loading'
-                    ? '–'
-                    : k.value}
-                </b>
-
-                <span
-                  className={`ec-sub ${
-                    String(
-                      k.sub ?? '',
-                    ).startsWith(
-                      '+',
-                    )
-                      ? 'up'
-                      : ''
-                  }`}
-                >
-                  {k.sub}
+            return (
+              <EcCard
+                key={`${k.label}-${i}`}
+                className="ec-kpi"
+              >
+                <span className="ec-kic pr">
+                  <Icon
+                    name={
+                      KPI_ICONS[
+                        i %
+                          KPI_ICONS.length
+                      ]
+                    }
+                    size={26}
+                  />
                 </span>
-              </div>
-            </EcCard>
-          ),
+
+                <div className="ec-rb">
+                  <small>
+                    {k.label}
+                  </small>
+
+                  <b>
+                    {status ===
+                    'loading'
+                      ? '–'
+                      : k.value}
+                  </b>
+
+                  <span
+                    className={`ec-sub ${
+                      String(
+                        sub,
+                      ).startsWith(
+                        '+',
+                      ) ||
+                      String(
+                        sub,
+                      ).startsWith(
+                        '↑',
+                      )
+                        ? 'up'
+                        : ''
+                    }`}
+                  >
+                    {sub}
+                  </span>
+                </div>
+              </EcCard>
+            );
+          },
         )}
       </div>
 
       <div className="ec-cols turmas">
         <EcCard
-          title="Minhas turmas"
+          title="Minhas disciplinas"
           link="Ver todas"
-          href="/app/dashboard/professor/turmas"
+          href="/app/dashboard/aluno/disciplinas"
         >
           <Gate
             status={status}
-            items={d.turmas}
-            empty="Nenhuma turma"
-            emptyText="Crie sua primeira turma para começar."
+            items={d.disciplinas}
+            empty="Nenhuma disciplina"
+            emptyText="Suas disciplinas aparecerão aqui."
             retry={retry}
           >
             <div className="ec-turmas">
               {(
-                d.turmas as unknown as EcItem[]
+                d.disciplinas as unknown as EcItem[]
               ).map(
                 (
-                  t: EcItem,
+                  disciplina: EcItem,
                   i: number,
                 ) => {
                   const c =
-                    TURMA_COLORS[
-                      i % 5
+                    ATIV_COLORS[
+                      i %
+                        ATIV_COLORS.length
                     ];
 
                   return (
                     <a
                       key={
-                        t.id ?? i
+                        disciplina.id ??
+                        i
                       }
                       href="#"
                       className="ec-turma"
@@ -592,8 +582,8 @@ export default function DashboardProfessor() {
                         }}
                       >
                         <Icon
-                          name={turmaIcon(
-                            t.title,
+                          name={disciplinaIcon(
+                            disciplina.title,
                           )}
                           size={26}
                         />
@@ -601,18 +591,22 @@ export default function DashboardProfessor() {
 
                       <div className="ec-rb">
                         <b>
-                          {t.title}
+                          {
+                            disciplina.title
+                          }
                         </b>
 
                         <small>
-                          {t.sub}
+                          {
+                            disciplina.sub
+                          }
                         </small>
 
                         <div className="ec-bar">
                           <i
                             style={{
                               width: `${
-                                t.pct ??
+                                disciplina.pct ??
                                 0
                               }%`,
                               background:
@@ -624,13 +618,13 @@ export default function DashboardProfessor() {
 
                       <div className="ec-tr">
                         <b>
-                          {t.pct ??
+                          {disciplina.pct ??
                             0}
                           %
                         </b>
 
                         <small>
-                          em andamento
+                          concluído
                         </small>
                       </div>
 
@@ -646,12 +640,16 @@ export default function DashboardProfessor() {
           </Gate>
         </EcCard>
 
-        <EcCard title="Desempenho dos alunos">
+        <EcCard title="Meu desempenho">
           <div
             className="ec-seg"
             role="tablist"
           >
-            {TABS.map(
+            {[
+              'Visão geral',
+              'Por disciplina',
+              'Evolução',
+            ].map(
               (
                 t: string,
                 i: number,
@@ -698,7 +696,7 @@ export default function DashboardProfessor() {
                     </b>
 
                     <small>
-                      Média geral
+                      Minha média
                     </small>
                   </div>
                 </div>
@@ -706,7 +704,7 @@ export default function DashboardProfessor() {
                 <div className="ec-leg">
                   {legend.map(
                     (
-                      l: {
+                      item: {
                         c: string;
                         t: string;
                         v: [
@@ -717,22 +715,25 @@ export default function DashboardProfessor() {
                       i: number,
                     ) => (
                       <div
-                        key={l.t}
+                        key={
+                          item.t
+                        }
                       >
                         <i
                           style={{
                             background:
-                              l.c,
+                              item.c,
                           }}
                         />
 
                         <span>
                           <small>
-                            {l.t}
+                            {item.t}
                           </small>
 
                           <b>
-                            {l.v[0]}
+                            {item.v?.[0] ??
+                              0}
                           </b>
                         </span>
 
@@ -743,7 +744,9 @@ export default function DashboardProfessor() {
                               : ''
                           }
                         >
-                          {l.v[1]}%
+                          {item.v?.[1] ??
+                            0}
+                          %
                         </em>
                       </div>
                     ),
@@ -752,13 +755,13 @@ export default function DashboardProfessor() {
               </div>
 
               <b className="ec-evo-t">
-                Evolução da turma
+                Minha evolução
               </b>
 
               <div
                 className="ec-chart"
                 role="img"
-                aria-label="Evolução da turma nas últimas semanas"
+                aria-label="Evolução do desempenho nas últimas semanas"
               >
                 <div className="ec-ylab">
                   {[100, 75, 50, 25].map(
@@ -792,7 +795,7 @@ export default function DashboardProfessor() {
                       ),
                     )}
 
-                    {evo.map(
+                    {evolucao.map(
                       (
                         _v: number,
                         i: number,
@@ -815,7 +818,7 @@ export default function DashboardProfessor() {
                     />
                   </svg>
 
-                  {evo.map(
+                  {evolucao.map(
                     (
                       v: number,
                       i: number,
@@ -837,6 +840,7 @@ export default function DashboardProfessor() {
                     'Sem 2',
                     'Sem 3',
                     'Sem 4',
+                    'Sem 5',
                   ].map(
                     (s: string) => (
                       <span key={s}>
@@ -852,20 +856,22 @@ export default function DashboardProfessor() {
       </div>
 
       <div className="ec-cols bottom">
-        <EcCard title="Ferramentas rápidas">
+        <EcCard title="Acesso rápido">
           <div className="ec-tools5">
             {d.ferramentas
               .slice(0, 5)
               .map(
                 (
-                  f: {
+                  ferramenta: {
                     t: string;
                     s: string;
                   },
                   i: number,
                 ) => (
                   <a
-                    key={f.t}
+                    key={
+                      ferramenta.t
+                    }
                     href="#"
                   >
                     <span className="top">
@@ -878,8 +884,9 @@ export default function DashboardProfessor() {
                       >
                         <Icon
                           name={
-                            TOOL_ICONS[
-                              i % 5
+                            DISC_ICONS[
+                              i %
+                                DISC_ICONS.length
                             ]
                           }
                           size={18}
@@ -892,10 +899,16 @@ export default function DashboardProfessor() {
                       />
                     </span>
 
-                    <b>{f.t}</b>
+                    <b>
+                      {
+                        ferramenta.t
+                      }
+                    </b>
 
                     <small>
-                      {f.s}
+                      {
+                        ferramenta.s
+                      }
                     </small>
                   </a>
                 ),
@@ -904,16 +917,16 @@ export default function DashboardProfessor() {
         </EcCard>
 
         <EcCard
-          title="Últimas entregas"
+          title="Últimas atividades"
           link="Ver todas"
-          href="/app/dashboard/professor/correcoes"
+          href="/app/dashboard/aluno/atividades"
           className="ec-entregas"
         >
           <Gate
             status={status}
             items={d.entregas}
-            empty="Nenhuma entrega"
-            emptyText="As entregas dos alunos aparecem aqui."
+            empty="Nenhuma atividade recente"
+            emptyText="Suas atividades recentes aparecerão aqui."
             retry={retry}
           >
             <div className="ec-ent-list">
@@ -921,12 +934,13 @@ export default function DashboardProfessor() {
                 d.entregas as unknown as EcItem[]
               ).map(
                 (
-                  e: EcItem,
+                  entrega: EcItem,
                   i: number,
                 ) => (
                   <a
                     key={
-                      e.id ?? i
+                      entrega.id ??
+                      i
                     }
                     href="#"
                     className="ec-ent"
@@ -934,7 +948,8 @@ export default function DashboardProfessor() {
                     <img
                       src={
                         AVATARS[
-                          i % 3
+                          i %
+                            AVATARS.length
                         ]
                       }
                       alt=""
@@ -943,30 +958,34 @@ export default function DashboardProfessor() {
 
                     <div className="ec-rb">
                       <b>
-                        {e.title}
+                        {
+                          entrega.title
+                        }
                       </b>
 
                       <small>
-                        {e.sub}
+                        {
+                          entrega.sub
+                        }
                       </small>
                     </div>
 
                     <small className="when">
                       {str(
-                        e.hora,
+                        entrega.hora,
                       ) ??
                         str(
-                          e.time,
+                          entrega.time,
                         ) ??
                         str(
-                          e.quando,
+                          entrega.quando,
                         ) ??
                         ''}
                     </small>
 
                     <span className="ec-pill ok">
-                      {e.pill ??
-                        'Entregue'}
+                      {entrega.pill ??
+                        'Concluído'}
                     </span>
                   </a>
                 ),
