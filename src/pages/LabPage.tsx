@@ -22,20 +22,20 @@ import SiteFooter from "../components/home/SiteFooter";
 import ToolPanels from "../components/home/ToolPanels";
 import CookieBanner from "../components/home/CookieBanner";
 
-/* =========================================================
- * HOME — APRESENTAÇÃO INTERATIVA DO EDUCACUBE
- *
- * Narrativa (cada seção responde a uma pergunta):
- *   01 Hero            — o que é, em uma frase
- *   02 Plataforma      — o que é, para quem
- *   03 Problema        — por que existe
- *   04 Jornada         — como funciona
- *   05 Módulos         — quais ferramentas existem
- *   06 AURA            — qual o papel da IA
- *   07 Conhecimento    — BNCC, biblioteca e referências
- *   08 Ecossistema     — como tudo se conecta
- *   09 Encerramento
- * ========================================================= */
+                                                            
+                                              
+  
+                                                  
+                                               
+                                            
+                                        
+                                       
+                                                   
+                                            
+                                                        
+                                              
+                    
+                                                               
 
 export default function LabPage() {
     const performanceMode = usePerformanceMode();
@@ -59,7 +59,7 @@ export default function LabPage() {
         setActiveModule(null);
     }, []);
 
-    /* Tecla ESC fecha painel e menu */
+                                       
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {

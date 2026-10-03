@@ -76,11 +76,7 @@
       overflow: hidden;
     }
 
-    /*
-      Atmosfera suave no topo,
-      deixando o fundo parecido com um céu
-      roxeado e escuro.
-    */
+    
     body::before {
       content: "";
 
@@ -99,10 +95,7 @@
       z-index: 0;
     }
 
-    /*
-      Brilho muito discreto na parte inferior,
-      ajudando a criar profundidade.
-    */
+    
     body::after {
       content: "";
 
@@ -157,11 +150,7 @@
       position: relative;
     }
 
-    /*
-      Efeito de chão sob a coruja.
-      É propositalmente difuso para não parecer
-      uma plataforma ou um objeto artificial.
-    */
+    
     .art::after {
       content: "";
 
@@ -321,9 +310,7 @@
       }
     }
 
-    /*
-      MOBILE
-    */
+    
     @media (max-width: 720px) {
       body {
         padding: 24px;
@@ -376,7 +363,7 @@
 
   <main class="page">
 
-    <!-- CORUJA -->
+    
     <div class="art">
       <img
         src="/owl-404.png"
@@ -384,7 +371,7 @@
       >
     </div>
 
-    <!-- CONTEÚDO -->
+    
     <div class="content">
 
       <p class="code">

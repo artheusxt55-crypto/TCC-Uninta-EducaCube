@@ -6,7 +6,7 @@ type KnowledgeProps = {
     onOpenModule: (id: ModuleId) => void;
 };
 
-/** Seção 07 — BNCC, referências e conhecimento sustentando a prática. */
+
 export default function Knowledge({ onOpenModule }: KnowledgeProps) {
     return (
         <section

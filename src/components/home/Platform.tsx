@@ -1,7 +1,7 @@
 import BlockTextReveal from "../BlockTextReveal";
 import { AUDIENCE, STAGES } from "./content";
 
-/** Seção 02 — O que é o EducaCube, para quem, e o ciclo pedagógico. */
+
 export default function Platform() {
     return (
         <section

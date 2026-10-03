@@ -1,4 +1,4 @@
-// api/analisar.js
+                  
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método não permitido' });
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     const { prompt, systemContext } = req.body;
 
     async function tryGroq(apiKey) {
-        if (!apiKey) return null; // Ignora se a chave estiver vazia
+        if (!apiKey) return null;                                   
         try {
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
@@ -29,16 +29,16 @@ export default async function handler(req, res) {
         }
     }
 
-    // 1. TENTA A PRIMEIRA CHAVE
+                                
     let result = await tryGroq(process.env.GROQ_API_KEY);
 
-    // 2. SE FALHAR (ou não for status 200), TENTA A SEGUNDA CHAVE (da sua imagem: GROQ_API_KEY2)
+                                                                                                 
     if (!result || result.status !== 200) {
         console.log("Sistema: Chave 1 expirada. Rotacionando para GROQ_API_KEY2...");
         result = await tryGroq(process.env.GROQ_API_KEY2);
     }
 
-    // Se as duas falharem
+                          
     if (!result || result.status !== 200) {
         const errorData = result ? await result.json() : { error: "Erro de conexão" };
         return res.status(500).json({ 

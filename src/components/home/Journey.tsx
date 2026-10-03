@@ -6,7 +6,7 @@ type JourneyProps = {
     onOpenModule: (id: ModuleId) => void;
 };
 
-/** Seção 04 — Como o EducaCube funciona: uma jornada em cinco etapas. */
+
 export default function Journey({ onOpenModule }: JourneyProps) {
     return (
         <section

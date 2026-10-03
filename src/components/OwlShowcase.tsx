@@ -20,8 +20,8 @@ export default function EducaCubeOwl() {
                 video.currentTime = 0;
             } else {
                 video.play().catch(() => {
-                    /* autoplay pode ser bloqueado antes de interação;
-                       sem impacto, o vídeo permanece no primeiro frame */
+                                                                      
+                                                                          
                 });
             }
         };

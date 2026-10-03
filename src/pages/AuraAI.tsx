@@ -56,9 +56,9 @@ import { perguntarAura } from "../lib/aura-engine";
 
 import "../styles/aura-ai.css";
 
-/* ================================================================
-   TYPES
-   ================================================================ */
+                                                                   
+        
+                                                                      
 
 interface NavItem {
   id: string;
@@ -138,9 +138,9 @@ interface WindowWithSpeechRecognition extends Window {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 }
 
-/* ================================================================
-   STATIC CONTENT
-   ================================================================ */
+                                                                   
+                 
+                                                                      
 
 const NAV_ITEMS: NavItem[] = [
   {
@@ -210,18 +210,18 @@ const SUGGESTIONS: Suggestion[] = [
   },
 ];
 
-/* ================================================================
-   STORAGE
-   ================================================================ */
+                                                                   
+          
+                                                                      
 
 const STORAGE_KEY = "educacube_aura_conversations";
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
-/* ================================================================
-   MOTION
-   ================================================================ */
+                                                                   
+         
+                                                                      
 
 const easePremium = [0.22, 1, 0.36, 1] as const;
 
@@ -269,9 +269,9 @@ const listItem = {
   },
 };
 
-/* ================================================================
-   HELPERS
-   ================================================================ */
+                                                                   
+          
+                                                                      
 
 function generateId(): string {
   return `${Date.now()}-${Math.random()
@@ -375,7 +375,7 @@ function saveConversations(
       JSON.stringify(conversations)
     );
   } catch {
-    /* localStorage indisponível */
+                                   
   }
 }
 
@@ -485,9 +485,9 @@ const AURA_STATE_LABELS: Record<
   offline: "Sem conexão",
 };
 
-/* ================================================================
-   ANIMATED TITLE
-   ================================================================ */
+                                                                   
+                 
+                                                                      
 
 function AnimatedWelcomeTitle({
   reducedMotion,
@@ -600,17 +600,17 @@ function AnimatedWelcomeTitle({
   );
 }
 
-/* ================================================================
-   COMPONENT
-   ================================================================ */
+                                                                   
+            
+                                                                      
 
 export default function AuraEducacube() {
   const reducedMotion =
     useReducedMotion();
 
-  /* ----------------------------------------------------------------
-     TOUCH DETECTION
-     ---------------------------------------------------------------- */
+                                                                     
+                    
+                                                                        
 
   const [isTouch, setIsTouch] = useState(false);
 
@@ -654,19 +654,19 @@ export default function AuraEducacube() {
   ) =>
     hoverEnabled ? props : undefined;
 
-  /* ----------------------------------------------------------------
-     STATE
-     ---------------------------------------------------------------- */
+                                                                     
+          
+                                                                        
 
   const [
     activeNav,
     setActiveNav,
   ] = useState("chat");
 
-  /*
-   * IMPORTANTE:
-   * O menu começa fechado.
-   */
+    
+                
+                           
+     
   const [
     sidebarOpen,
     setSidebarOpen,
@@ -807,9 +807,9 @@ export default function AuraEducacube() {
   const hasConversation =
     messages.length > 0;
 
-  /* ================================================================
-     PERSIST
-     ================================================================ */
+                                                                     
+            
+                                                                        
 
   useEffect(() => {
     saveConversations(
@@ -817,9 +817,9 @@ export default function AuraEducacube() {
     );
   }, [conversations]);
 
-  /* ================================================================
-     ONLINE
-     ================================================================ */
+                                                                     
+           
+                                                                        
 
   useEffect(() => {
     const goOnline = () => {
@@ -860,9 +860,9 @@ export default function AuraEducacube() {
     };
   }, []);
 
-  /* ================================================================
-     BODY SCROLL LOCK
-     ================================================================ */
+                                                                     
+                     
+                                                                        
 
   useEffect(() => {
     if (typeof document === "undefined") {
@@ -899,9 +899,9 @@ export default function AuraEducacube() {
     };
   }, [sidebarOpen]);
 
-  /* ================================================================
-     TEXTAREA AUTOSIZE
-     ================================================================ */
+                                                                     
+                      
+                                                                        
 
   useEffect(() => {
     const element =
@@ -917,9 +917,9 @@ export default function AuraEducacube() {
     )}px`;
   }, [input]);
 
-  /* ================================================================
-     MICROPHONE VISUALIZER
-     ================================================================ */
+                                                                     
+                          
+                                                                        
 
   useEffect(() => {
     if (!micActive) {
@@ -941,9 +941,9 @@ export default function AuraEducacube() {
       );
   }, [micActive]);
 
-  /* ================================================================
-     CLEANUP
-     ================================================================ */
+                                                                     
+            
+                                                                        
 
   useEffect(() => {
     return () => {
@@ -982,9 +982,9 @@ export default function AuraEducacube() {
     };
   }, []);
 
-  /* ================================================================
-     SCROLL
-     ================================================================ */
+                                                                     
+           
+                                                                        
 
   function isNearBottom(
     element: HTMLDivElement
@@ -1038,9 +1038,9 @@ export default function AuraEducacube() {
     setShowScrollToLatest(false);
   }
 
-  /* ================================================================
-     GENERATION
-     ================================================================ */
+                                                                     
+               
+                                                                        
 
   function clearGenerationTimers() {
     generationTokenRef.current += 1;
@@ -1310,9 +1310,9 @@ export default function AuraEducacube() {
       }, 600);
   }
 
-  /* ================================================================
-     SEND
-     ================================================================ */
+                                                                     
+         
+                                                                        
 
   function sendMessage(text: string) {
     const trimmed =
@@ -1422,9 +1422,9 @@ export default function AuraEducacube() {
     }
   }
 
-  /* ================================================================
-     STOP
-     ================================================================ */
+                                                                     
+         
+                                                                        
 
   function handleStopGenerating() {
     clearGenerationTimers();
@@ -1434,9 +1434,9 @@ export default function AuraEducacube() {
     );
   }
 
-  /* ================================================================
-     FILES
-     ================================================================ */
+                                                                     
+          
+                                                                        
 
   function addFiles(
     fileList: FileList | null
@@ -1501,15 +1501,15 @@ export default function AuraEducacube() {
     );
   }
 
-  /* ================================================================
-     MICROPHONE
-     ================================================================ */
+                                                                     
+               
+                                                                        
 
   function stopMicrophone() {
     try {
       recognitionRef.current?.stop();
     } catch {
-      /* já encerrado */
+                        
     }
 
     recognitionRef.current = null;
@@ -1629,9 +1629,9 @@ export default function AuraEducacube() {
     }
   }
 
-  /* ================================================================
-     SPEECH
-     ================================================================ */
+                                                                     
+           
+                                                                        
 
   function toggleSpeak(message: AuraMessage) {
     if (
@@ -1717,9 +1717,9 @@ export default function AuraEducacube() {
     );
   }
 
-  /* ================================================================
-     COPY
-     ================================================================ */
+                                                                     
+         
+                                                                        
 
   async function copyMessage(
     message: AuraMessage
@@ -1778,14 +1778,14 @@ export default function AuraEducacube() {
           );
         }, 1600);
       } catch {
-        /* cópia indisponível */
+                                
       }
     }
   }
 
-  /* ================================================================
-     REGENERATE
-     ================================================================ */
+                                                                     
+               
+                                                                        
 
   function regenerate(messageId: string) {
     const index = messages.findIndex(
@@ -1853,9 +1853,9 @@ export default function AuraEducacube() {
     );
   }
 
-  /* ================================================================
-     CONVERSATIONS
-     ================================================================ */
+                                                                     
+                  
+                                                                        
 
   function startNewConversation() {
     clearGenerationTimers();
@@ -1933,9 +1933,9 @@ export default function AuraEducacube() {
     }, 50);
   }
 
-  /* ================================================================
-     RENAME
-     ================================================================ */
+                                                                     
+           
+                                                                        
 
   function startRenameConversation(
     event: MouseEvent,
@@ -1997,9 +1997,9 @@ export default function AuraEducacube() {
     }
   }
 
-  /* ================================================================
-     DELETE
-     ================================================================ */
+                                                                     
+           
+                                                                        
 
   function deleteConversation(
     event: MouseEvent,
@@ -2040,9 +2040,9 @@ export default function AuraEducacube() {
     }
   }
 
-  /* ================================================================
-     NAVIGATION
-     ================================================================ */
+                                                                     
+               
+                                                                        
 
   function handleNavigation(id: string) {
     setActiveNav(id);
@@ -2054,9 +2054,9 @@ export default function AuraEducacube() {
     }
   }
 
-  /* ================================================================
-     DERIVED
-     ================================================================ */
+                                                                     
+            
+                                                                        
 
   const history = useMemo(
     () =>
@@ -2099,9 +2099,9 @@ export default function AuraEducacube() {
     auraState === "thinking" ||
     auraState === "generating";
 
-  /* ================================================================
-     RENDER
-     ================================================================ */
+                                                                     
+           
+                                                                        
 
   return (
     <div
@@ -2110,9 +2110,9 @@ export default function AuraEducacube() {
     >
       <div className="aura-layout">
 
-        {/* ==========================================================
-            MOBILE OVERLAY
-            ========================================================== */}
+        {                                                             
+                          
+                                                                         }
 
         <AnimatePresence>
           {sidebarOpen && (
@@ -2140,9 +2140,9 @@ export default function AuraEducacube() {
           )}
         </AnimatePresence>
 
-        {/* ==========================================================
-            SIDEBAR
-            ========================================================== */}
+        {                                                             
+                   
+                                                                         }
 
         <motion.aside
           id="aura-sidebar"
@@ -2151,11 +2151,11 @@ export default function AuraEducacube() {
               ? "open"
               : ""
           }`}
-          /*
-           * IMPORTANTE:
-           * NÃO usamos x aqui.
-           * O CSS controla o drawer no mobile.
-           */
+            
+                        
+                               
+                                               
+             
           initial={
             reducedMotion
               ? false
@@ -2318,7 +2318,7 @@ export default function AuraEducacube() {
             )}
           </motion.nav>
 
-          {/* HISTORY */}
+          {             }
 
           <motion.div
             className="aura-history"
@@ -2587,7 +2587,7 @@ export default function AuraEducacube() {
             )}
           </motion.div>
 
-          {/* SIDEBAR BOTTOM */}
+          {                    }
 
           <motion.div
             className="aura-sidebar-bottom"
@@ -2659,13 +2659,13 @@ export default function AuraEducacube() {
           </motion.div>
         </motion.aside>
 
-        {/* ==========================================================
-            MAIN
-            ========================================================== */}
+        {                                                             
+                
+                                                                         }
 
         <main className="aura-main">
 
-          {/* HEADER */}
+          {            }
 
           <motion.header
             className="aura-header"
@@ -2848,7 +2848,7 @@ export default function AuraEducacube() {
             </div>
           </motion.header>
 
-          {/* CHAT */}
+          {          }
 
           <section className="aura-chat-section">
             {!hasConversation ? (
@@ -3495,7 +3495,7 @@ export default function AuraEducacube() {
               </div>
             )}
 
-            {/* COMPOSER */}
+            {              }
 
             <motion.div
               className="aura-composer-area"

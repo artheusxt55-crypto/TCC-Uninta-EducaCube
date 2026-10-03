@@ -1,7 +1,7 @@
 import BlockTextReveal from "../BlockTextReveal";
 import { ROUTES } from "./content";
 
-/** Seção 09 — Encerramento. */
+
 export default function Closing() {
     return (
         <section

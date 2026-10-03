@@ -1,6 +1,6 @@
 import { PROBLEMS } from "./content";
 
-/** Seção 03 — O problema que a plataforma resolve. */
+
 export default function Problem() {
     return (
         <section

@@ -169,13 +169,13 @@ export function AnimatedMenuBar({
         (key: MenuItemKey) => {
             clearTimers();
 
-            /*
-             * O item visualmente acompanha o cursor,
-             * mas só é confirmado depois de 300ms.
-             *
-             * Isso evita disparar animações quando
-             * o usuário simplesmente atravessa o menu.
-             */
+            
+
+
+
+
+
+
             setHoveredItem(key);
 
             hoverTimer.current = setTimeout(() => {
@@ -190,10 +190,10 @@ export function AnimatedMenuBar({
 
         setHoveredItem(null);
 
-        /*
-         * Pequena tolerância para evitar fechamento
-         * brusco quando o cursor sai da área.
-         */
+        
+
+
+
         closeTimer.current = setTimeout(() => {
             setConfirmedHover(null);
         }, 200);

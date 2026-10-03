@@ -1,4 +1,4 @@
-/* EducaCube – CSS do DASHBOARD DO ALUNO (arquivo completo, independente). Importado só por DashboardAluno.tsx */
+                                                                                                                 
 .ec-app{
   --bg:#04031f; --side:#03031a; --card:#07062e; --card2:#0b0a3d; --line:#1a1766; --line2:#2d22a0;
   --pri:#7325fd; --pri2:#5a0bd6; --lil:#a97cff; --txt:#f2efff; --mut:#9a92dc; --ok:#22c58b;
@@ -13,7 +13,7 @@
 .ec-app .px{image-rendering:pixelated}
 .ec-app :focus-visible{outline:2px solid var(--lil);outline-offset:2px}
 
-/* ---------- sidebar ---------- */
+                                   
 .ec-side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;background:var(--side);border-right:1px solid var(--line);padding:12px 16px 16px;overflow-y:auto}
 .ec-brand{display:flex;align-items:center;gap:8px;padding:2px 4px 22px}
 .ec-brand img{border-radius:8px}
@@ -34,7 +34,7 @@
 .ec-ver{display:flex;align-items:center;gap:10px;padding:12px 6px 0;border-top:1px solid var(--line);font-size:12.5px;font-weight:600}
 .ec-ver small{display:block;font-weight:400}
 
-/* ---------- topo ---------- */
+                                
 .ec-body{min-width:0;display:flex;flex-direction:column}
 .ec-top{height:70px;display:flex;align-items:center;gap:20px;padding:0 25px 0 21px;border-bottom:1px solid var(--line)}
 .ec-search{flex:1;max-width:846px;height:43px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid var(--line2);border-radius:10px;background:#08073a;color:#cfc6ff}
@@ -51,14 +51,14 @@
 .ec-menu a{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px}
 .ec-menu a:hover{background:rgba(115,37,253,.2)}
 
-/* ---------- grade principal ---------- */
+                                           
 .ec-main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 346px;gap:23px;align-items:start;padding:16px 25px 26px 21px}
 .ec-center,.ec-aside,.ec-col{display:flex;flex-direction:column;gap:17px;min-width:0}
 .ec-cols{display:grid;grid-template-columns:1.37fr 1fr;gap:17px;align-items:start}
 .ec-cols.even{grid-template-columns:1fr 1fr}
 .ec-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
 
-/* ---------- card ---------- */
+                                
 .ec-card{position:relative;background:linear-gradient(180deg,#0a0837,#06052a);border:1px solid var(--line);border-radius:12px;padding:16px}
 .ec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .ec-head h2{margin:0;font-size:17px;font-weight:600}
@@ -69,7 +69,7 @@
 .ec-bar > i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#6d28f9,#a06bff)}
 .ec-mut{color:var(--mut)}
 
-/* ---------- hero ---------- */
+                                
 .ec-hero{min-height:204px;padding:20px 22px;overflow:hidden;background:linear-gradient(100deg,#070533 0%,#0a0640 45%,#140a63 100%);border-color:var(--line2)}
 .ec-hero-art{position:absolute;top:0;right:0;bottom:0;width:596px;max-width:70%;background:url('/assets/dashboard/hero-scene.png') right center/auto 100% no-repeat;image-rendering:pixelated;-webkit-mask-image:linear-gradient(90deg,transparent,#000 24%);mask-image:linear-gradient(90deg,transparent,#000 24%)}
 .ec-hero-txt{position:relative;max-width:275px}
@@ -80,7 +80,7 @@
 .ec-quote p{margin:0;font-size:13px;line-height:1.35;color:#e8e3ff}
 .ec-quote img{align-self:center}
 
-/* ---------- KPIs ---------- */
+                                
 .ec-kpi{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#050638}
 .ec-kpi .ec-rb{flex:1;min-width:0}
 .ec-kpi small{display:block;color:#e0dbff;font-size:12.5px}
@@ -93,7 +93,7 @@
 .ec-kic.k0{background:#2f159c;color:#e2d6ff} .ec-kic.k1{background:#0f6b66;color:#5cf0d8}
 .ec-kic.k2{background:#4a3218;color:#ffc93c} .ec-kic.k3{background:#2f159c;color:#d9ccff}
 
-/* ---------- listas ---------- */
+                                  
 .ec-list{display:flex;flex-direction:column}
 .ec-rb{min-width:0}
 .ec-rb b{display:block;font-size:14.5px;font-weight:600}
@@ -124,7 +124,7 @@
 .ec-pill.p-pendente{background:#3a0f3f;color:#ffb3d6}
 .ec-pill.p-concluida,.ec-pill.p-concluido,.ec-pill.p-entregue{background:#0d3a35;color:#5ce2b8}
 
-/* ---------- Aura / calendário / metas / mascote ---------- */
+                                                               
 .ec-aura-h{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .ec-aura-h img{width:52px;height:52px;border-radius:14px;object-fit:cover;border:1px solid var(--line2)}
 .ec-aura-h b{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:600}
@@ -156,13 +156,13 @@
 .ec-bubble::after{content:"";position:absolute;left:-1px;bottom:-11px;width:16px;height:12px;background:#1b1279;clip-path:polygon(0 0,100% 0,0 100%)}
 .ec-bubble img{align-self:center}
 
-/* ---------- "você está indo muito bem" ---------- */
+                                                      
 .ec-well{padding:0 16px 16px;overflow:hidden;text-align:center}
 .ec-well-art{height:114px;margin:0 -16px 10px;background:url('/assets/dashboard/owl-card.png') center/auto 100% no-repeat, #06052b;image-rendering:pixelated;-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}
 .ec-well h3{margin:0 0 8px;font-size:17px;font-weight:600}
 .ec-well p{margin:0 0 16px;font-size:12.5px;line-height:1.45;color:#b9b1f3}
 
-/* ---------- professor ---------- */
+                                     
 .ec-date{display:block;color:#c9c1ff}
 .ec-today{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
 .ec-today .ec-rb{flex:1}
@@ -182,7 +182,7 @@
 .ec-tools a:hover{border-color:#6d4dff}
 .ec-tools b{display:block;font-size:13.5px}
 
-/* ---------- responsivo ---------- */
+                                      
 @media (max-width:1180px){
   .ec-main{grid-template-columns:minmax(0,1fr)}
   .ec-aside{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:start}

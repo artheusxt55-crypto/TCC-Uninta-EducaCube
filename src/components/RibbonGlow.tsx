@@ -1,5 +1,5 @@
-// Ribbon Glow — Originkit
-// Performance adaptativa para desktop, mobile e dispositivos de baixo desempenho.
+                          
+                                                                                  
 
 "use client"
 
@@ -9,13 +9,13 @@ import { usePerformanceMode } from "../hooks/usePerformanceMode"
 
 const NAME = "RibbonGlow"
 
-// ============================================================
-// CONFIGURAÇÃO DE PERFORMANCE
-// ============================================================
+                                                               
+                              
+                                                               
 
 const PERFORMANCE_CONFIG = {
     full: {
-        // Qualidade alta para desktop e mobile potente.
+                                                        
         dpr: 1.5,
         resolution: 0.45,
         layers: 48,
@@ -24,7 +24,7 @@ const PERFORMANCE_CONFIG = {
     },
 
     reduced: {
-        // Qualidade intermediária.
+                                   
         dpr: 1,
         resolution: 0.28,
         layers: 18,
@@ -33,7 +33,7 @@ const PERFORMANCE_CONFIG = {
     },
 
     minimal: {
-        // Dispositivos muito limitados.
+                                        
         dpr: 1,
         resolution: 0.20,
         layers: 12,
@@ -45,9 +45,9 @@ const PERFORMANCE_CONFIG = {
 const TWIST = 1.25
 const DRAG = 0.18
 
-// ============================================================
-// VERTEX SHADER
-// ============================================================
+                                                               
+                
+                                                               
 
 const VERT_SRC = `#version 300 es
 const vec2 P[3] = vec2[3](
@@ -61,9 +61,9 @@ void main() {
 }
 `
 
-// ============================================================
-// FIELD SHADER
-// ============================================================
+                                                               
+               
+                                                               
 
 function createFieldShader(layers: number) {
     return `#version 300 es
@@ -117,9 +117,9 @@ void main() {
     vec2 pos =
         (gl_FragCoord.xy - 0.5 * R) / R.y;
 
-    // --------------------------------------------------------
-    // INTERAÇÃO
-    // --------------------------------------------------------
+                                                               
+                
+                                                               
 
     vec2 d = pos - uMouse;
 
@@ -143,9 +143,9 @@ void main() {
             DRAG;
     }
 
-    // --------------------------------------------------------
-    // TRANSFORMAÇÃO
-    // --------------------------------------------------------
+                                                               
+                    
+                                                               
 
     pos =
         rot(uAngle) *
@@ -181,9 +181,9 @@ void main() {
 
     vec3 col = vec3(0.0);
 
-    // --------------------------------------------------------
-    // RIBBON
-    // --------------------------------------------------------
+                                                               
+             
+                                                               
 
     for (
         float i = 1.0;
@@ -264,9 +264,9 @@ void main() {
             );
     }
 
-    // --------------------------------------------------------
-    // TONEMAPPING
-    // --------------------------------------------------------
+                                                               
+                  
+                                                               
 
     vec3 x =
         max(
@@ -316,9 +316,9 @@ void main() {
 `
 }
 
-// ============================================================
-// FINISH SHADER
-// ============================================================
+                                                               
+                
+                                                               
 
 const FINISH_SRC = `#version 300 es
 precision highp float;
@@ -414,9 +414,9 @@ void main() {
 }
 `
 
-// ============================================================
-// COLOR
-// ============================================================
+                                                               
+        
+                                                               
 
 type RGB = [number, number, number]
 
@@ -658,9 +658,9 @@ function clampN(
         : v
 }
 
-// ============================================================
-// WEBGL PROGRAM
-// ============================================================
+                                                               
+                
+                                                               
 
 function link(
     gl: WebGL2RenderingContext,
@@ -760,9 +760,9 @@ function link(
     return prog
 }
 
-// ============================================================
-// UNIFORMS
-// ============================================================
+                                                               
+           
+                                                               
 
 function locations(
     gl: WebGL2RenderingContext,
@@ -788,9 +788,9 @@ function locations(
     return out
 }
 
-// ============================================================
-// FRAMEBUFFER
-// ============================================================
+                                                               
+              
+                                                               
 
 function fieldTarget(
     gl: WebGL2RenderingContext
@@ -942,9 +942,9 @@ function fieldTarget(
     }
 }
 
-// ============================================================
-// POINTER
-// ============================================================
+                                                               
+          
+                                                               
 
 function trackPointer(
     root: HTMLElement
@@ -1037,9 +1037,9 @@ function trackPointer(
     }
 }
 
-// ============================================================
-// DEFAULTS
-// ============================================================
+                                                               
+           
+                                                               
 
 const DEFAULTS = {
 
@@ -1075,9 +1075,9 @@ interface RibbonGlowProps {
     height?: number
 }
 
-// ============================================================
-// COMPONENT
-// ============================================================
+                                                               
+            
+                                                               
 
 function __OriginkitBase_RibbonGlow(
     props: RibbonGlowProps
@@ -1208,9 +1208,9 @@ function __OriginkitBase_RibbonGlow(
             return
         }
 
-        // ----------------------------------------------------
-        // WEBGL2
-        // ----------------------------------------------------
+                                                               
+                 
+                                                               
 
         const gl =
             canvas.getContext(
@@ -1237,9 +1237,9 @@ function __OriginkitBase_RibbonGlow(
             return
         }
 
-        // ----------------------------------------------------
-        // SHADERS
-        // ----------------------------------------------------
+                                                               
+                  
+                                                               
 
         const field =
             link(
@@ -1273,9 +1273,9 @@ function __OriginkitBase_RibbonGlow(
             return
         }
 
-        // ----------------------------------------------------
-        // UNIFORMS
-        // ----------------------------------------------------
+                                                               
+                   
+                                                               
 
         const uf =
             locations(
@@ -1308,9 +1308,9 @@ function __OriginkitBase_RibbonGlow(
                 ]
             )
 
-        // ----------------------------------------------------
-        // VAO
-        // ----------------------------------------------------
+                                                               
+              
+                                                               
 
         const vao =
             gl.createVertexArray()
@@ -1319,16 +1319,16 @@ function __OriginkitBase_RibbonGlow(
             vao
         )
 
-        // ----------------------------------------------------
-        // FRAMEBUFFER
-        // ----------------------------------------------------
+                                                               
+                      
+                                                               
 
         const target =
             fieldTarget(gl)
 
-        // ----------------------------------------------------
-        // POINTER
-        // ----------------------------------------------------
+                                                               
+                  
+                                                               
 
         const pointer =
             config.interaction
@@ -1343,9 +1343,9 @@ function __OriginkitBase_RibbonGlow(
                 seen: false,
             }
 
-        // ----------------------------------------------------
-        // DIMENSÕES CACHEADAS
-        // ----------------------------------------------------
+                                                               
+                              
+                                                               
 
         let cw =
             root.clientWidth || 800
@@ -1400,9 +1400,9 @@ function __OriginkitBase_RibbonGlow(
 
         resizeObserver?.observe(root)
 
-        // ----------------------------------------------------
-        // VISIBILIDADE
-        // ----------------------------------------------------
+                                                               
+                       
+                                                               
 
         let isVisible = true
 
@@ -1413,9 +1413,9 @@ function __OriginkitBase_RibbonGlow(
 
         let raf = 0
 
-        // ----------------------------------------------------
-        // ESTADO
-        // ----------------------------------------------------
+                                                               
+                 
+                                                               
 
         let mx = 0
         let my = 0
@@ -1432,9 +1432,9 @@ function __OriginkitBase_RibbonGlow(
         const frameInterval =
             1000 / config.fps
 
-        // ----------------------------------------------------
-        // CORES CACHEADAS
-        // ----------------------------------------------------
+                                                               
+                          
+                                                               
 
         let cachedColor1Key =
             ""
@@ -1468,9 +1468,9 @@ function __OriginkitBase_RibbonGlow(
             0.7152 * cachedBg[1] +
             0.0722 * cachedBg[2]
 
-        // ----------------------------------------------------
-        // ATUALIZAÇÃO DE CORES
-        // ----------------------------------------------------
+                                                               
+                               
+                                                               
 
         const updateColors =
             () => {
@@ -1529,9 +1529,9 @@ function __OriginkitBase_RibbonGlow(
                 }
             }
 
-        // ----------------------------------------------------
-        // RENDER
-        // ----------------------------------------------------
+                                                               
+                 
+                                                               
 
         const render =
             (now: number) => {
@@ -1587,15 +1587,15 @@ function __OriginkitBase_RibbonGlow(
                         v.speed
                     ) % 3600
 
-                // ------------------------------------------------
-                // CORES
-                // ------------------------------------------------
+                                                                   
+                        
+                                                                   
 
                 updateColors()
 
-                // ------------------------------------------------
-                // DPR
-                // ------------------------------------------------
+                                                                   
+                      
+                                                                   
 
                 const dpr =
                     Math.min(
@@ -1630,9 +1630,9 @@ function __OriginkitBase_RibbonGlow(
                     dimensionsDirty = true
                 }
 
-                // ------------------------------------------------
-                // FRAMEBUFFER REDUZIDO
-                // ------------------------------------------------
+                                                                   
+                                       
+                                                                   
 
                 if (
                     dimensionsDirty ||
@@ -1662,9 +1662,9 @@ function __OriginkitBase_RibbonGlow(
                     dimensionsDirty = false
                 }
 
-                // ------------------------------------------------
-                // INTERAÇÃO
-                // ------------------------------------------------
+                                                                   
+                            
+                                                                   
 
                 if (
                     config.interaction
@@ -1762,9 +1762,9 @@ function __OriginkitBase_RibbonGlow(
                     vy = 0
                 }
 
-                // ------------------------------------------------
-                // VELOCIDADE
-                // ------------------------------------------------
+                                                                   
+                             
+                                                                   
 
                 const vLen =
                     Math.hypot(
@@ -1778,9 +1778,9 @@ function __OriginkitBase_RibbonGlow(
                         ? 3 / vLen
                         : 1
 
-                // ------------------------------------------------
-                // FIELD PASS
-                // ------------------------------------------------
+                                                                   
+                             
+                                                                   
 
                 gl.bindFramebuffer(
                     gl.FRAMEBUFFER,
@@ -1871,9 +1871,9 @@ function __OriginkitBase_RibbonGlow(
                     3
                 )
 
-                // ------------------------------------------------
-                // FINAL PASS
-                // ------------------------------------------------
+                                                                   
+                             
+                                                                   
 
                 gl.bindFramebuffer(
                     gl.FRAMEBUFFER,
@@ -1943,9 +1943,9 @@ function __OriginkitBase_RibbonGlow(
                 )
             }
 
-        // ----------------------------------------------------
-        // CONTROLE DE EXECUÇÃO
-        // ----------------------------------------------------
+                                                               
+                               
+                                                               
 
         const start =
             () => {
@@ -1978,9 +1978,9 @@ function __OriginkitBase_RibbonGlow(
                 }
             }
 
-        // ----------------------------------------------------
-        // INTERSECTION OBSERVER
-        // ----------------------------------------------------
+                                                               
+                                
+                                                               
 
         const intersectionObserver =
             typeof IntersectionObserver !== "undefined"
@@ -2004,9 +2004,9 @@ function __OriginkitBase_RibbonGlow(
 
         intersectionObserver?.observe(root)
 
-        // ----------------------------------------------------
-        // VISIBILITY CHANGE
-        // ----------------------------------------------------
+                                                               
+                            
+                                                               
 
         const handleVisibility =
             () => {
@@ -2027,15 +2027,15 @@ function __OriginkitBase_RibbonGlow(
             handleVisibility
         )
 
-        // ----------------------------------------------------
-        // INÍCIO
-        // ----------------------------------------------------
+                                                               
+                 
+                                                               
 
         start()
 
-        // ----------------------------------------------------
-        // CLEANUP
-        // ----------------------------------------------------
+                                                               
+                  
+                                                               
 
         return () => {
 
@@ -2076,9 +2076,9 @@ function __OriginkitBase_RibbonGlow(
         config.interaction,
     ])
 
-    // ========================================================
-    // ROOT
-    // ========================================================
+                                                               
+           
+                                                               
 
     return React.createElement(
         "div",
@@ -2123,9 +2123,9 @@ function __OriginkitBase_RibbonGlow(
     )
 }
 
-// ============================================================
-// PRESET
-// ============================================================
+                                                               
+         
+                                                               
 
 const __originkitPresetProps: RibbonGlowProps = {
     color1: "#000000",

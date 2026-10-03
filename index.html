@@ -8,30 +8,30 @@
         content="width=device-width, initial-scale=1.0"
     />
 
-    <!-- Título da página -->
+    
     <title>
         EducaCube — Plataforma Educacional com Inteligência Artificial
     </title>
 
-    <!-- Descrição para mecanismos de busca -->
+    
     <meta
         name="description"
         content="EducaCube é uma plataforma educacional que reúne recursos de aprendizagem, tecnologia e inteligência artificial para estudantes e educadores."
     />
 
-    <!-- Permite que o Google indexe a página -->
+    
     <meta
         name="robots"
         content="index, follow"
     />
 
-    <!-- URL principal do site -->
+    
     <link
         rel="canonical"
         href="https://educacube.online/"
     />
 
-    <!-- Dados estruturados para ajudar o Google a entender o EducaCube -->
+    
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -42,11 +42,11 @@
     }
     </script>
 
-    <!-- ===================================================== -->
-    <!-- GOOGLE ANALYTICS 4                                    -->
-    <!-- ===================================================== -->
+    
+    
+    
 
-    <!-- Google tag (gtag.js) -->
+    
     <script
         async
         src="https://www.googletagmanager.com/gtag/js?id=G-3ZRNDZFYER"
@@ -59,34 +59,25 @@
             dataLayer.push(arguments);
         }
 
-        /*
-         * Inicializa o Google tag.
-         */
+        
         gtag('js', new Date());
 
-        /*
-         * Configura o Google Analytics.
-         *
-         * send_page_view: false
-         * evita enviar page_view automaticamente.
-         * O seu sistema de cookies/analytics.ts
-         * poderá controlar quando o Analytics deve enviar dados.
-         */
+        
         gtag('config', 'G-3ZRNDZFYER', {
             send_page_view: false
         });
     </script>
 
-    <!-- ===================================================== -->
+    
 
 </head>
 
 <body>
 
-    <!-- Aplicação React -->
+    
     <div id="root"></div>
 
-    <!-- Entrada principal do React/Vite -->
+    
     <script
         type="module"
         src="/src/main.tsx"

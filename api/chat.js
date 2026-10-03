@@ -1,9 +1,9 @@
 import admin from "firebase-admin";
 import { construirContextoRAG } from "./rag/index.js";
 
-/* =========================================================
-   FIREBASE ADMIN
-   ========================================================= */
+                                                            
+                 
+                                                               
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -17,9 +17,9 @@ if (!admin.apps.length) {
 
 const auth = admin.auth();
 
-/* =========================================================
-   CONFIGURAÇÃO DOS MODELOS
-   ========================================================= */
+                                                            
+                           
+                                                               
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -31,48 +31,48 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_MODEL =
   process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
-/* =========================================================
-   UPSTASH REDIS
-   ========================================================= */
+                                                            
+                
+                                                               
 
 const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-/* =========================================================
-   RATE LIMIT
-   ========================================================= */
+                                                            
+             
+                                                               
 
-/*
- * Limite individual por usuário.
- *
- * Cada UID possui seu próprio contador.
- *
- * Exemplo:
- *
- * aluno A → 20 requisições
- * aluno B → 20 requisições
- * aluno C → 20 requisições
- *
- * Um usuário não consome o limite do outro.
- */
+  
+                                 
+  
+                                        
+  
+           
+  
+                           
+                           
+                           
+  
+                                            
+   
 
 const USER_RATE_LIMIT = 20;
 const USER_RATE_WINDOW_SECONDS = 300;
 
-/*
- * Limite secundário por IP.
- *
- * Serve apenas como proteção contra abuso.
- *
- * Não é o controle principal da AURA.
- */
+  
+                            
+  
+                                           
+  
+                                      
+   
 
 const IP_RATE_LIMIT = 300;
 const IP_RATE_WINDOW_SECONDS = 300;
 
-/* =========================================================
-   REDIS
-   ========================================================= */
+                                                            
+        
+                                                               
 
 async function redisCommand(command) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
@@ -106,9 +106,9 @@ async function redisCommand(command) {
   }
 }
 
-/* =========================================================
-   RATE LIMIT POR USUÁRIO
-   ========================================================= */
+                                                            
+                         
+                                                               
 
 async function checkUserRateLimit(uid) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
@@ -126,10 +126,10 @@ async function checkUserRateLimit(uid) {
 
   const count = Number(result?.result ?? 0);
 
-  /*
-   * A primeira requisição inicia a janela
-   * de 5 minutos.
-   */
+    
+                                          
+                  
+     
 
   if (count === 1) {
     await redisCommand([
@@ -147,9 +147,9 @@ async function checkUserRateLimit(uid) {
   };
 }
 
-/* =========================================================
-   RATE LIMIT POR IP
-   ========================================================= */
+                                                            
+                    
+                                                               
 
 async function checkIpRateLimit(ip) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
@@ -183,9 +183,9 @@ async function checkIpRateLimit(ip) {
   };
 }
 
-/* =========================================================
-   MÉTRICAS
-   ========================================================= */
+                                                            
+           
+                                                               
 
 async function registrarMetrica(uid, dados = {}) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
@@ -195,17 +195,17 @@ async function registrarMetrica(uid, dados = {}) {
   try {
     const key = `aura:metrics:${uid}`;
 
-    /*
-     * Total de solicitações
-     */
+      
+                            
+       
 
     await redisCommand([
       ["HINCRBY", key, "requests", 1],
     ]);
 
-    /*
-     * Gemini
-     */
+      
+             
+       
 
     if (dados.provider === "gemini") {
       await redisCommand([
@@ -213,9 +213,9 @@ async function registrarMetrica(uid, dados = {}) {
       ]);
     }
 
-    /*
-     * Groq
-     */
+      
+           
+       
 
     if (dados.provider === "groq") {
       await redisCommand([
@@ -223,9 +223,9 @@ async function registrarMetrica(uid, dados = {}) {
       ]);
     }
 
-    /*
-     * Fallback
-     */
+      
+               
+       
 
     if (dados.fallback) {
       await redisCommand([
@@ -233,9 +233,9 @@ async function registrarMetrica(uid, dados = {}) {
       ]);
     }
 
-    /*
-     * Erros
-     */
+      
+            
+       
 
     if (dados.error) {
       await redisCommand([
@@ -243,10 +243,10 @@ async function registrarMetrica(uid, dados = {}) {
       ]);
     }
   } catch (error) {
-    /*
-     * Falha nas métricas não pode impedir
-     * a resposta da AURA.
-     */
+      
+                                          
+                          
+       
 
     console.error(
       "[AURA] Erro ao registrar métrica:",
@@ -255,19 +255,19 @@ async function registrarMetrica(uid, dados = {}) {
   }
 }
 
-/* =========================================================
-   AUTENTICAÇÃO
-   ========================================================= */
+                                                            
+               
+                                                               
 
 async function autenticarUsuario(req) {
   const authorization =
     req.headers.authorization || "";
 
-  /*
-   * O frontend deve enviar:
-   *
-   * Authorization: Bearer TOKEN_FIREBASE
-   */
+    
+                            
+    
+                                         
+     
 
   if (!authorization.startsWith("Bearer ")) {
     throw new Error("AUTH_REQUIRED");
@@ -282,17 +282,17 @@ async function autenticarUsuario(req) {
     throw new Error("AUTH_REQUIRED");
   }
 
-  /*
-   * Firebase verifica a autenticidade
-   * do token e devolve os dados do usuário.
-   */
+    
+                                      
+                                            
+     
 
   return await auth.verifyIdToken(token);
 }
 
-/* =========================================================
-   SANITIZAÇÃO DO PROMPT
-   ========================================================= */
+                                                            
+                        
+                                                               
 
 function sanitizarTexto(
   texto,
@@ -307,9 +307,9 @@ function sanitizarTexto(
     .slice(0, limite);
 }
 
-/* =========================================================
-   SANITIZAÇÃO DO CONTEXTO
-   ========================================================= */
+                                                            
+                          
+                                                               
 
 function sanitizarContexto(contexto) {
   if (!Array.isArray(contexto)) {
@@ -333,9 +333,9 @@ function sanitizarContexto(contexto) {
     );
 }
 
-/* =========================================================
-   RETRY
-   ========================================================= */
+                                                            
+        
+                                                               
 
 function esperar(ms) {
   return new Promise(
@@ -344,9 +344,9 @@ function esperar(ms) {
   );
 }
 
-/* =========================================================
-   STATUS QUE PODEM SER TENTADOS NOVAMENTE
-   ========================================================= */
+                                                            
+                                          
+                                                               
 
 function erroPodeTentarNovamente(
   status
@@ -361,9 +361,9 @@ function erroPodeTentarNovamente(
   );
 }
 
-/* =========================================================
-   GEMINI
-   ========================================================= */
+                                                            
+         
+                                                               
 
 async function chamarGemini({
   prompt,
@@ -381,12 +381,12 @@ async function chamarGemini({
     `:generateContent` +
     `?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
-  /*
-   * O chat.js não conhece as instruções
-   * pedagógicas da AURA.
-   *
-   * Tudo isso já foi montado pelo RAG.
-   */
+    
+                                        
+                         
+    
+                                       
+     
 
   const body = {
     contents: [
@@ -409,9 +409,9 @@ async function chamarGemini({
 
   let ultimoErro = null;
 
-  /*
-   * Duas tentativas antes de acionar o fallback.
-   */
+    
+                                                 
+     
 
   for (
     let tentativa = 1;
@@ -433,9 +433,9 @@ async function chamarGemini({
         }
       );
 
-      /* ============================================
-         SUCESSO
-         ============================================ */
+                                                     
+                
+                                                        
 
       if (response.ok) {
         const data =
@@ -465,9 +465,9 @@ async function chamarGemini({
         };
       }
 
-      /* ============================================
-         ERRO
-         ============================================ */
+                                                     
+             
+                                                        
 
       const erroTexto =
         await response.text();
@@ -477,9 +477,9 @@ async function chamarGemini({
           `Gemini ${response.status}: ${erroTexto}`
         );
 
-      /*
-       * Só repete quando o erro pode ser temporário.
-       */
+        
+                                                     
+         
 
       if (
         tentativa < 2 &&
@@ -516,9 +516,9 @@ async function chamarGemini({
   );
 }
 
-/* =========================================================
-   GROQ — FALLBACK
-   ========================================================= */
+                                                            
+                  
+                                                               
 
 async function chamarGroq({
   prompt,
@@ -595,26 +595,26 @@ async function chamarGroq({
   };
 }
 
-/* =========================================================
-   HANDLER PRINCIPAL
-   ========================================================= */
+                                                            
+                    
+                                                               
 
 export default async function handler(
   req,
   res
 ) {
-  /*
-   * Não armazenar resposta da AURA em cache.
-   */
+    
+                                             
+     
 
   res.setHeader(
     "Cache-Control",
     "no-store"
   );
 
-  /* =======================================================
-     MÉTODO HTTP
-     ======================================================= */
+                                                            
+                
+                                                               
 
   if (req.method !== "POST") {
     return res.status(405).json({
@@ -623,26 +623,26 @@ export default async function handler(
     });
   }
 
-  /*
-   * UID só será preenchido depois
-   * da autenticação.
-   */
+    
+                                  
+                     
+     
 
   let uid = null;
 
   try {
-    /* =====================================================
-       1. AUTENTICAÇÃO
-       ===================================================== */
+                                                            
+                      
+                                                               
 
     const usuario =
       await autenticarUsuario(req);
 
     uid = usuario.uid;
 
-    /* =====================================================
-       2. RATE LIMIT INDIVIDUAL
-       ===================================================== */
+                                                            
+                               
+                                                               
 
     const limiteUsuario =
       await checkUserRateLimit(uid);
@@ -659,9 +659,9 @@ export default async function handler(
       });
     }
 
-    /* =====================================================
-       3. IDENTIFICAÇÃO DO IP
-       ===================================================== */
+                                                            
+                             
+                                                               
 
     const forwardedFor =
       req.headers[
@@ -678,9 +678,9 @@ export default async function handler(
             ?.remoteAddress ||
           "unknown";
 
-    /* =====================================================
-       4. RATE LIMIT SECUNDÁRIO POR IP
-       ===================================================== */
+                                                            
+                                      
+                                                               
 
     const limiteIp =
       await checkIpRateLimit(ip);
@@ -695,9 +695,9 @@ export default async function handler(
       });
     }
 
-    /* =====================================================
-       5. RECEBER DADOS
-       ===================================================== */
+                                                            
+                       
+                                                               
 
     const {
       prompt:
@@ -707,9 +707,9 @@ export default async function handler(
         contextoOriginal = [],
     } = req.body || {};
 
-    /* =====================================================
-       6. SANITIZAÇÃO
-       ===================================================== */
+                                                            
+                     
+                                                               
 
     const prompt =
       sanitizarTexto(
@@ -728,16 +728,16 @@ export default async function handler(
       });
     }
 
-    /* =====================================================
-       7. CONSTRUIR RAG
-       ===================================================== */
+                                                            
+                       
+                                                               
 
-    /*
-     * O chat.js não possui o conhecimento da AURA.
-     *
-     * Ele apenas solicita ao módulo RAG
-     * que construa o contexto necessário.
-     */
+      
+                                                   
+      
+                                        
+                                          
+       
 
     const contextoRAG =
       await construirContextoRAG({
@@ -748,9 +748,9 @@ export default async function handler(
         uid,
       });
 
-    /* =====================================================
-       8. GEMINI
-       ===================================================== */
+                                                            
+                
+                                                               
 
     try {
       const resultado =
@@ -789,9 +789,9 @@ export default async function handler(
         geminiError?.message
       );
 
-      /* =================================================
-         9. FALLBACK GROQ
-         ================================================= */
+                                                          
+                         
+                                                             
 
       try {
         const resultado =
@@ -854,18 +854,18 @@ export default async function handler(
       }
     }
   } catch (error) {
-    /* =====================================================
-       ERROS GERAIS
-       ===================================================== */
+                                                            
+                   
+                                                               
 
     console.error(
       "[AURA] Erro:",
       error?.message
     );
 
-    /* =====================================================
-       AUTENTICAÇÃO AUSENTE
-       ===================================================== */
+                                                            
+                           
+                                                               
 
     if (
       error?.message ===
@@ -880,9 +880,9 @@ export default async function handler(
       });
     }
 
-    /* =====================================================
-       TOKEN FIREBASE INVÁLIDO/EXPIRADO
-       ===================================================== */
+                                                            
+                                       
+                                                               
 
     if (
       error?.code ===
@@ -903,9 +903,9 @@ export default async function handler(
       });
     }
 
-    /* =====================================================
-       MÉTRICA DE ERRO
-       ===================================================== */
+                                                            
+                      
+                                                               
 
     if (uid) {
       await registrarMetrica(
@@ -917,9 +917,9 @@ export default async function handler(
       );
     }
 
-    /* =====================================================
-       ERRO INTERNO
-       ===================================================== */
+                                                            
+                   
+                                                               
 
     return res.status(500).json({
       error:

@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
-/* =========================================================
- * ÍCONES DA HOME
- * Traço fino, 24x24, currentColor — mesma linguagem visual
- * do glifo do cubo. Sem emojis, sem preenchimentos.
- * ========================================================= */
+
+
+
+
+
 
 type IconProps = {
     className?: string;

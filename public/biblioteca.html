@@ -153,9 +153,7 @@ body {
     background: var(--ink-faint);
 }
 
-/* =========================================================
-   SHELL
-========================================================= */
+
 
 .app-bg {
     background: var(--bg);
@@ -224,9 +222,7 @@ body {
         0 0 0 3px var(--focus-ring);
 }
 
-/* =========================================================
-   CHIPS
-========================================================= */
+
 
 .chip {
     border: 1px solid var(--border);
@@ -250,9 +246,7 @@ body {
     background: var(--violet-wash);
 }
 
-/* =========================================================
-   BUTTONS
-========================================================= */
+
 
 .icon-btn {
     color: var(--ink-dim);
@@ -302,9 +296,7 @@ body {
     border-color: var(--violet-soft);
 }
 
-/* =========================================================
-   BOOK CARDS
-========================================================= */
+
 
 .card-book {
     background: var(--surface);
@@ -411,9 +403,7 @@ html[data-theme="light"] .cover-veil {
     color: var(--violet-soft);
 }
 
-/* =========================================================
-   MODAL
-========================================================= */
+
 
 .modal-veil {
     background:
@@ -426,9 +416,7 @@ html[data-theme="light"] .cover-veil {
     backdrop-filter: blur(14px);
 }
 
-/* =========================================================
-   SKELETON
-========================================================= */
+
 
 .skeleton-pulse {
     background:
@@ -458,9 +446,7 @@ html[data-theme="light"] .cover-veil {
 
 }
 
-/* =========================================================
-   SEARCH
-========================================================= */
+
 
 .search-suggest {
     background: var(--bg-raised);
@@ -523,9 +509,7 @@ kbd {
 
 <body class="flex h-screen overflow-hidden app-bg">
 
-<!-- =========================================================
-     PDF MODAL
-========================================================= -->
+
 
 <div
     id="pdfModal"
@@ -648,9 +632,7 @@ kbd {
 </div>
 
 
-<!-- =========================================================
-     MOBILE OVERLAY
-========================================================= -->
+
 
 <div
     id="mobileOverlay"
@@ -658,9 +640,7 @@ kbd {
 ></div>
 
 
-<!-- =========================================================
-     SIDEBAR
-========================================================= -->
+
 
 <aside
     id="sidebar"
@@ -856,9 +836,7 @@ kbd {
 </aside>
 
 
-<!-- =========================================================
-     MAIN
-========================================================= -->
+
 
 <main class="flex-1 flex flex-col overflow-hidden">
 
@@ -1117,9 +1095,7 @@ kbd {
     </header>
 
 
-    <!-- =====================================================
-         CONTENT
-    ====================================================== -->
+    
 
     <div
         class="
@@ -1246,9 +1222,7 @@ kbd {
 </main>
 
 
-<!-- =========================================================
-     FIREBASE
-========================================================= -->
+
 
 <script type="module">
 
@@ -1263,9 +1237,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 
-/* =========================================================
-   FIREBASE CONFIG
-========================================================= */
+
 
 const firebaseConfig = {
 
@@ -1299,9 +1271,7 @@ const db =
     getFirestore(app);
 
 
-/* =========================================================
-   ESTADO
-========================================================= */
+
 
 let allBooks = [];
 
@@ -1333,9 +1303,7 @@ let continuing =
     );
 
 
-/* =========================================================
-   UTILITÁRIOS
-========================================================= */
+
 
 function escapeHtml(value) {
 
@@ -1358,9 +1326,7 @@ function normalize(value) {
 }
 
 
-/* =========================================================
-   DRIVE
-========================================================= */
+
 
 function extrairDriveId(url) {
 
@@ -1397,9 +1363,7 @@ function extrairDriveId(url) {
 }
 
 
-/* =========================================================
-   CAPA PADRÃO
-========================================================= */
+
 
 const capaPadrao =
     "https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000&auto=format&fit=crop";
@@ -1421,20 +1385,13 @@ function obterCapa(book) {
         return original;
     }
 
-    /*
-       Google Drive possui mais de uma forma de
-       disponibilizar uma imagem.
-
-       Começamos pelo thumbnail.
-    */
+    
 
     return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
 }
 
 
-/* =========================================================
-   FALLBACK DE IMAGEM
-========================================================= */
+
 
 window.handleCoverError =
     function (img) {
@@ -1476,9 +1433,7 @@ window.handleCoverError =
     };
 
 
-/* =========================================================
-   TEMA
-========================================================= */
+
 
 function applyTheme(theme) {
 
@@ -1551,9 +1506,7 @@ document
     );
 
 
-/* =========================================================
-   MOBILE
-========================================================= */
+
 
 function toggleMobileMenu(open) {
 
@@ -1612,9 +1565,7 @@ document
     );
 
 
-/* =========================================================
-   PESQUISA
-========================================================= */
+
 
 function showSuggestions(show) {
 
@@ -1649,10 +1600,7 @@ searchInput.addEventListener(
         searchTerm =
             searchInput.value;
 
-        /*
-           Ao pesquisar, mostra todos os materiais
-           em vez de manter uma categoria escondida.
-        */
+        
 
         if (searchTerm.trim()) {
             currentCategory = "Todos";
@@ -1679,9 +1627,7 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   FILTROS
-========================================================= */
+
 
 function updateFilterVisuals() {
 
@@ -1784,9 +1730,7 @@ document
     });
 
 
-/* =========================================================
-   FAVORITOS
-========================================================= */
+
 
 function updateStats() {
 
@@ -1840,9 +1784,7 @@ function toggleFavorite(id) {
 }
 
 
-/* =========================================================
-   RECENTES
-========================================================= */
+
 
 function recordRecent(book) {
 
@@ -2024,9 +1966,7 @@ function renderSidebarLibrary() {
 }
 
 
-/* =========================================================
-   PDF
-========================================================= */
+
 
 function createPdfUrl(url) {
 
@@ -2178,9 +2118,7 @@ document
     );
 
 
-/* =========================================================
-   RENDER SKELETON
-========================================================= */
+
 
 function renderSkeletons() {
 
@@ -2232,9 +2170,7 @@ function renderSkeletons() {
 }
 
 
-/* =========================================================
-   BADGES
-========================================================= */
+
 
 const badgeColors = {
 
@@ -2255,9 +2191,7 @@ const badgeColors = {
 };
 
 
-/* =========================================================
-   RENDER BOOKS
-========================================================= */
+
 
 function renderBooks() {
 
@@ -2804,15 +2738,7 @@ function renderBooks() {
             .join("");
 
 
-    /*
-       IMPORTANTE:
-
-       Não usamos mais onclick com os dados do Firestore.
-
-       Isso evita que um título contendo aspas,
-       apóstrofos ou caracteres especiais quebre
-       TODA a grade.
-    */
+    
 
     grid
         .querySelectorAll(
@@ -2891,9 +2817,7 @@ function renderBooks() {
 }
 
 
-/* =========================================================
-   FIRESTORE
-========================================================= */
+
 
 async function fetchBooks() {
 
@@ -3015,9 +2939,7 @@ async function fetchBooks() {
 }
 
 
-/* =========================================================
-   FAVORITOS HEADER
-========================================================= */
+
 
 document
     .getElementById(
@@ -3031,9 +2953,7 @@ document
     );
 
 
-/* =========================================================
-   ATALHOS
-========================================================= */
+
 
 document.addEventListener(
     "keydown",
@@ -3068,9 +2988,7 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   INICIALIZAÇÃO
-========================================================= */
+
 
 initTheme();
 

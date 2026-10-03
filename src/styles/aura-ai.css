@@ -76,15 +76,15 @@
 }
 
 
-/* ================================================================
-   02. BASE
-   ================================================================ */
+                                                                   
+           
+                                                                      
 
-/*
-  IMPORTANTE:
-  Não existem mais regras globais para html/body/#root aqui.
-  Isso evita que o CSS da Aura quebre a homepage do EducaCube.
-*/
+  
+             
+                                                            
+                                                              
+  
 
 .aura-page,
 .aura-page * {
@@ -132,7 +132,7 @@
 }
 
 
-/* Architectural grid */
+                        
 
 .aura-page::before {
   content: "";
@@ -173,7 +173,7 @@
 }
 
 
-/* Grain */
+           
 
 .aura-page::after {
   content: "";
@@ -215,9 +215,9 @@
 }
 
 
-/* ================================================================
-   03. LAYOUT
-   ================================================================ */
+                                                                   
+             
+                                                                      
 
 .aura-layout {
   position: relative;
@@ -234,9 +234,9 @@
 }
 
 
-/* ================================================================
-   04. SIDEBAR
-   ================================================================ */
+                                                                   
+              
+                                                                      
 
 .aura-sidebar {
   position: relative;
@@ -291,7 +291,7 @@
 }
 
 
-/* ---- Brand ---- */
+                     
 
 .aura-brand {
   display: flex;
@@ -354,7 +354,7 @@
 }
 
 
-/* ---- Mobile close ---- */
+                            
 
 .aura-drawer-close {
   display: none;
@@ -376,7 +376,7 @@
 }
 
 
-/* ---- Nova conversa ---- */
+                             
 
 .aura-new-chat {
   position: relative;
@@ -444,9 +444,9 @@
 }
 
 
-/* ================================================================
-   05. NAVIGATION
-   ================================================================ */
+                                                                   
+                 
+                                                                      
 
 .aura-navigation {
   display: flex;
@@ -551,9 +551,9 @@
 }
 
 
-/* ================================================================
-   06. HISTORY
-   ================================================================ */
+                                                                   
+              
+                                                                      
 
 .aura-history {
   flex: 1;
@@ -595,7 +595,7 @@
 }
 
 
-/* ---- Search ---- */
+                      
 
 .aura-history-search {
   display: flex;
@@ -646,7 +646,7 @@
 }
 
 
-/* ---- Groups ---- */
+                      
 
 .aura-history-title {
   padding: 12px 8px 7px;
@@ -829,7 +829,7 @@
 }
 
 
-/* ---- Sidebar bottom ---- */
+                              
 
 .aura-sidebar-bottom {
   position: relative;
@@ -907,9 +907,9 @@
 }
 
 
-/* ================================================================
-   07. HEADER
-   ================================================================ */
+                                                                   
+             
+                                                                      
 
 .aura-main {
   display: flex;
@@ -958,7 +958,7 @@
 }
 
 
-/* ---- Logo ---- */
+                    
 
 .aura-header-logo-slot {
   position: relative;
@@ -1008,7 +1008,7 @@
 }
 
 
-/* ---- Header title ---- */
+                            
 
 .aura-header-title-group {
   display: flex;
@@ -1061,7 +1061,7 @@
 }
 
 
-/* ---- Mobile menu ---- */
+                           
 
 .aura-mobile-menu-button {
   display: none;
@@ -1091,9 +1091,9 @@
 }
 
 
-/* ================================================================
-   08. WELCOME / CHAT AREA
-   ================================================================ */
+                                                                   
+                          
+                                                                      
 
 .aura-chat-section {
   position: relative;
@@ -1138,7 +1138,7 @@
 }
 
 
-/* ---- Fundo Aura ---- */
+                          
 
 .aura-chat-scroll::before {
   content: "";
@@ -1163,7 +1163,7 @@
 }
 
 
-/* ---- Protection layer ---- */
+                                
 
 .aura-chat-scroll::after {
   content: "";
@@ -1209,7 +1209,7 @@
 }
 
 
-/* ---- Chat content ---- */
+                            
 
 .aura-chat-content {
   position: relative;
@@ -1226,7 +1226,7 @@
 }
 
 
-/* ---- Welcome ---- */
+                       
 
 .aura-welcome {
   position: relative;
@@ -1315,7 +1315,7 @@
 }
 
 
-/* ---- Suggestions ---- */
+                           
 
 .aura-suggestions {
   display: grid;
@@ -1423,9 +1423,9 @@
 }
 
 
-/* ================================================================
-   09. MESSAGES
-   ================================================================ */
+                                                                   
+               
+                                                                      
 
 .aura-messages {
   display: flex;
@@ -1538,9 +1538,9 @@
 }
 
 
-/* ================================================================
-   10. MARKDOWN
-   ================================================================ */
+                                                                   
+               
+                                                                      
 
 .aura-markdown {
   color: var(--aura-text-soft);
@@ -1596,7 +1596,7 @@
 }
 
 
-/* ---- Message actions ---- */
+                               
 
 .aura-message-actions {
   display: flex;
@@ -1640,7 +1640,7 @@
 }
 
 
-/* ---- Tooltip ---- */
+                       
 
 .aura-tooltip-trigger {
   position: relative;
@@ -1692,7 +1692,7 @@
 }
 
 
-/* ---- Thinking ---- */
+                        
 
 .aura-morphing-square {
   flex: 0 0 auto;
@@ -1759,7 +1759,7 @@
 }
 
 
-/* ---- Error ---- */
+                     
 
 .aura-error {
   display: flex;
@@ -1787,7 +1787,7 @@
 }
 
 
-/* ---- Scroll latest ---- */
+                             
 
 .aura-scroll-latest {
   position: sticky;
@@ -1846,9 +1846,9 @@
 }
 
 
-/* ================================================================
-   11. COMPOSER
-   ================================================================ */
+                                                                   
+               
+                                                                      
 
 .aura-composer-area {
   position: relative;
@@ -1910,9 +1910,9 @@
 }
 
 
-/* ================================================================
-   12. ATTACHMENTS
-   ================================================================ */
+                                                                   
+                  
+                                                                      
 
 .aura-attachments {
   display: flex;
@@ -1988,7 +1988,7 @@
 }
 
 
-/* ---- Input wrapper ---- */
+                             
 
 .aura-input-wrapper {
   position: relative;
@@ -2013,7 +2013,7 @@
 }
 
 
-/* ---- Drop overlay ---- */
+                            
 
 .aura-drop-overlay {
   position: absolute;
@@ -2048,7 +2048,7 @@
 }
 
 
-/* ---- Composer buttons ---- */
+                                
 
 .aura-composer-button,
 .aura-microphone-button {
@@ -2118,7 +2118,7 @@
 }
 
 
-/* ---- Textarea ---- */
+                        
 
 .aura-textarea {
   flex: 1;
@@ -2167,7 +2167,7 @@
 }
 
 
-/* ---- Send ---- */
+                    
 
 .aura-send-button {
   display: flex;
@@ -2226,7 +2226,7 @@
 }
 
 
-/* ---- Composer meta ---- */
+                             
 
 .aura-composer-meta {
   display: flex;
@@ -2258,9 +2258,9 @@
 }
 
 
-/* ================================================================
-   13. MOBILE OVERLAY
-   ================================================================ */
+                                                                   
+                     
+                                                                      
 
 .aura-mobile-overlay {
   display: none;
@@ -2307,9 +2307,9 @@
 }
 
 
-/* ================================================================
-   14. MOTION
-   ================================================================ */
+                                                                   
+             
+                                                                      
 
 .aura-layout {
   animation:
@@ -2327,12 +2327,12 @@
 }
 
 
-/*
-  IMPORTANTE:
-  A animação da sidebar NÃO usa transform.
-  Isso deixa o transform exclusivamente para o
-  drawer mobile.
-*/
+  
+             
+                                          
+                                              
+                
+  
 
 .aura-sidebar {
   animation:
@@ -2404,7 +2404,7 @@
 }
 
 
-/* ---- Navigation motion ---- */
+                                 
 
 .aura-nav-item {
   transform: translateZ(0);
@@ -2432,7 +2432,7 @@
 }
 
 
-/* ---- History motion ---- */
+                              
 
 .aura-history-item {
   transform: translateZ(0);
@@ -2452,7 +2452,7 @@
 }
 
 
-/* ---- Header ---- */
+                      
 
 .aura-header {
   animation:
@@ -2515,7 +2515,7 @@
 }
 
 
-/* ---- Status ---- */
+                      
 
 .aura-header-status-dot {
   animation:
@@ -2548,7 +2548,7 @@
 }
 
 
-/* ---- Orb ---- */
+                   
 
 .aura-orb-slot {
   animation:
@@ -2669,10 +2669,10 @@
 .aura-orb-shell {
   fill: none;
 
-  /*
-    Mantido compatível com o NeuralOrb atual.
-    Se o SVG possuir o gradient, ele será usado.
-  */
+    
+                                             
+                                                
+    
   stroke: var(--aura-purple-400);
 
   vector-effect: non-scaling-stroke;
@@ -2782,7 +2782,7 @@
 }
 
 
-/* ---- Orb states ---- */
+                          
 
 .aura-orb-listening,
 .aura-orb-speaking {
@@ -2850,7 +2850,7 @@
 }
 
 
-/* ---- Welcome animation ---- */
+                                 
 
 .aura-welcome-title {
   animation:
@@ -2928,7 +2928,7 @@
 }
 
 
-/* ---- Suggestions ---- */
+                           
 
 .aura-suggestions {
   animation:
@@ -2983,7 +2983,7 @@
 }
 
 
-/* ---- Messages ---- */
+                        
 
 .aura-message {
   animation:
@@ -3038,7 +3038,7 @@
 }
 
 
-/* ---- Thinking ---- */
+                        
 
 .aura-thinking {
   animation:
@@ -3078,7 +3078,7 @@
 }
 
 
-/* ---- Message actions ---- */
+                               
 
 .aura-message-action {
   transform: translateZ(0);
@@ -3093,7 +3093,7 @@
 }
 
 
-/* ---- Composer animation ---- */
+                                  
 
 .aura-composer-area {
   animation:
@@ -3166,7 +3166,7 @@
 }
 
 
-/* ---- Attachments ---- */
+                           
 
 .aura-attachment-chip {
   animation:
@@ -3192,7 +3192,7 @@
 }
 
 
-/* ---- Scroll latest ---- */
+                             
 
 .aura-scroll-latest {
   animation:
@@ -3224,15 +3224,15 @@
 }
 
 
-/* ================================================================
-   15. RESPONSIVE — TABLET / MOBILE
-   ================================================================ */
+                                                                   
+                                   
+                                                                      
 
 @media (max-width: 900px) {
 
-  /* ------------------------------------------------
-     OVERLAY
-     ------------------------------------------------ */
+                                                     
+            
+                                                        
 
   .aura-mobile-overlay {
     display: block !important;
@@ -3272,9 +3272,9 @@
   }
 
 
-  /* ------------------------------------------------
-     SIDEBAR DRAWER
-     ------------------------------------------------ */
+                                                     
+                   
+                                                        
 
   .aura-sidebar {
     position: fixed !important;
@@ -3292,11 +3292,11 @@
 
     z-index: 100 !important;
 
-    /*
-      IMPORTANTE:
-      Apenas o CSS controla o transform.
-      O Motion não deve controlar x.
-    */
+      
+                 
+                                        
+                                    
+      
 
     transform: translateX(-105%) !important;
 
@@ -3311,10 +3311,10 @@
       transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
       visibility 0s linear 350ms !important;
 
-    /*
-      Remove qualquer animação que tente
-      controlar transform.
-    */
+      
+                                        
+                          
+      
 
     animation: none !important;
 
@@ -3326,9 +3326,9 @@
   }
 
 
-  /* ------------------------------------------------
-     SIDEBAR ABERTA
-     ------------------------------------------------ */
+                                                     
+                   
+                                                        
 
   .aura-sidebar.open {
     transform: translateX(0) !important;
@@ -3343,9 +3343,9 @@
   }
 
 
-  /* ------------------------------------------------
-     CLOSE BUTTON
-     ------------------------------------------------ */
+                                                     
+                 
+                                                        
 
   .aura-drawer-close {
     display: flex;
@@ -3366,9 +3366,9 @@
   }
 
 
-  /* ------------------------------------------------
-     MOBILE MENU
-     ------------------------------------------------ */
+                                                     
+                
+                                                        
 
   .aura-mobile-menu-button {
     display: flex;
@@ -3381,9 +3381,9 @@
   }
 
 
-  /* ------------------------------------------------
-     MAIN
-     ------------------------------------------------ */
+                                                     
+         
+                                                        
 
   .aura-main {
     width: 100% !important;
@@ -3406,9 +3406,9 @@
   }
 
 
-  /* ------------------------------------------------
-     HEADER
-     ------------------------------------------------ */
+                                                     
+           
+                                                        
 
   .aura-header {
     width: 100%;
@@ -3446,9 +3446,9 @@
   }
 
 
-  /* ------------------------------------------------
-     CHAT
-     ------------------------------------------------ */
+                                                     
+         
+                                                        
 
   .aura-chat-content {
     width: 100%;
@@ -3475,9 +3475,9 @@
   }
 
 
-  /* ------------------------------------------------
-     SUGGESTIONS
-     ------------------------------------------------ */
+                                                     
+                
+                                                        
 
   .aura-suggestions {
     grid-template-columns: 1fr;
@@ -3494,9 +3494,9 @@
   }
 
 
-  /* ------------------------------------------------
-     MESSAGES
-     ------------------------------------------------ */
+                                                     
+             
+                                                        
 
   .aura-user-message {
     max-width: 90%;
@@ -3508,9 +3508,9 @@
   }
 
 
-  /* ------------------------------------------------
-     COMPOSER
-     ------------------------------------------------ */
+                                                     
+             
+                                                        
 
   .aura-composer-area {
     width: 100%;
@@ -3536,9 +3536,9 @@
   }
 
 
-  /* ------------------------------------------------
-     SCROLL BUTTON
-     ------------------------------------------------ */
+                                                     
+                  
+                                                        
 
   .aura-scroll-latest {
     bottom:
@@ -3546,9 +3546,9 @@
   }
 
 
-  /* ------------------------------------------------
-     BACKGROUND MOBILE
-     ------------------------------------------------ */
+                                                     
+                      
+                                                        
 
   .aura-chat-scroll::before {
     opacity: 0.22;
@@ -3558,9 +3558,9 @@
 }
 
 
-/* ================================================================
-   TOUCH DEVICES
-   ================================================================ */
+                                                                   
+                
+                                                                      
 
 @media (hover: none) and (pointer: coarse) {
 
@@ -3615,9 +3615,9 @@
 }
 
 
-/* ================================================================
-   SMALL MOBILE
-   ================================================================ */
+                                                                   
+               
+                                                                      
 
 @media (max-width: 520px) {
 
@@ -3685,9 +3685,9 @@
 }
 
 
-/* ================================================================
-   16. ACCESSIBILITY
-   ================================================================ */
+                                                                   
+                    
+                                                                      
 
 .aura-page button:focus-visible,
 .aura-page input:focus-visible,
@@ -3701,9 +3701,9 @@
 }
 
 
-/* ================================================================
-   REDUCED MOTION
-   ================================================================ */
+                                                                   
+                 
+                                                                      
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -3719,10 +3719,10 @@
     scroll-behavior: auto !important;
   }
 
-  /*
-    NÃO zerar transform.
-    O drawer mobile depende dele.
-  */
+    
+                        
+                                 
+    
 
   @media (max-width: 900px) {
 
@@ -3746,14 +3746,14 @@
 }
 
 
-/* ================================================================
-   17. ORB — CORUJA (Rive)
-   ================================================================
-   Estilo aplicado ao NeuralOrb quando ele passa a renderizar
-   a coruja via @rive-app/react-canvas em vez do SVG antigo.
-   As classes .aura-orb-<state> continuam funcionando por cima
-   deste bloco (mira na própria div, não nos elementos do SVG).
-   ================================================================ */
+                                                                   
+                          
+                                                                   
+                                                             
+                                                            
+                                                              
+                                                               
+                                                                      
 
 .aura-owl {
   position: relative;
@@ -3763,11 +3763,11 @@
   width: 100% !important;
   height: 100% !important;
 
-  /*
-    Tinge a coruja (já colorida no asset original) para o roxo
-    da identidade da AURA. Ajuste hue-rotate/saturate se o
-    designer reexportar o asset já roxo (aí é só remover o filter).
-  */
+    
+                                                              
+                                                          
+                                                                   
+    
   filter:
     grayscale(1)
     sepia(1)
@@ -3805,7 +3805,7 @@
     brightness(1.05)
     drop-shadow(0 0 10px rgba(133, 61, 219, 0.4));
 }
-/* Rive isolado dentro da Aura */
+                                 
 .aura-page .aura-orb {
   position: relative;
   display: block;

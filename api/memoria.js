@@ -2,9 +2,9 @@ import fetch from "node-fetch";
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
-/* =========================================================
-   FIREBASE ADMIN
-   ========================================================= */
+                                                            
+                 
+                                                               
 
 function getFirebaseAuth() {
   if (getApps().length > 0) {
@@ -30,9 +30,9 @@ function getFirebaseAuth() {
   return getAuth();
 }
 
-/* =========================================================
-   UPSTASH REDIS
-   ========================================================= */
+                                                            
+                
+                                                               
 
 const UPSTASH_URL =
   process.env.UPSTASH_REDIS_REST_URL;
@@ -40,17 +40,17 @@ const UPSTASH_URL =
 const UPSTASH_TOKEN =
   process.env.UPSTASH_REDIS_REST_TOKEN;
 
-/* =========================================================
-   CORS
-   ========================================================= */
+                                                            
+       
+                                                               
 
 function configurarCors(res) {
-  /*
-   * Em produção, o ideal é trocar "*" pelo domínio
-   * oficial da aplicação.
-   *
-   * Por enquanto mantemos compatibilidade com a aplicação.
-   */
+    
+                                                   
+                          
+    
+                                                           
+     
 
   res.setHeader(
     "Access-Control-Allow-Origin",
@@ -68,9 +68,9 @@ function configurarCors(res) {
   );
 }
 
-/* =========================================================
-   AUTENTICAÇÃO
-   ========================================================= */
+                                                            
+               
+                                                               
 
 async function autenticarUsuario(req) {
   const authorization =
@@ -95,11 +95,11 @@ async function autenticarUsuario(req) {
 
   const auth = getFirebaseAuth();
 
-  /*
-   * O Firebase determina o UID real.
-   *
-   * NUNCA usamos userId enviado pelo frontend.
-   */
+    
+                                     
+    
+                                               
+     
 
   const decodedToken =
     await auth.verifyIdToken(token);
@@ -116,17 +116,17 @@ async function autenticarUsuario(req) {
   return decodedToken;
 }
 
-/* =========================================================
-   NORMALIZAÇÃO DO USER ID
-   ========================================================= */
+                                                            
+                          
+                                                               
 
 function normalizarUid(uid) {
-  /*
-   * O UID veio diretamente do Firebase.
-   *
-   * Ainda assim, fazemos uma validação básica
-   * antes de utilizá-lo como parte da chave Redis.
-   */
+    
+                                        
+    
+                                              
+                                                   
+     
 
   if (
     typeof uid !== "string" ||
@@ -142,11 +142,11 @@ function normalizarUid(uid) {
 
   const resultado = uid.trim();
 
-  /*
-   * Firebase UIDs normalmente são strings simples.
-   * Esta validação impede caracteres que poderiam
-   * alterar a estrutura da URL do Redis.
-   */
+    
+                                                   
+                                                  
+                                         
+     
 
   if (
     !/^[A-Za-z0-9_-]+$/.test(resultado)
@@ -162,9 +162,9 @@ function normalizarUid(uid) {
   return resultado;
 }
 
-/* =========================================================
-   AÇÕES PERMITIDAS
-   ========================================================= */
+                                                            
+                   
+                                                               
 
 const ACOES_PERMITIDAS = new Set([
   "rpush",
@@ -172,9 +172,9 @@ const ACOES_PERMITIDAS = new Set([
   "ltrim",
 ]);
 
-/* =========================================================
-   HANDLER
-   ========================================================= */
+                                                            
+          
+                                                               
 
 export default async function handler(
   req,
@@ -182,17 +182,17 @@ export default async function handler(
 ) {
   configurarCors(res);
 
-  /* =======================================================
-     OPTIONS
-     ======================================================= */
+                                                            
+            
+                                                               
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  /* =======================================================
-     MÉTODO
-     ======================================================= */
+                                                            
+           
+                                                               
 
   if (
     req.method !== "POST" &&
@@ -204,9 +204,9 @@ export default async function handler(
   }
 
   try {
-    /* =====================================================
-       REDIS CONFIG
-       ===================================================== */
+                                                            
+                   
+                                                               
 
     if (
       !UPSTASH_URL ||
@@ -222,26 +222,26 @@ export default async function handler(
       });
     }
 
-    /* =====================================================
-       AUTENTICAÇÃO
-       ===================================================== */
+                                                            
+                   
+                                                               
 
     const decodedToken =
       await autenticarUsuario(req);
 
-    /*
-     * ESTE é o único identificador usado
-     * para acessar a memória.
-     */
+      
+                                         
+                              
+       
 
     const uid =
       normalizarUid(
         decodedToken.uid
       );
 
-    /* =====================================================
-       BODY
-       ===================================================== */
+                                                            
+           
+                                                               
 
     const body =
       req.body || {};
@@ -252,9 +252,9 @@ export default async function handler(
       acao,
     } = body;
 
-    /* =====================================================
-       VALIDAÇÃO DA AÇÃO
-       ===================================================== */
+                                                            
+                        
+                                                               
 
     if (
       typeof acao !== "string" ||
@@ -266,40 +266,40 @@ export default async function handler(
       });
     }
 
-    /* =====================================================
-       CHAVE DO USUÁRIO
-       ===================================================== */
+                                                            
+                       
+                                                               
 
-    /*
-     * IMPORTANTE:
-     *
-     * Antes:
-     *
-     * req.body.userId
-     *
-     * Agora:
-     *
-     * decodedToken.uid
-     *
-     * Portanto o cliente NÃO consegue escolher
-     * a memória de outro usuário.
-     */
+      
+                  
+      
+             
+      
+                      
+      
+             
+      
+                       
+      
+                                               
+                                  
+       
 
     const redisKey =
       `aura:memoria:${uid}`;
 
-    /* =====================================================
-       URL REDIS
-       ===================================================== */
+                                                            
+                
+                                                               
 
     let finalUrl =
       `${UPSTASH_URL}/${acao}/${encodeURIComponent(redisKey)}`;
 
     let method = "POST";
 
-    /* =====================================================
-       RPUSH
-       ===================================================== */
+                                                            
+            
+                                                               
 
     if (acao === "rpush") {
       if (
@@ -322,9 +322,9 @@ export default async function handler(
         });
       }
 
-      /*
-       * Limites defensivos.
-       */
+        
+                            
+         
 
       const textoSeguro =
         texto
@@ -345,15 +345,15 @@ export default async function handler(
       method = "POST";
     }
 
-    /* =====================================================
-       LRANGE
-       ===================================================== */
+                                                            
+             
+                                                               
 
     else if (acao === "lrange") {
-      /*
-       * Retorna todo o histórico armazenado
-       * PARA O USUÁRIO AUTENTICADO.
-       */
+        
+                                            
+                                    
+         
 
       finalUrl +=
         "/0/-1";
@@ -455,9 +455,9 @@ export default async function handler(
       });
     }
 
-    /* =====================================================
-       ERRO GERAL
-       ===================================================== */
+                                                            
+                 
+                                                               
 
     console.error(
       "[MEMORIA] Erro:",

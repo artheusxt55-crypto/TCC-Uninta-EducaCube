@@ -1,4 +1,4 @@
-// api/falar.js
+               
 export default async function handler(req, res) {
     const { texto } = req.body;
 
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
             }
         );
 
-        // O Hugging Face retorna um arquivo binário (áudio)
+                                                            
         const audioBuffer = await response.arrayBuffer();
         res.setHeader('Content-Type', 'audio/mpeg');
         return res.send(Buffer.from(audioBuffer));

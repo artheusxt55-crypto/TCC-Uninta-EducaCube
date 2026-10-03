@@ -1,7 +1,7 @@
-// Block Text Reveal — Originkit
-// Adaptado para o EducaCube: HTML_TAG trocado de "p" para "span" para que o
-// componente possa viver dentro de um heading (<h2>/<h3>) sem gerar HTML
-// inválido (um <p> nunca pode ser filho de um heading).
+                                
+                                                                            
+                                                                         
+                                                        
 
 "use client"
 

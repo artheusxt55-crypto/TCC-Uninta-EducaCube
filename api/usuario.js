@@ -2,33 +2,33 @@ import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { sql } from "./neon.js";
 
-/* =========================================================
-   EDUCACUBE — USUÁRIO / FIREBASE → NEON
-   Arquivo: api/usuario.js
-   =========================================================
- *
- * Responsabilidades:
- *
- * 1. Receber o Firebase ID Token.
- * 2. Validar o token no Firebase Admin.
- * 3. Obter o UID verdadeiro do Firebase.
- * 4. Procurar o usuário no PostgreSQL/Neon.
- * 5. Criar o usuário no primeiro acesso.
- * 6. Retornar somente os dados necessários da conta.
- *
- * IMPORTANTE:
- *
- * O frontend NÃO informa qual usuário está sendo acessado.
- *
- * O UID utilizado neste arquivo vem exclusivamente do
- * Firebase ID Token validado pelo servidor.
- *
- * ========================================================= */
+                                                            
+                                        
+                          
+                                                            
+  
+                     
+  
+                                  
+                                        
+                                         
+                                            
+                                         
+                                                     
+  
+              
+  
+                                                           
+  
+                                                      
+                                            
+  
+                                                               
 
 
-/* =========================================================
-   FIREBASE ADMIN
-   ========================================================= */
+                                                            
+                 
+                                                               
 
 if (!getApps().length) {
   const chave =
@@ -60,9 +60,9 @@ if (!getApps().length) {
 const adminAuth = getAuth();
 
 
-/* =========================================================
-   CORS
-   ========================================================= */
+                                                            
+       
+                                                               
 
 function configurarCors(res) {
   res.setHeader(
@@ -82,9 +82,9 @@ function configurarCors(res) {
 }
 
 
-/* =========================================================
-   AUTENTICAÇÃO
-   ========================================================= */
+                                                            
+               
+                                                               
 
 async function autenticarUsuario(req) {
 
@@ -122,15 +122,15 @@ async function autenticarUsuario(req) {
     throw erro;
   }
 
-  /*
-   * O Firebase Admin verifica:
-   *
-   * - assinatura
-   * - validade
-   * - projeto
-   * - expiração
-   * - integridade do token
-   */
+    
+                               
+    
+                 
+               
+              
+                
+                           
+     
 
   return await adminAuth.verifyIdToken(
     token
@@ -138,9 +138,9 @@ async function autenticarUsuario(req) {
 }
 
 
-/* =========================================================
-   NORMALIZAÇÃO DE DADOS
-   ========================================================= */
+                                                            
+                        
+                                                               
 
 function limitarTexto(
   valor,
@@ -301,9 +301,9 @@ async function obterOuCriarUsuario(
 }
 
 
-/* =========================================================
-   HANDLER
-   ========================================================= */
+                                                            
+          
+                                                               
 
 export default async function handler(
   req,
@@ -313,9 +313,9 @@ export default async function handler(
   configurarCors(res);
 
 
-  /* =======================================================
-     OPTIONS
-     ======================================================= */
+                                                            
+            
+                                                               
 
   if (
     req.method ===
@@ -327,9 +327,9 @@ export default async function handler(
   }
 
 
-  /* =======================================================
-     MÉTODO
-     ======================================================= */
+                                                            
+           
+                                                               
 
   if (
     req.method !==
@@ -347,9 +347,9 @@ export default async function handler(
 
   try {
 
-    /* =====================================================
-       1. AUTENTICAR
-       ===================================================== */
+                                                            
+                    
+                                                               
 
     const decodedToken =
       await autenticarUsuario(
@@ -357,9 +357,9 @@ export default async function handler(
       );
 
 
-    /* =====================================================
-       2. LOCALIZAR / CRIAR
-       ===================================================== */
+                                                            
+                           
+                                                               
 
     const usuario =
       await obterOuCriarUsuario(
@@ -367,9 +367,9 @@ export default async function handler(
       );
 
 
-    /* =====================================================
-       3. RESPOSTA
-       ===================================================== */
+                                                            
+                  
+                                                               
 
     return res.status(200).json({
 
@@ -414,9 +414,9 @@ export default async function handler(
     );
 
 
-    /* =====================================================
-       AUTENTICAÇÃO
-       ===================================================== */
+                                                            
+                   
+                                                               
 
     if (
       erro?.message ===
@@ -433,9 +433,9 @@ export default async function handler(
     }
 
 
-    /* =====================================================
-       TOKEN INVÁLIDO
-       ===================================================== */
+                                                            
+                     
+                                                               
 
     if (
       erro?.code ===
@@ -461,9 +461,9 @@ export default async function handler(
     }
 
 
-    /* =====================================================
-       CONTA BLOQUEADA
-       ===================================================== */
+                                                            
+                      
+                                                               
 
     if (
       erro?.message ===
@@ -480,9 +480,9 @@ export default async function handler(
     }
 
 
-    /* =====================================================
-       ERRO INTERNO
-       ===================================================== */
+                                                            
+                   
+                                                               
 
     return res.status(500).json({
       sucesso: false,
