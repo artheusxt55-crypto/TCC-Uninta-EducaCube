@@ -6,17 +6,17 @@ import { ROUTES } from "./content";
 const OwlShowcase = lazy(() => import("../OwlShowcase"));
 
 type HeroProps = {
-    /** Modo de performance "full": habilita o modelo 3D da coruja. */
+    
     isFull: boolean;
 };
 
 type PhraseWord = {
     text: string;
-    /** Marca a palavra que recebe o realce lavanda (ex.: "prática"). */
+    
     accent?: boolean;
 };
 
-/** "que se transforma em prática", entregue como texto puro para o aria-label. */
+
 const REVEAL_PHRASE: PhraseWord[] = [
     { text: "que" },
     { text: "se" },
@@ -25,10 +25,10 @@ const REVEAL_PHRASE: PhraseWord[] = [
     { text: "prática", accent: true },
 ];
 
-/**
- * Divide cada palavra em letras individuais, cada uma com um índice global
- * (--i) usado pelo CSS para escalonar a entrada e a varredura de cor.
- */
+
+
+
+
 function renderRevealPhrase(words: PhraseWord[]) {
     let letterIndex = 0;
 

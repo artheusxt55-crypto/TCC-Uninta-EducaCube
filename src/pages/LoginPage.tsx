@@ -128,7 +128,7 @@ async function registrarAcessoApi(user: User) {
       },
     });
   } catch {
-    // O login continua mesmo se o registro falhar.
+                                                   
   }
 }
 
@@ -144,7 +144,7 @@ async function enviarVerificacaoApi(user: User) {
       },
     });
   } catch {
-    // A criação da conta não será bloqueada.
+                                             
   }
 }
 

@@ -46,8 +46,8 @@ function createTextPoints(
 
     const candidates: Array<[number, number]> = [];
 
-    // Sample the glyphs. A moderate stride keeps the shape readable while
-    // leaving enough room for the particles to move fluidly.
+                                                                          
+                                                             
     const stride = 5;
 
     for (let y = 0; y < canvas.height; y += stride) {
@@ -66,8 +66,8 @@ function createTextPoints(
         return result;
     }
 
-    // Deterministic distribution avoids the text "jumping" randomly between
-    // transitions.
+                                                                            
+                   
     for (let i = 0; i < count; i++) {
         const index = Math.floor(
             (i / count) * candidates.length
@@ -182,10 +182,10 @@ export default function TransformParticles({
 
         let targets = buildTargets();
 
-        // Start at the first word. There is NO cube target anywhere.
+                                                                     
         positions.set(targets[0]);
 
-        // Animation state.
+                           
         let currentIndex = 0;
         let nextIndex = 1 % targets.length;
 
@@ -262,8 +262,8 @@ export default function TransformParticles({
             nextIndex =
                 (currentIndex + 1) % targets.length;
 
-            // Snap exactly to the new target so numerical interpolation
-            // cannot accumulate error and lock the animation.
+                                                                        
+                                                              
             positions.set(targets[currentIndex]);
             positionAttribute.needsUpdate = true;
 
@@ -322,7 +322,7 @@ export default function TransformParticles({
 
                 const t = Math.max(0, Math.min(1, raw));
 
-                // Old word falls down.
+                                       
                 const outgoing = easeIn(t);
                 const incoming = easeOut(t);
 
@@ -332,9 +332,9 @@ export default function TransformParticles({
                 const fallDistance = 1.65;
                 const enterDistance = 1.65;
 
-                // The old word falls while the next word rises into place.
-                // Both are blended continuously so the particle cloud never
-                // collapses to an empty point.
+                                                                           
+                                                                            
+                                               
                 const rotation =
                     Math.sin(t * Math.PI) * 0.12;
 
@@ -352,18 +352,18 @@ export default function TransformParticles({
                     const ny = newTarget[i3 + 1];
                     const nz = newTarget[i3 + 2];
 
-                    // Move the outgoing particles downward.
+                                                            
                     const oldX = ox;
                     const oldY = oy - fallDistance * outgoing;
                     const oldZ = oz;
 
-                    // Bring the incoming particles from above.
+                                                               
                     const newX = nx;
                     const newY =
                         ny + enterDistance * (1 - incoming);
                     const newZ = nz;
 
-                    // Use a proper crossfade between positions.
+                                                                
                     const blend = easeInOut(t);
 
                     const baseX =
@@ -384,7 +384,7 @@ export default function TransformParticles({
             } else {
                 const target = targets[currentIndex];
 
-                // Keep the current word stable, with a tiny breathing motion.
+                                                                              
                 const breathe =
                     Math.sin(now * 0.0015) * 0.018;
 
@@ -399,7 +399,7 @@ export default function TransformParticles({
                 }
             }
 
-            // Subtle cursor displacement, without changing the word's shape.
+                                                                             
             smoothMouse.lerp(
                 mouseWorld,
                 Math.max(
@@ -440,7 +440,7 @@ export default function TransformParticles({
 
             positionAttribute.needsUpdate = true;
 
-            // Very subtle continuous rotation.
+                                               
             points.rotation.y =
                 Math.sin(now * 0.00035) * 0.035;
 

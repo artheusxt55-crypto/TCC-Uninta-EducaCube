@@ -1,5 +1,5 @@
-// MOCK: substituir posteriormente por chamadas reais
-// (Firebase / Neon), mantendo os mesmos tipos.
+
+
 
 export type Status =
   | 'ready'
@@ -27,9 +27,9 @@ export const fetchDashboard = <T>(
     setTimeout(() => resolve(data), ms),
   );
 
-/* =========================================================
-   ALUNO
-========================================================= */
+
+
+
 
 export const alunoMock = {
   nome: 'João',
@@ -147,7 +147,7 @@ export const alunoMock = {
     },
   ] as Item[],
 
-  // Compatibilidade com o novo DashboardAluno
+  
   hoje: [
     {
       id: '1',
@@ -308,9 +308,9 @@ export const alunoMock = {
   ] as Item[],
 };
 
-/* =========================================================
-   PROFESSOR
-========================================================= */
+
+
+
 
 export const professorMock = {
   kpis: [

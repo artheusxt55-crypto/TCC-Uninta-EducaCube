@@ -49,11 +49,11 @@ export default function NeuralOrb({
 
   const vmInstance = rive?.viewModelInstance;
 
-  /*
-   * ============================================================
-   * CONTROLES DO RIVE
-   * ============================================================
-   */
+    
+                                                                 
+                      
+                                                                 
+     
 
   const { setValue: setLoading } =
     useViewModelInstanceBoolean(
@@ -85,21 +85,21 @@ export default function NeuralOrb({
       vmInstance
     );
 
-  /*
-   * ============================================================
-   * AURA → RIVE
-   *
-   * Faz a animação acompanhar o estado real da IA.
-   * ============================================================
-   */
+    
+                                                                 
+                
+    
+                                                   
+                                                                 
+     
 
   useEffect(() => {
     if (!setLoading || !setTyping) return;
 
     switch (state) {
-      /*
-       * AURA recebeu a mensagem e está processando.
-       */
+        
+                                                    
+         
       case "sending":
       case "thinking":
       case "generating":
@@ -107,17 +107,17 @@ export default function NeuralOrb({
         setTyping(false);
         break;
 
-      /*
-       * AURA está falando a resposta.
-       */
+        
+                                      
+         
       case "speaking":
         setLoading(false);
         setTyping(true);
         break;
 
-      /*
-       * Estados parados.
-       */
+        
+                         
+         
       case "idle":
       case "complete":
       case "offline":
@@ -134,19 +134,19 @@ export default function NeuralOrb({
     setTyping,
   ]);
 
-  /*
-   * ============================================================
-   * REAÇÕES PONTUAIS
-   * ============================================================
-   */
+    
+                                                                 
+                     
+                                                                 
+     
 
   useEffect(() => {
     const previousState =
       previousStateRef.current;
 
-    /*
-     * Resposta concluída
-     */
+      
+                         
+       
     if (
       previousState !== "complete" &&
       state === "complete"
@@ -154,9 +154,9 @@ export default function NeuralOrb({
       fireCorrect?.();
     }
 
-    /*
-     * Erro
-     */
+      
+           
+       
     if (
       previousState !== "error" &&
       state === "error"
@@ -164,9 +164,9 @@ export default function NeuralOrb({
       fireWrong?.();
     }
 
-    /*
-     * Usuário começou a falar
-     */
+      
+                              
+       
     if (
       previousState !== "listening" &&
       state === "listening"
@@ -182,11 +182,11 @@ export default function NeuralOrb({
     fireJump,
   ]);
 
-  /*
-   * ============================================================
-   * MOVIMENTO
-   * ============================================================
-   */
+    
+                                                                 
+              
+                                                                 
+     
 
   useEffect(() => {
     if (!rive) return;
@@ -201,25 +201,25 @@ export default function NeuralOrb({
     reducedMotion,
   ]);
 
-  /*
-   * ============================================================
-   * AUDIO LEVEL
-   *
-   * Mantemos compatibilidade com o AuraAI.
-   * O ViewModel pode usar isso futuramente para
-   * fazer a personagem reagir à voz.
-   * ============================================================
-   */
+    
+                                                                 
+                
+    
+                                           
+                                                
+                                     
+                                                                 
+     
 
   useEffect(() => {
     void audioLevel;
   }, [audioLevel]);
 
-  /*
-   * ============================================================
-   * RENDER
-   * ============================================================
-   */
+    
+                                                                 
+           
+                                                                 
+     
 
   return (
     <div

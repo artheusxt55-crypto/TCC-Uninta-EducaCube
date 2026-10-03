@@ -3,14 +3,14 @@ import type { ReactNode } from "react";
 
 import type { ModuleId } from "./content";
 
-/* =========================================================
- * PAINÉIS DOS MÓDULOS
- *
- * Extraídos de App.tsx sem mudança de comportamento: mesmos
- * campos, mesmas validações, mesmos textos de resultado.
- * Os painéis permanecem montados (só mudam de classe), então o
- * que o usuário digitou é preservado ao fechar e reabrir.
- * ========================================================= */
+
+
+
+
+
+
+
+
 
 type Resultados = {
     diagnostico?: string;
@@ -93,9 +93,9 @@ export default function ToolPanels({
         useState("");
     const [resultado, setResultado] = useState<Resultados>({});
 
-    /* ---------------------------------------------------
-     * DIAGNÓSTICO
-     * --------------------------------------------------- */
+    
+
+
 
     const executarDiagnostico = () => {
         if (!diagDescricao.trim()) {
@@ -110,9 +110,9 @@ export default function ToolPanels({
         }));
     };
 
-    /* ---------------------------------------------------
-     * BNCC
-     * --------------------------------------------------- */
+    
+
+
 
     const consultarBNCC = () => {
         if (!buscaBNCC.trim()) {
@@ -127,9 +127,9 @@ export default function ToolPanels({
         }));
     };
 
-    /* ---------------------------------------------------
-     * PLANEJAMENTO
-     * --------------------------------------------------- */
+    
+
+
 
     const gerarPlano = () => {
         if (!temaPlano.trim() || !objetivoPlano.trim()) {
@@ -144,9 +144,9 @@ export default function ToolPanels({
         }));
     };
 
-    /* ---------------------------------------------------
-     * INTERVENÇÃO
-     * --------------------------------------------------- */
+    
+
+
 
     const gerarIntervencao = () => {
         if (!necessidadeIntervencao.trim()) {
@@ -163,7 +163,7 @@ export default function ToolPanels({
 
     return (
         <>
-            {/* DIAGNÓSTICO */}
+            
             <Panel
                 active={activeModule === "diagnostico"}
                 eyebrow="Módulo 01"
@@ -236,7 +236,7 @@ export default function ToolPanels({
                 )}
             </Panel>
 
-            {/* BNCC */}
+            
             <Panel
                 active={activeModule === "bncc"}
                 eyebrow="Módulo 02"
@@ -298,7 +298,7 @@ export default function ToolPanels({
                 )}
             </Panel>
 
-            {/* PLANEJAMENTO */}
+            
             <Panel
                 active={activeModule === "planejamento"}
                 eyebrow="Módulo 03"
@@ -366,7 +366,7 @@ export default function ToolPanels({
                 )}
             </Panel>
 
-            {/* INTERVENÇÃO */}
+            
             <Panel
                 active={activeModule === "intervencao"}
                 eyebrow="Módulo 04"

@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 
-/**
- * Revela, uma única vez, os elementos marcados com [data-reveal]
- * quando entram na viewport.
- *
- * - O estado inicial "oculto" só existe depois que este hook marca
- *   <html class="reveal-ready">; sem JavaScript, o conteúdo aparece.
- * - Com prefers-reduced-motion, nada é ocultado nem animado.
- * - `refreshKey` reexecuta a varredura quando a composição da página
- *   muda (ex.: seções que dependem do modo de performance).
- */
+   
+                                                                 
+                             
+  
+                                                                   
+                                                                     
+                                                             
+                                                                     
+                                                            
+   
 export function useReveal(refreshKey?: unknown) {
     useEffect(() => {
         const targets = Array.from(

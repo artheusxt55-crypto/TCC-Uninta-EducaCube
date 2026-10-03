@@ -7,7 +7,7 @@ type ModulesProps = {
     onOpenModule: (id: ModuleId) => void;
 };
 
-/** Seção 05 — Os módulos reais da plataforma, como peças de um sistema. */
+
 export default function Modules({ onOpenModule }: ModulesProps) {
     return (
         <section

@@ -1,10 +1,10 @@
-/* =========================================================
- * CONTEÚDO DA HOME
- *
- * Fonte única para textos e relações entre etapas, módulos e
- * recursos. Todo item que aponta para algo (módulo, rota ou
- * página) referencia um destino que já existe no projeto.
- * ========================================================= */
+
+
+
+
+
+
+
 
 import type { ComponentType } from "react";
 
@@ -19,9 +19,9 @@ import {
     IconPlanejamento,
 } from "./icons";
 
-/* ---------------------------------------------------------
- * TIPOS
- * --------------------------------------------------------- */
+
+
+
 
 export type ModuleId =
     | "diagnostico"
@@ -31,14 +31,14 @@ export type ModuleId =
 
 export type IconComponent = ComponentType<{ className?: string }>;
 
-/** Destino de uma ação: abre o painel de um módulo ou navega. */
+
 export type Action =
     | { kind: "module"; id: ModuleId; label: string }
     | { kind: "link"; href: string; label: string };
 
-/* ---------------------------------------------------------
- * ROTAS E PÁGINAS EXISTENTES
- * --------------------------------------------------------- */
+
+
+
 
 export const ROUTES = {
     login: "/login",
@@ -49,15 +49,15 @@ export const ROUTES = {
     cookies: "/cookies.html",
 } as const;
 
-/* ---------------------------------------------------------
- * ETAPAS DO PERCURSO PEDAGÓGICO
- * --------------------------------------------------------- */
+
+
+
 
 export type Stage = {
     id: string;
-    /** Forma substantiva — usada no ciclo e no ecossistema. */
+    
     noun: string;
-    /** Forma verbal — usada na jornada. */
+    
     verb: string;
     summary: string;
     detail: string;
@@ -152,9 +152,9 @@ export const STAGES: Stage[] = [
     },
 ];
 
-/* ---------------------------------------------------------
- * PARA QUEM
- * --------------------------------------------------------- */
+
+
+
 
 export const AUDIENCE = [
     {
@@ -167,9 +167,9 @@ export const AUDIENCE = [
     },
 ] as const;
 
-/* ---------------------------------------------------------
- * PROBLEMA E RESPOSTA
- * --------------------------------------------------------- */
+
+
+
 
 export const PROBLEMS = [
     {
@@ -198,9 +198,9 @@ export const PROBLEMS = [
     },
 ] as const;
 
-/* ---------------------------------------------------------
- * MÓDULOS
- * --------------------------------------------------------- */
+
+
+
 
 export type ModuleEntry = {
     id: ModuleId;
@@ -212,7 +212,7 @@ export type ModuleEntry = {
     Icone: IconComponent;
 };
 
-/** Os quatro módulos com painel próprio na Home. */
+
 export const MODULES: ModuleEntry[] = [
     {
         id: "diagnostico",
@@ -262,7 +262,7 @@ export type SupportEntry = {
     Icone: IconComponent;
 };
 
-/** Recursos com página própria, fora dos painéis da Home. */
+
 export const SUPPORT_RESOURCES: SupportEntry[] = [
     {
         nome: "Biblioteca digital",
@@ -293,9 +293,9 @@ export const SUPPORT_RESOURCES: SupportEntry[] = [
     },
 ];
 
-/* ---------------------------------------------------------
- * AURA
- * --------------------------------------------------------- */
+
+
+
 
 export const AURA_HELPS = [
     "Organizar o que foi observado na turma.",
@@ -309,9 +309,9 @@ export const TEACHER_DECIDES = [
     "Conduz a prática dentro da sala de aula.",
 ] as const;
 
-/* ---------------------------------------------------------
- * BNCC + REFERÊNCIAS + CONHECIMENTO + PLANEJAMENTO = PRÁTICA
- * --------------------------------------------------------- */
+
+
+
 
 export const EQUATION_TERMS = [
     {
@@ -332,9 +332,9 @@ export const EQUATION_TERMS = [
     },
 ] as const;
 
-/* ---------------------------------------------------------
- * ECOSSISTEMA
- * --------------------------------------------------------- */
+
+
+
 
 export type EcoNode = {
     nome: string;
@@ -343,7 +343,7 @@ export type EcoNode = {
     Icone: IconComponent;
 };
 
-/** Ordem em sentido horário, começando no topo. */
+
 export const ECO_NODES: EcoNode[] = [
     {
         nome: "Diagnóstico",

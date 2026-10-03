@@ -9,11 +9,11 @@ export type CookieChoice = "aceito" | "recusado";
 
 const STORAGE_KEY = "educacube_cookie_consent";
 
-/**
- * Consentimento de cookies e analytics.
- * Mesma regra que existia em App.tsx: sem escolha prévia, o banner
- * aparece e o analytics permanece recusado.
- */
+   
+                                        
+                                                                   
+                                            
+   
 export function useCookieConsent() {
     const [showBanner, setShowBanner] = useState(false);
 

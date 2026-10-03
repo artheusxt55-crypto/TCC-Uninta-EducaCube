@@ -4,10 +4,10 @@ const TransformDesktop = lazy(
     () => import("../TransformDesktop")
 );
 
-/**
- * Interlúdio visual "Conhecimento em movimento" (WebGL).
- * Renderizado apenas no modo de performance "full", como antes.
- */
+
+
+
+
 export default function KnowledgeMotion() {
     return (
         <section

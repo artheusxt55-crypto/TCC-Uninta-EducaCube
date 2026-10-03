@@ -24,24 +24,24 @@ export function usePerformanceMode(): PerformanceMode {
       const memory = nav.deviceMemory;
       const saveData = nav.connection?.saveData === true;
 
-      /*
-       * ECONOMIA DE DADOS
-       *
-       * Se o usuário ativou economia de dados,
-       * reduzimos efeitos pesados para economizar
-       * processamento e tráfego.
-       */
+        
+                          
+        
+                                               
+                                                  
+                                 
+         
       if (saveData) {
         setMode("minimal");
         return;
       }
 
-      /*
-       * DISPOSITIVO MUITO FRACO
-       *
-       * Poucos núcleos ou pouca memória indicam
-       * que devemos priorizar fluidez.
-       */
+        
+                                
+        
+                                                
+                                       
+         
       if (
         cores <= 2 ||
         (memory !== undefined && memory <= 2)
@@ -50,9 +50,9 @@ export function usePerformanceMode(): PerformanceMode {
         return;
       }
 
-      /*
-       * DISPOSITIVO INTERMEDIÁRIO
-       */
+        
+                                  
+         
       if (
         cores <= 4 ||
         (memory !== undefined && memory <= 4)
@@ -61,21 +61,21 @@ export function usePerformanceMode(): PerformanceMode {
         return;
       }
 
-      /*
-       * CELULAR POTENTE
-       *
-       * Não reduzimos automaticamente só porque
-       * é mobile. Se o aparelho tiver recursos
-       * suficientes, mantém qualidade alta.
-       */
+        
+                        
+        
+                                                
+                                               
+                                            
+         
       if (mobile) {
         setMode("full");
         return;
       }
 
-      /*
-       * DESKTOP / NOTEBOOK POTENTE
-       */
+        
+                                   
+         
       setMode("full");
     };
 

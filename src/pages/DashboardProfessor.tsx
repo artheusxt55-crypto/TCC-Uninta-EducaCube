@@ -29,9 +29,9 @@ import { professorMock } from '../components/mocks/dashboardMocks';
 
 const A = '/assets/dashboard';
 
-/* =========================================================
-   NAVEGAÇÃO
-========================================================= */
+                                                            
+            
+                                                            
 
 const nav: EcNavItem[] = [
   {
@@ -96,9 +96,9 @@ const nav: EcNavItem[] = [
   },
 ];
 
-/* =========================================================
-   CONSTANTES
-========================================================= */
+                                                            
+             
+                                                            
 
 const KPI_ICONS: IconName[] = [
   'users',
@@ -147,9 +147,9 @@ const TABS = [
   'Por matéria',
 ];
 
-/* =========================================================
-   HELPERS
-========================================================= */
+                                                            
+          
+                                                            
 
 const slug = (value = '') =>
   value
@@ -187,9 +187,9 @@ function stringValue(
     : undefined;
 }
 
-/* =========================================================
-   ESTADO / LOADING / EMPTY
-========================================================= */
+                                                            
+                           
+                                                            
 
 function Gate({
   status,
@@ -229,9 +229,9 @@ function Gate({
   return <>{children}</>;
 }
 
-/* =========================================================
-   DASHBOARD PROFESSOR
-========================================================= */
+                                                            
+                      
+                                                            
 
 export default function DashboardProfessor() {
   const {
@@ -248,9 +248,9 @@ export default function DashboardProfessor() {
   const [tab, setTab] =
     useState(0);
 
-  /* =======================================================
-     DESEMPENHO
-  ======================================================= */
+                                                            
+               
+                                                            
 
   const des = d.desempenho;
   const media = des.media;
@@ -321,7 +321,7 @@ export default function DashboardProfessor() {
       }
       aside={
         <>
-          {/* HOJE */}
+          {          }
 
           <EcCard className="ec-hoje">
             <div className="ec-hoje-h">
@@ -394,14 +394,14 @@ export default function DashboardProfessor() {
             </Gate>
           </EcCard>
 
-          {/* CALENDÁRIO */}
+          {                }
 
           <EcCalendar
             title="Calendário de aulas e atividades"
             link={false}
           />
 
-          {/* PRÓXIMAS ATIVIDADES */}
+          {                         }
 
           <EcCard
             title="Próximas atividades"
@@ -474,7 +474,7 @@ export default function DashboardProfessor() {
             </Gate>
           </EcCard>
 
-          {/* AURA IA */}
+          {             }
 
           <EcCard className="ec-promo">
             <div
@@ -517,7 +517,7 @@ export default function DashboardProfessor() {
         </>
       }
     >
-      {/* HERO */}
+      {          }
 
       <EcHero
         title="Olá, Professor!"
@@ -532,7 +532,7 @@ export default function DashboardProfessor() {
         artWidth={506}
       />
 
-      {/* KPIs */}
+      {          }
 
       <div className="ec-kpis">
         {d.kpis.map(
@@ -581,10 +581,10 @@ export default function DashboardProfessor() {
         )}
       </div>
 
-      {/* TURMAS + DESEMPENHO */}
+      {                         }
 
       <div className="ec-cols turmas">
-        {/* TURMAS */}
+        {            }
 
         <EcCard
           title="Minhas turmas"
@@ -675,7 +675,7 @@ export default function DashboardProfessor() {
           </Gate>
         </EcCard>
 
-        {/* DESEMPENHO */}
+        {                }
 
         <EcCard title="Desempenho dos alunos">
           <div
@@ -890,10 +890,10 @@ export default function DashboardProfessor() {
         </EcCard>
       </div>
 
-      {/* FERRAMENTAS + ENTREGAS */}
+      {                            }
 
       <div className="ec-cols bottom">
-        {/* FERRAMENTAS */}
+        {                 }
 
         <EcCard title="Ferramentas rápidas">
           <div className="ec-tools5">
@@ -946,7 +946,7 @@ export default function DashboardProfessor() {
           </div>
         </EcCard>
 
-        {/* ENTREGAS */}
+        {              }
 
         <EcCard
           title="Últimas entregas"

@@ -9,12 +9,12 @@ type EcosystemProps = {
     onOpenModule: (id: ModuleId) => void;
 };
 
-/* ---------------------------------------------------------
- * GEOMETRIA
- * Sete peças em anel, em sentido horário a partir do topo —
- * a mesma ordem do percurso pedagógico. Coordenadas em % do
- * quadrado do mapa (viewBox 0–100).
- * --------------------------------------------------------- */
+
+
+
+
+
+
 
 const RADIUS = 37;
 
@@ -33,7 +33,7 @@ const RING_PATH = POINTS.map(
         `${index === 0 ? "M" : "L"}${point.x} ${point.y}`
 ).join(" ") + " Z";
 
-/** Seção 08 — O ecossistema: o EducaCube ao centro. */
+
 export default function Ecosystem({ onOpenModule }: EcosystemProps) {
     return (
         <section

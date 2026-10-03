@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
 
 interface ThinkingOwlProps {
-  awake: boolean; // true enquanto thinking/generating
+  awake: boolean;                                     
   size?: number;
 }
 

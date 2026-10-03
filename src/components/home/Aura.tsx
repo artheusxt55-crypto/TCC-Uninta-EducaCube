@@ -6,7 +6,7 @@ import {
     TEACHER_DECIDES,
 } from "./content";
 
-/** Seção 06 — IA AURA como ferramenta pedagógica integrada. */
+
 export default function Aura() {
     return (
         <section

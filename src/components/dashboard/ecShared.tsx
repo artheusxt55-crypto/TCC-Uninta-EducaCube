@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState, type ReactNode } from 'react';
 import { StateBox } from './shared';
 
@@ -102,7 +102,7 @@ export function useLoggedUser(fallback = 'Aluno') {
       try {
         o = JSON.parse(raw);
       } catch {
-        // string simples
+        
       }
 
       const c =
@@ -121,7 +121,7 @@ export function useLoggedUser(fallback = 'Aluno') {
       }
     }
   } catch {
-    // storage indisponível
+    
   }
 
   if (!full) full = fallback;

@@ -1,14 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap");
 
-/* =====================================================================
-   EDUCACUBE — sistema visual
-   ===================================================================== */
+                                                                        
+                             
+                                                                           
 
 @layer reset, tokens, base, header, hero, workspace, showcase, home, panel, cookie, motion, responsive;
 
-/* =====================================================================
-   1. TOKENS
-   ===================================================================== */
+                                                                        
+            
+                                                                           
 
 @layer tokens {
     :root {
@@ -16,14 +16,14 @@
 
      
 
-        --color-mono-1: #060210; /* fundo mais profundo */
-        --color-mono-2: #0c0320; /* superfície 1 */
-        --color-mono-3: #150638; /* superfície 2 */
-        --color-mono-4: #210858; /* superfície 3 / roxo profundo — âncora do usuário */
-        --color-mono-5: #330e8b; /* roxo ativo/intermediário */
-        --color-mono-6: #4d15d1; /* roxo vívido — uso raro (hover/focus) */
-        --color-mono-7: #8b5cf6; /* roxo de identidade — âncora base */
-        --color-mono-8: #ccb9f8; /* lavanda clara */
+        --color-mono-1: #060210;                          
+        --color-mono-2: #0c0320;                   
+        --color-mono-3: #150638;                   
+        --color-mono-4: #210858;                                                       
+        --color-mono-5: #330e8b;                               
+        --color-mono-6: #4d15d1;                                           
+        --color-mono-7: #8b5cf6;                                       
+        --color-mono-8: #ccb9f8;                    
 
         --color-bg-0: var(--color-mono-1);
         --color-surface-1: var(--color-mono-2);
@@ -43,7 +43,7 @@
 
         --color-white: #f7f5fa;
 
-        /* ---- API existente (mapeada 1:1 para a nova paleta) ---- */
+                                                                      
 
         --edu-black: #000000;
         --edu-near-black: var(--color-bg-0);
@@ -107,12 +107,12 @@
         --dur-base: 0.28s;
         --dur-entrance: 0.9s;
 
-        /* ---------------------------------------------------------------
-           Sistema tipográfico da Home — cinco papéis, uma família visual.
-           DISPLAY / HEADLINE: Fraunces (serifa de contraste, opsz variável)
-           BODY: IBM Plex Sans
-           LABEL: IBM Plex Sans Condensed — rótulos em caixa de frase
-           METADATA: IBM Plex Mono — apenas índices e contagens */
+                                                                          
+                                                                          
+                                                                            
+                              
+                                                                     
+                                                                  
 
         --font-label: "IBM Plex Sans Condensed", "IBM Plex Sans", "Segoe UI", sans-serif;
 
@@ -126,9 +126,9 @@
     }
 }
 
-/* =====================================================================
-   2. RESET / BASE
-   ===================================================================== */
+                                                                        
+                  
+                                                                           
 
 @layer reset {
     *,
@@ -235,9 +235,9 @@
     }
 }
 
-/* =====================================================================
-   3. FUNDO
-   ===================================================================== */
+                                                                        
+           
+                                                                           
 
 @layer base {
     .ribbon-glow-background {
@@ -333,9 +333,9 @@
     }
 }
 
-/* =====================================================================
-   4. CABEÇALHO / NAVEGAÇÃO
-   ===================================================================== */
+                                                                        
+                           
+                                                                           
 
 @layer header {
     .site-header {
@@ -466,9 +466,9 @@
     }
 }
 
-/* =====================================================================
-   5. BOTÕES
-   ===================================================================== */
+                                                                        
+            
+                                                                           
 
 @layer header {
     .btn-primary,
@@ -520,11 +520,11 @@
     }
 }
 
-/* =====================================================================
-   5b. BOTÕES — CTA, GHOST GRANDE E LINK DE TEXTO
-   Hierarquia de luminosidade: o único preenchimento claro da página
-   (lavanda) é reservado à ação principal de cada seção.
-   ===================================================================== */
+                                                                        
+                                                 
+                                                                    
+                                                        
+                                                                           
 
 @layer header {
     .btn-primary,
@@ -592,9 +592,9 @@
     }
 }
 
-/* =====================================================================
-   6. HERO
-   ===================================================================== */
+                                                                        
+          
+                                                                           
 
 @layer hero {
     .main-container {
@@ -602,7 +602,7 @@
         z-index: 3;
     }
 
-    /* Contêiner de conteúdo — largura editorial única para toda a Home */
+                                                                          
     .wrap {
         width: 100%;
         max-width: var(--wrap);
@@ -628,7 +628,7 @@
         align-items: center;
     }
 
-    /* 1. Identidade */
+                       
     .hero-identity {
         display: flex;
         align-items: center;
@@ -656,7 +656,7 @@
         color: var(--edu-text-muted);
     }
 
-    /* 2. Headline */
+                     
     .hero h1 {
         margin-block-start: var(--space-lg);
         font-family: var(--font-display);
@@ -667,14 +667,14 @@
         color: var(--color-white);
     }
 
-    /* 2.1 Entrada leve e premium — "Conhecimento" surge com um fade
-       curto e discreto; o complemento entra letra por letra, cada
-       caractere subindo de leve enquanto sua cor acende de um tom
-       neutro até o lavanda da marca, como uma varredura de luz ao
-       longo da frase. Sem blur e sem rotação 3D: só opacidade,
-       um pequeno deslocamento e cor — leve para o navegador e
-       para o olho, com desaceleração longa (expo-out) no final
-       de cada entrada. */
+                                                                    
+                                                                  
+                                                                  
+                                                                  
+                                                               
+                                                              
+                                                               
+                          
     .hero-title-reveal {
         overflow: visible;
     }
@@ -772,7 +772,7 @@
         }
     }
 
-    /* 3. Proposta de valor */
+                              
     .hero-lede {
         margin-block-start: var(--space-md);
         max-width: 46ch;
@@ -781,7 +781,7 @@
         color: var(--edu-text-muted);
     }
 
-    /* 4. CTA */
+                
     .hero-actions {
         display: flex;
         flex-wrap: wrap;
@@ -876,17 +876,17 @@
     }
 }
 
-/* =====================================================================
-   MOTION — REVELAÇÃO DE SEÇÕES
-   Um único gesto: entrada suave (opacidade + 18px), uma vez por
-   elemento. O estado oculto só existe quando o hook useReveal marca
-   <html class="reveal-ready"> — sem JS ou com movimento reduzido, o
-   conteúdo simplesmente aparece.
-   ===================================================================== */
+                                                                        
+                               
+                                                                
+                                                                    
+                                                                    
+                                 
+                                                                           
 
 @layer motion {
     :root {
-        --edu-scroll-y: 0px; /* mantido por compatibilidade com o sistema anterior */
+        --edu-scroll-y: 0px;                                                         
     }
 
     [data-reveal] {
@@ -900,7 +900,7 @@
         translate: 0 18px;
     }
 
-    /* Interlúdio WebGL "Conhecimento em movimento" */
+                                                      
     .transform-section {
         position: relative;
         overflow: clip;
@@ -917,9 +917,9 @@
     }
 }
 
-/* =====================================================================
-   7. VITRINE DA CORUJA
-   ===================================================================== */
+                                                                        
+                       
+                                                                           
 
 @layer showcase {
     #brain-viewport {
@@ -954,9 +954,9 @@
             );
     }
 
-    /* ================================================================
-       LOGO MOBILE
-       ================================================================ */
+                                                                       
+                  
+                                                                          
 
     .owl-mobile-image {
         display: block;
@@ -1046,9 +1046,9 @@
     }
 }
 
-/* =====================================================================
-   9. TRANSFORM PARTICLES
-   ===================================================================== */
+                                                                        
+                         
+                                                                           
 
 @layer workspace {
     .transform-header {
@@ -1086,19 +1086,19 @@
     }
 }
 
-/* =====================================================================
-   8. HOME — NARRATIVA DA PLATAFORMA
-   Um sistema, não nove componentes: os mesmos títulos, rótulos,
-   divisores e superfícies se repetem em todas as seções. O que muda
-   de uma seção para outra é a composição (largura, densidade, ritmo).
-   ===================================================================== */
+                                                                        
+                                    
+                                                                
+                                                                    
+                                                                      
+                                                                           
 
 @layer home {
 
-    /* ---------------------------------------------------------------
-       Ritmo vertical e superfícies
-       Luminosidade: fundo → superfície → superfície elevada → lavanda
-       --------------------------------------------------------------- */
+                                                                      
+                                   
+                                                                      
+                                                                         
 
     .section {
         position: relative;
@@ -1131,9 +1131,9 @@
         border-block: 1px solid var(--edu-line-strong);
     }
 
-    /* ---------------------------------------------------------------
-       Tipografia por papel
-       --------------------------------------------------------------- */
+                                                                      
+                           
+                                                                         
 
     .h-section {
         font-family: var(--font-display);
@@ -1206,9 +1206,9 @@
         margin-inline: auto;
     }
 
-    /* ---------------------------------------------------------------
-       02 — O que é o EducaCube
-       --------------------------------------------------------------- */
+                                                                      
+                               
+                                                                         
 
     .platform__intro {
         display: grid;
@@ -1264,7 +1264,7 @@
         color: var(--edu-text);
     }
 
-    /* O ciclo: diagnóstico → planejamento → conhecimento → intervenção → aprendizagem */
+                                                                                         
 
     .cycle {
         margin-block-start: var(--space-xl);
@@ -1329,9 +1329,9 @@
         color: var(--color-white);
     }
 
-    /* ---------------------------------------------------------------
-       03 — O problema
-       --------------------------------------------------------------- */
+                                                                      
+                      
+                                                                         
 
     .problem__grid {
         display: grid;
@@ -1382,11 +1382,11 @@
         color: var(--edu-text-muted);
     }
 
-    /* ---------------------------------------------------------------
-       04 — A jornada (elemento visual central da Home)
-       Espinha vertical com uma peça por etapa; o texto alterna de
-       lado e o numeral grande ocupa o lado oposto.
-       --------------------------------------------------------------- */
+                                                                      
+                                                       
+                                                                  
+                                                   
+                                                                         
 
     .journey {
         position: relative;
@@ -1492,7 +1492,7 @@
         user-select: none;
     }
 
-    /* Ímpares: texto à esquerda da espinha, numeral à direita. */
+                                                                  
     .journey__step:nth-child(odd) .journey__body {
         grid-column: 1;
         grid-row: 1;
@@ -1505,7 +1505,7 @@
         justify-self: start;
     }
 
-    /* Pares: invertido. */
+                           
     .journey__step:nth-child(even) .journey__body {
         grid-column: 2;
         grid-row: 1;
@@ -1518,9 +1518,9 @@
         justify-self: end;
     }
 
-    /* ---------------------------------------------------------------
-       05 — Módulos
-       --------------------------------------------------------------- */
+                                                                      
+                   
+                                                                         
 
     .modules__grid {
         display: grid;
@@ -1657,7 +1657,7 @@
         margin-block: var(--space-xl) var(--space-xs);
     }
 
-    /* Recursos de apoio: mesma estrutura, um degrau abaixo na hierarquia */
+                                                                            
     .module-index--support .module-row__link {
         padding-block: var(--space-sm);
     }
@@ -1676,9 +1676,9 @@
         height: 17px;
     }
 
-    /* ---------------------------------------------------------------
-       06 — AURA
-       --------------------------------------------------------------- */
+                                                                      
+                
+                                                                         
 
     .aura__grid {
         display: grid;
@@ -1736,7 +1736,7 @@
         color: var(--edu-text-muted);
     }
 
-    /* AURA presente em todo o percurso: colchete sob as cinco etapas */
+                                                                        
     .aura-span {
         margin-block-start: var(--space-xl);
         padding-block-end: 2.6rem;
@@ -1775,9 +1775,9 @@
         color: var(--color-lavender);
     }
 
-    /* ---------------------------------------------------------------
-       07 — BNCC + referências + conhecimento + planejamento = prática
-       --------------------------------------------------------------- */
+                                                                      
+                                                                      
+                                                                         
 
     .equation {
         display: grid;
@@ -1853,9 +1853,9 @@
         margin-block-start: var(--space-lg);
     }
 
-    /* ---------------------------------------------------------------
-       08 — Ecossistema
-       --------------------------------------------------------------- */
+                                                                      
+                       
+                                                                         
 
     .eco-map {
         position: relative;
@@ -1998,9 +1998,9 @@
         color: var(--edu-text-faint);
     }
 
-    /* ---------------------------------------------------------------
-       09 — Encerramento e rodapé
-       --------------------------------------------------------------- */
+                                                                      
+                                 
+                                                                         
 
     .closing {
         background:
@@ -2087,9 +2087,9 @@
     }
 }
 
-/* =====================================================================
-   10. PAINÉIS DE FERRAMENTA
-   ===================================================================== */
+                                                                        
+                            
+                                                                           
 
 @layer panel {
     .overlay {
@@ -2278,9 +2278,9 @@
     }
 }
 
-/* =====================================================================
-   11. BANNER DE COOKIES
-   ===================================================================== */
+                                                                        
+                        
+                                                                           
 
 @layer cookie {
     .cookie-banner {
@@ -2396,10 +2396,10 @@
     }
 }
 
-/* =====================================================================
-   12. ENTRADA DA HERO
-   Sequência única de carregamento; nada se move de novo depois.
-   ===================================================================== */
+                                                                        
+                      
+                                                                
+                                                                           
 
 @layer motion {
     @media (prefers-reduced-motion: no-preference) {
@@ -2438,18 +2438,18 @@
     }
 }
 
-/* =====================================================================
-   13. RESPONSIVO
-   Abaixo de ~1000px a composição é reestruturada (não apenas reduzida):
-   ordem de leitura no celular = headline → proposta → CTA → explicação
-   → jornada → módulos.
-   ===================================================================== */
+                                                                        
+                 
+                                                                        
+                                                                       
+                       
+                                                                           
 
 @layer responsive {
 
-    /* ================================================================
-       NAVEGAÇÃO — recolhe para menu quando os 5 links não cabem
-       ================================================================ */
+                                                                       
+                                                                
+                                                                          
 
     @media (max-width: 1100px) {
         .site-nav {
@@ -2499,9 +2499,9 @@
         }
     }
 
-    /* ================================================================
-       TABLET / NOTEBOOK PEQUENO
-       ================================================================ */
+                                                                       
+                                
+                                                                          
 
     @media (max-width: 980px) {
         .hero {
@@ -2512,8 +2512,8 @@
             grid-template-columns: 1fr;
         }
 
-        /* No celular a coruja vem depois da proposta e do CTA:
-           o texto é a prioridade. */
+                                                               
+                                     
         #brain-viewport {
             min-height: 340px;
         }
@@ -2531,7 +2531,7 @@
             position: static;
         }
 
-        /* O ciclo vira uma lista vertical com fio contínuo */
+                                                              
         .cycle__track {
             grid-template-columns: 1fr;
         }
@@ -2572,9 +2572,9 @@
         }
     }
 
-    /* ================================================================
-       JORNADA E ECOSSISTEMA — recomposição para uma coluna
-       ================================================================ */
+                                                                       
+                                                           
+                                                                          
 
     @media (max-width: 820px) {
         .journey::before {
@@ -2636,9 +2636,9 @@
         }
     }
 
-    /* ================================================================
-       CELULAR
-       ================================================================ */
+                                                                       
+              
+                                                                          
 
     @media (max-width: 760px) {
         .site-actions .btn-ghost {
@@ -2675,7 +2675,7 @@
             grid-template-columns: 1fr;
         }
 
-        /* Módulo: ação desce para baixo do texto */
+                                                    
         .module-row__link {
             grid-template-columns: 2.5rem minmax(0, 1fr);
             padding-inline: 0;
@@ -2772,17 +2772,17 @@
     }
 }
 
-/* =====================================================================
-   EDUCACUBE — MOTION SYSTEM v2
-   Scroll reveals com hierarquia editorial, stagger e microinterações.
-   Não adiciona movimento contínuo desnecessário.
-   ===================================================================== */
+                                                                        
+                               
+                                                                      
+                                                 
+                                                                           
 
 @layer motion {
     @media (prefers-reduced-motion: no-preference) {
-        /* -------------------------------------------------------------
-           Plataforma — o ciclo pedagógico entra como uma sequência.
-           ------------------------------------------------------------- */
+                                                                        
+                                                                    
+                                                                           
         .platform .audience.is-visible .audience__item,
         .platform .cycle.is-visible .cycle__item {
             animation: edu-item-in 700ms var(--ease) both;
@@ -2812,10 +2812,10 @@
             animation-delay: 400ms;
         }
 
-        /* -------------------------------------------------------------
-           Problema — as respostas aparecem uma a uma, sem deslocamento
-           excessivo. O título continua sendo o ponto de ancoragem.
-           ------------------------------------------------------------- */
+                                                                        
+                                                                       
+                                                                   
+                                                                           
         .problem__list.is-visible .problem__row {
             animation: edu-item-in 650ms var(--ease) both;
         }
@@ -2826,9 +2826,9 @@
         .problem__list.is-visible .problem__row:nth-child(4) { animation-delay: 290ms; }
         .problem__list.is-visible .problem__row:nth-child(5) { animation-delay: 360ms; }
 
-        /* -------------------------------------------------------------
-           Jornada — cada etapa acende o nó e traz o conteúdo da linha.
-           ------------------------------------------------------------- */
+                                                                        
+                                                                       
+                                                                           
         .journey__step.is-visible .journey__body {
             animation: edu-item-in 700ms var(--ease) both;
         }
@@ -2846,10 +2846,10 @@
         .journey__step:nth-child(5) .journey__body,
         .journey__step:nth-child(5) .journey__numeral { animation-delay: 280ms; }
 
-        /* -------------------------------------------------------------
-           Módulos — aqui o stagger é importante: transforma uma lista
-           estática em uma sequência de ferramentas.
-           ------------------------------------------------------------- */
+                                                                        
+                                                                      
+                                                    
+                                                                           
         .modules__lists .module-row.is-visible {
             animation: edu-item-in 650ms var(--ease) both;
         }
@@ -2872,10 +2872,10 @@
             translate: 4px 0;
         }
 
-        /* -------------------------------------------------------------
-           AURA — a seção recebe movimento de sistema, não estética de
-           chatbot. As listas aparecem como decisões pedagógicas.
-           ------------------------------------------------------------- */
+                                                                        
+                                                                      
+                                                                 
+                                                                           
         .aura__roles.is-visible .role-list li {
             animation: edu-item-in 560ms var(--ease) both;
         }
@@ -2901,9 +2901,9 @@
             transform-origin: center top;
         }
 
-        /* -------------------------------------------------------------
-           Conhecimento — a equação ganha progressão horizontal.
-           ------------------------------------------------------------- */
+                                                                        
+                                                                
+                                                                           
         .equation.is-visible > li {
             animation: edu-item-in 650ms var(--ease) both;
         }
@@ -2914,10 +2914,10 @@
         .equation.is-visible > li:nth-child(4) { animation-delay: 270ms; }
         .equation.is-visible > li:nth-child(5) { animation-delay: 340ms; }
 
-        /* -------------------------------------------------------------
-           Ecossistema — primeiro o centro, depois os nós. O mapa não
-           fica girando: a informação é que ganha prioridade.
-           ------------------------------------------------------------- */
+                                                                        
+                                                                     
+                                                             
+                                                                           
         .eco-map.is-visible .eco-core {
             animation: edu-core-in 850ms var(--ease) both;
         }
@@ -2938,10 +2938,10 @@
             animation: edu-dash-flow 2.8s linear 650ms both;
         }
 
-        /* -------------------------------------------------------------
-           Fechamento — só uma entrada curta. O CTA não deve competir
-           com o statement.
-           ------------------------------------------------------------- */
+                                                                        
+                                                                     
+                           
+                                                                           
         .closing__actions.is-visible {
             animation: edu-item-in 700ms var(--ease) 120ms both;
         }
@@ -3034,10 +3034,10 @@
         }
     }
 }
-/* =========================================================
-   EDUCACUBE
-   MENU PRINCIPAL ANIMADO
-   ========================================================= */
+                                                            
+            
+                         
+                                                               
 
 .educacube-animated-menu {
     display: flex;
@@ -3053,9 +3053,9 @@
 }
 
 
-/* =========================================================
-   ITEM
-   ========================================================= */
+                                                            
+       
+                                                               
 
 .educacube-menu-item {
     position: relative;
@@ -3079,9 +3079,9 @@
 
     white-space: nowrap;
 
-    /*
-     * Transição geral deliberadamente suave.
-     */
+      
+                                             
+       
     transition:
         background-color 360ms
             cubic-bezier(0.22, 1, 0.36, 1),
@@ -3090,9 +3090,9 @@
 }
 
 
-/* =========================================================
-   HOVER / ACTIVE
-   ========================================================= */
+                                                            
+                 
+                                                               
 
 .educacube-menu-item:hover {
     background: rgba(255, 255, 255, 0.055);
@@ -3107,9 +3107,9 @@
 }
 
 
-/* =========================================================
-   ÍCONE
-   ========================================================= */
+                                                            
+        
+                                                               
 
 .educacube-menu-item__icon {
     display: inline-flex;
@@ -3133,9 +3133,9 @@
 }
 
 
-/* =========================================================
-   TEXTO
-   ========================================================= */
+                                                            
+        
+                                                               
 
 .educacube-menu-item__label {
     display: block;
@@ -3157,10 +3157,10 @@
 
     transform: translateX(-4px);
 
-    /*
-     * 520ms deixa a expansão perceptível,
-     * mas sem parecer lenta.
-     */
+      
+                                          
+                             
+       
     transition:
         max-width 520ms
             cubic-bezier(0.16, 1, 0.3, 1),
@@ -3175,9 +3175,9 @@
 }
 
 
-/* =========================================================
-   TEXTO EXPANDIDO
-   ========================================================= */
+                                                            
+                  
+                                                               
 
 .educacube-menu-item__label.is-visible {
     width: auto;
@@ -3192,9 +3192,9 @@
 }
 
 
-/* =========================================================
-   ITEM ATIVO
-   ========================================================= */
+                                                            
+             
+                                                               
 
 .educacube-menu-item.is-active
 .educacube-menu-item__label {
@@ -3210,9 +3210,9 @@
 }
 
 
-/* =========================================================
-   TABLET
-   ========================================================= */
+                                                            
+         
+                                                               
 
 @media (max-width: 1180px) {
     .educacube-animated-menu {
@@ -3232,9 +3232,9 @@
 }
 
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
+                                                            
+         
+                                                               
 
 @media (max-width: 900px) {
     .educacube-animated-menu {
@@ -3243,9 +3243,9 @@
 }
 
 
-/* =========================================================
-   ACESSIBILIDADE
-   ========================================================= */
+                                                            
+                 
+                                                               
 
 @media (prefers-reduced-motion: reduce) {
     .educacube-menu-item,

@@ -43,9 +43,9 @@ export default async function handler(req, res) {
 
     const adminAuth = getFirebaseAdmin();
 
-    // O token comprova quem está pedindo a verificação: nunca
-    // confiamos em um e-mail enviado livremente pelo cliente,
-    // isso evita que alguém dispare e-mails para contas de terceiros.
+                                                              
+                                                              
+                                                                      
     const decodedToken = await adminAuth.verifyIdToken(token);
     const email = decodedToken.email;
 
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Firebase gera o link REAL de verificação
+                                               
     const verificationLink =
       await adminAuth.generateEmailVerificationLink(email);
 

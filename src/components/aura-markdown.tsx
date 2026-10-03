@@ -1,19 +1,19 @@
 import type { ReactNode } from "react";
 
-/**
- * Minimal, dependency-free markdown renderer tuned for AURA's
- * editorial message style. Covers the subset the product brief
- * calls for: headings, bold/italic, inline code, fenced code
- * blocks, ordered/unordered lists, blockquotes, tables, links.
- *
- * If your project already has `react-markdown` + `remark-gfm`
- * wired up elsewhere, prefer that and drop this file — this
- * exists so the standalone component has no missing dependency.
- */
+   
+                                                              
+                                                               
+                                                             
+                                                               
+  
+                                                              
+                                                            
+                                                                
+   
 
 function renderInline(text: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];
-  // order matters: code spans first so ** inside `code` isn't touched
+                                                                      
   const pattern = /(`[^`]+`)|(\*\*[^*]+\*\*)|(\*[^*]+\*)|(\[[^\]]+\]\([^)]+\))/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -89,7 +89,7 @@ export function renderAuraMarkdown(source: string): ReactNode[] {
       continue;
     }
 
-    // fenced code block
+                        
     if (line.trim().startsWith("```")) {
       const lang = line.trim().slice(3).trim();
       const codeLines: string[] = [];
@@ -98,7 +98,7 @@ export function renderAuraMarkdown(source: string): ReactNode[] {
         codeLines.push(lines[i]);
         i++;
       }
-      i++; // skip closing fence
+      i++;                      
       blocks.push(
         <pre key={`b${blockKey++}`} className="aura-md-pre">
           <code data-lang={lang}>{codeLines.join("\n")}</code>
@@ -107,7 +107,7 @@ export function renderAuraMarkdown(source: string): ReactNode[] {
       continue;
     }
 
-    // heading
+              
     const headingMatch = /^(#{1,3})\s+(.*)$/.exec(line);
     if (headingMatch) {
       const level = headingMatch[1].length;
@@ -124,7 +124,7 @@ export function renderAuraMarkdown(source: string): ReactNode[] {
       continue;
     }
 
-    // blockquote
+                 
     if (line.trim().startsWith(">")) {
       const quoteLines: string[] = [];
       while (i < lines.length && lines[i].trim().startsWith(">")) {
@@ -139,7 +139,7 @@ export function renderAuraMarkdown(source: string): ReactNode[] {
       continue;
     }
 
-    // table
+            
     if (line.includes("|") && lines[i + 1] && isTableSeparator(lines[i + 1])) {
       const headerCells = splitRow(line);
       i += 2;
@@ -173,7 +173,7 @@ export function renderAuraMarkdown(source: string): ReactNode[] {
       continue;
     }
 
-    // unordered list
+                     
     if (/^\s*[-*]\s+/.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
@@ -192,7 +192,7 @@ export function renderAuraMarkdown(source: string): ReactNode[] {
       continue;
     }
 
-    // ordered list
+                   
     if (/^\s*\d+[.)]\s+/.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) {
@@ -211,7 +211,7 @@ export function renderAuraMarkdown(source: string): ReactNode[] {
       continue;
     }
 
-    // paragraph — collect contiguous plain lines
+                                                 
     const paraLines: string[] = [];
     while (
       i < lines.length &&
