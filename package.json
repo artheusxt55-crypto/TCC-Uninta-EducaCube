@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:api": "node --experimental-test-module-mocks --test \"api/_lib/**/*.test.js\"",
+    "test:ui": "node --test tests/*.test.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",

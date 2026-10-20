@@ -996,3 +996,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+.login-page .login-message .login-forgot {
+  display: block;
+  margin-top: 8px;
+  text-decoration: underline;
+}
+
+.login-page .login-message .login-forgot:hover {
+  color: #FFFFFF;
+}

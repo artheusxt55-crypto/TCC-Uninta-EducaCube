@@ -1,4 +1,22 @@
+import { autenticar, configurarCors, verificarOrigem, responderErro } from "./_lib/seguranca.js";
+
+/* Protegido: origem autorizada + usuário logado com e-mail verificado.
+   (Antes, qualquer pessoa na internet podia consumir a chave deste serviço.) */
 export default async function handler(req, res) {
+  configurarCors(req, res);
+
+  try {
+    verificarOrigem(req);
+    if (req.method === "OPTIONS") return res.status(204).end();
+    await autenticar(req);
+  } catch (erro) {
+    return responderErro(res, erro);
+  }
+
+  return executar(req, res);
+}
+
+async function executar(req, res) {
     const { prompt } = req.body;
     
                                                          

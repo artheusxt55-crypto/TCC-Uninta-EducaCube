@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
+import { configurarCors, origemAutorizada } from "./_lib/origem.js";
 
                                                             
                  
@@ -44,29 +45,6 @@ const UPSTASH_TOKEN =
        
                                                                
 
-function configurarCors(res) {
-    
-                                                   
-                          
-    
-                                                           
-     
-
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "*"
-  );
-
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS"
-  );
-
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-}
 
                                                             
                
@@ -111,6 +89,10 @@ async function autenticarUsuario(req) {
     erro.statusCode = 401;
 
     throw erro;
+  }
+
+  if (decodedToken.email_verified !== true) {
+    throw new Error("EMAIL_NOT_VERIFIED");
   }
 
   return decodedToken;
@@ -180,7 +162,11 @@ export default async function handler(
   req,
   res
 ) {
-  configurarCors(res);
+  configurarCors(req, res);
+
+  if (!origemAutorizada(req)) {
+    return res.status(403).json({ error: "Origem não autorizada." });
+  }
 
                                                             
             
@@ -413,6 +399,10 @@ export default async function handler(
 
   } catch (error) {
    
+    if (error?.message === "EMAIL_NOT_VERIFIED") {
+      return res.status(403).json({ error: "Confirme seu e-mail para continuar." });
+    }
+
     if (
       error?.message ===
         "AUTH_REQUIRED"

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
-import { auth, googleProvider, db } from "../lib/firebase";
+import { auth, googleProvider } from "../lib/firebase";
 
 import {
   createUserWithEmailAndPassword,
@@ -14,12 +14,6 @@ import {
 import type { User } from "firebase/auth";
 
 import {
-  doc,
-  serverTimestamp,
-  setDoc,
-} from "firebase/firestore";
-
-import {
   ArrowRight,
   Eye,
   EyeOff,
@@ -27,6 +21,14 @@ import {
   Mail,
   UserRound,
 } from "lucide-react";
+
+import {
+  ErroPlataforma,
+  enviarVerificacao,
+  nomeDoPapel,
+  rotaDoPapel,
+  vincularPapel,
+} from "../lib/plataforma";
 
 import "../styles/login.css";
 
@@ -89,33 +91,6 @@ function obterMensagemErroFirebase(error: unknown): string {
   }
 }
 
-async function registrarUsuarioFirestore(
-  user: User,
-  nome?: string,
-  tipoUsuario?: TipoUsuario,
-) {
-  const referencia = doc(db, "usuarios", user.uid);
-
-  await setDoc(
-    referencia,
-    {
-      uid: user.uid,
-      nome:
-        nome?.trim() ||
-        user.displayName ||
-        "Usuário EducaCube",
-      email: user.email || "",
-      foto: user.photoURL || "",
-      ...(tipoUsuario ? { tipoUsuario } : {}),
-      ultimoLogin: serverTimestamp(),
-      criadoEm: serverTimestamp(),
-    },
-    {
-      merge: true,
-    },
-  );
-}
-
 async function registrarAcessoApi(user: User) {
   try {
     const token = await user.getIdToken();
@@ -132,21 +107,52 @@ async function registrarAcessoApi(user: User) {
   }
 }
 
-async function enviarVerificacaoApi(user: User) {
-  try {
-    const token = await user.getIdToken();
+/* Exige e-mail verificado e valida/define o papel no servidor (Neon). Se a conta for do outro papel,
+   encerra a sessão e avisa: nenhuma área abre. */
+async function vincularPerfil(user: User, tipo: TipoUsuario) {
+  await user.reload().catch(() => undefined);
 
-    await fetch("/api/enviar-verificacao", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  } catch {
-                                             
+  if (!user.emailVerified) {
+    throw new ErroPerfil(
+      "Confirme seu e-mail para entrar. Enviamos um link de confirmação quando a conta foi criada.",
+      true,
+    );
+  }
+
+  try {
+    return await vincularPapel(user, tipo);
+  } catch (erro) {
+    if (erro instanceof ErroPlataforma && erro.codigo === "EMAIL_NOT_VERIFIED") {
+      throw new ErroPerfil(erro.message, true);
+    }
+
+    await auth.signOut().catch(() => undefined);
+
+    if (erro instanceof ErroPlataforma && erro.codigo === "ROLE_MISMATCH" && erro.papelReal) {
+      throw new ErroPerfil(
+        `Esta conta é de ${nomeDoPapel(erro.papelReal)}. Selecione "${nomeDoPapel(erro.papelReal)}" para entrar.`,
+      );
+    }
+
+    throw new ErroPerfil(
+      erro instanceof ErroPlataforma ? erro.message : "Não foi possível validar o perfil da conta.",
+    );
   }
 }
+
+class ErroPerfil extends Error {
+  precisaVerificar: boolean;
+
+  constructor(mensagem: string, precisaVerificar = false) {
+    super(mensagem);
+    this.precisaVerificar = precisaVerificar;
+  }
+}
+
+const mensagemDeErro = (erro: unknown) =>
+  erro instanceof ErroPerfil || erro instanceof ErroPlataforma
+    ? erro.message
+    : obterMensagemErroFirebase(erro);
 
 export default function LoginPage() {
   const [modo, setModo] =
@@ -171,6 +177,7 @@ export default function LoginPage() {
     useState(false);
 
   const [mensagemErro, setMensagemErro] = useState("");
+  const [podeReenviar, setPodeReenviar] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] =
     useState("");
 
@@ -187,6 +194,33 @@ export default function LoginPage() {
   function limparMensagens() {
     setMensagemErro("");
     setMensagemSucesso("");
+    setPodeReenviar(false);
+  }
+
+  function tratarErro(erro: unknown) {
+    setMensagemErro(mensagemDeErro(erro));
+    setPodeReenviar(erro instanceof ErroPerfil && erro.precisaVerificar);
+  }
+
+  async function handleReenviarVerificacao() {
+    const user = auth.currentUser;
+    limparMensagens();
+
+    if (!user) {
+      setMensagemErro("Entre com seu e-mail e senha para reenviar a confirmação.");
+      return;
+    }
+
+    setCarregandoAuth(true);
+
+    try {
+      await enviarVerificacao(user, tipoUsuario);
+      setMensagemSucesso("Enviamos um novo link de confirmação. Confira também a caixa de spam.");
+    } catch (erro) {
+      tratarErro(erro);
+    } finally {
+      setCarregandoAuth(false);
+    }
   }
 
   function trocarModo(novoModo: ModoAutenticacao) {
@@ -195,7 +229,7 @@ export default function LoginPage() {
   }
 
   async function finalizarLogin(user: User) {
-    await registrarUsuarioFirestore(user, undefined, tipoUsuario);
+    const papel = await vincularPerfil(user, tipoUsuario);
     await registrarAcessoApi(user);
 
     if (lembrarLogin) {
@@ -207,10 +241,7 @@ export default function LoginPage() {
       window.localStorage.removeItem(EMAIL_SALVO_KEY);
     }
 
-    window.location.href =
-      tipoUsuario === "professor"
-        ? "/app/dashboard/professor"
-        : "/app/dashboard/aluno";
+    window.location.href = rotaDoPapel(papel);
   }
 
   async function handleLogin(
@@ -240,9 +271,7 @@ export default function LoginPage() {
 
       await finalizarLogin(resultado.user);
     } catch (error) {
-      setMensagemErro(
-        obterMensagemErroFirebase(error),
-      );
+      tratarErro(error);
     } finally {
       setCarregandoAuth(false);
     }
@@ -295,23 +324,29 @@ export default function LoginPage() {
         displayName: nome,
       });
 
-      await registrarUsuarioFirestore(
-        resultado.user,
-        nome,
-        tipoUsuario,
+      // O servidor registra o papel escolhido e envia o e-mail de confirmação.
+      // A conta só entra na plataforma depois de confirmar o e-mail.
+      try {
+        await enviarVerificacao(resultado.user, tipoUsuario);
+      } catch (erro) {
+        setModo("login");
+        setMensagemErro(
+          `Conta criada, mas não foi possível enviar o e-mail de confirmação. ${mensagemDeErro(erro)}`,
+        );
+        setPodeReenviar(true);
+        return;
+      }
+
+      await auth.signOut();
+
+      setModo("login");
+      setSenhaInput("");
+      setConfirmarSenhaInput("");
+      setMensagemSucesso(
+        `Enviamos um link de confirmação para ${email}. Confirme o e-mail e depois entre. Confira também a caixa de spam.`,
       );
-
-      await registrarAcessoApi(resultado.user);
-      await enviarVerificacaoApi(resultado.user);
-
-      window.location.href =
-        tipoUsuario === "professor"
-          ? "/app/dashboard/professor"
-          : "/app/dashboard/aluno";
     } catch (error) {
-      setMensagemErro(
-        obterMensagemErroFirebase(error),
-      );
+      tratarErro(error);
     } finally {
       setCarregandoAuth(false);
     }
@@ -327,17 +362,13 @@ export default function LoginPage() {
         googleProvider,
       );
 
-      await registrarUsuarioFirestore(resultado.user, undefined, tipoUsuario);
+      const papel = await vincularPerfil(resultado.user, tipoUsuario);
+
       await registrarAcessoApi(resultado.user);
 
-      window.location.href =
-        tipoUsuario === "professor"
-          ? "/app/dashboard/professor"
-          : "/app/dashboard/aluno";
+      window.location.href = rotaDoPapel(papel);
     } catch (error) {
-      setMensagemErro(
-        obterMensagemErroFirebase(error),
-      );
+      tratarErro(error);
     } finally {
       setCarregandoAuth(false);
     }
@@ -364,9 +395,7 @@ export default function LoginPage() {
         "Enviamos um link para redefinir sua senha.",
       );
     } catch (error) {
-      setMensagemErro(
-        obterMensagemErroFirebase(error),
-      );
+      tratarErro(error);
     } finally {
       setCarregandoAuth(false);
     }
@@ -462,6 +491,16 @@ export default function LoginPage() {
                   role="alert"
                 >
                   {mensagemErro}
+                  {podeReenviar && (
+                    <button
+                      type="button"
+                      className="login-forgot"
+                      onClick={() => void handleReenviarVerificacao()}
+                      disabled={carregandoAuth}
+                    >
+                      Reenviar e-mail de confirmação
+                    </button>
+                  )}
                 </div>
               )}
 

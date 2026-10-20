@@ -1,5 +1,5 @@
 import admin from "firebase-admin";
-import { construirContextoRAG } from "./rag/index.js";
+import { construirContextoRAG } from "./_lib/rag/index.js";
 
                                                             
                  
@@ -287,7 +287,13 @@ async function autenticarUsuario(req) {
                                             
      
 
-  return await auth.verifyIdToken(token);
+  const decoded = await auth.verifyIdToken(token);
+
+  if (decoded.email_verified !== true) {
+    throw new Error("EMAIL_NOT_VERIFIED");
+  }
+
+  return decoded;
 }
 
                                                             
@@ -866,6 +872,13 @@ export default async function handler(
                                                             
                            
                                                                
+
+    if (error?.message === "EMAIL_NOT_VERIFIED") {
+      return res.status(403).json({
+        error: "Confirme seu e-mail para utilizar a AURA.",
+        code: "EMAIL_NOT_VERIFIED",
+      });
+    }
 
     if (
       error?.message ===

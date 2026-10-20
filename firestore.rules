@@ -1,0 +1,17 @@
+rules_version = '2';
+
+// CAMADA 2 — Firebase. O NAVEGADOR NÃO ACESSA O FIRESTORE.
+// Toda leitura/escrita passa pelo backend (Admin SDK, que ignora estas regras):
+// /api/registrar-acesso, /api/memoria etc. Assim ninguém lê, cria ou altera dados —
+// inclusive o próprio papel — nem chamando o Firestore direto pelo console do navegador.
+//
+// Publicar: Console do Firebase (Firestore > Regras) ou `firebase deploy --only firestore:rules`.
+// ANTES de publicar, confira se algo no seu projeto ainda lê o Firestore pelo navegador.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

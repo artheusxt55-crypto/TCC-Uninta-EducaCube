@@ -1,5 +1,6 @@
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
+import { definirPapelPendente, verificarOrigem } from "./_lib/seguranca.js";
 
 function getFirebaseAdmin() {
   if (getApps().length > 0) {
@@ -25,6 +26,8 @@ export default async function handler(req, res) {
   }
 
   try {
+    verificarOrigem(req);
+
     const authorization = req.headers.authorization || "";
 
     if (!authorization.startsWith("Bearer ")) {
@@ -53,6 +56,16 @@ export default async function handler(req, res) {
       return res.status(400).json({
         error: "Esta conta não possui e-mail associado.",
       });
+    }
+
+    // Cadastro: o servidor registra o papel escolhido. Depois disso a conta não assume o outro.
+    const corpo =
+      typeof req.body === "string"
+        ? (() => { try { return JSON.parse(req.body); } catch { return {}; } })()
+        : req.body || {};
+
+    if (corpo.papel !== undefined) {
+      await definirPapelPendente(decodedToken, corpo.papel);
     }
 
     if (decodedToken.email_verified) {
@@ -552,6 +565,10 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    if (error?.status && error?.codigo) {
+      return res.status(error.status).json({ error: error.message, codigo: error.codigo, ...error.extra });
+    }
+
 
     console.error(
       "ERRO API VERIFICAÇÃO:",

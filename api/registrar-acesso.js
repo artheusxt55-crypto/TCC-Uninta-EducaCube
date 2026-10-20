@@ -153,6 +153,14 @@ export default async function handler(req, res) {
     const decodedToken =
       await adminAuth.verifyIdToken(token);
 
+    if (decodedToken.email_verified !== true) {
+      return res.status(403).json({
+        sucesso: false,
+        erro: "Confirme seu e-mail para continuar.",
+        codigo: "EMAIL_NOT_VERIFIED",
+      });
+    }
+
     const uid = decodedToken.uid;
 
     console.log(

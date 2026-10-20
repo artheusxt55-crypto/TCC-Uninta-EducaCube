@@ -19,7 +19,7 @@ function App() {
         <Route
           path="/app/dashboard/aluno/*"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute papel="aluno">
               <DashboardAluno />
             </ProtectedRoute>
           }
@@ -28,7 +28,7 @@ function App() {
         <Route
           path="/app/dashboard/professor/*"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute papel="professor">
               <DashboardProfessor />
             </ProtectedRoute>
           }
