@@ -20,7 +20,7 @@ export interface AuraFonte {
 export interface AuraResponse {
   resposta: string;
   fontesLab?: AuraFonte[];
-  provider?: "gemini" | "groq";
+  provider?: "nemotron" | "groq";
   attempts?: number;
   usage?: {
     promptTokens?: number;
