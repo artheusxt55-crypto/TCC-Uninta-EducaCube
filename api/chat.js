@@ -21,10 +21,14 @@ const auth = admin.auth();
                            
                                                                
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const AURA_IA_KEY = process.env.AURA_IA;
 
-const GEMINI_MODEL =
-  process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const AURA_IA_MODEL =
+  process.env.AURA_IA_MODEL || "nvidia/nemotron-3-super-120b-a12b";
+
+const AURA_IA_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
+
+const AURA_IA_TIMEOUT_MS = 25000;
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
@@ -207,9 +211,9 @@ async function registrarMetrica(uid, dados = {}) {
              
        
 
-    if (dados.provider === "gemini") {
+    if (dados.provider === "nemotron") {
       await redisCommand([
-        ["HINCRBY", key, "gemini_requests", 1],
+        ["HINCRBY", key, "nemotron_requests", 1],
       ]);
     }
 
@@ -371,53 +375,43 @@ function erroPodeTentarNovamente(
          
                                                                
 
-async function chamarGemini({
+function limparRaciocinio(texto) {
+  if (typeof texto !== "string") {
+    return "";
+  }
+
+  return texto
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<think>[\s\S]*$/i, "")
+    .trim();
+}
+
+async function chamarNemotron({
   prompt,
   contextoRAG,
 }) {
-  if (!GEMINI_API_KEY) {
+  if (!AURA_IA_KEY) {
     throw new Error(
-      "GEMINI_API_KEY não configurada."
+      "AURA_IA não configurada."
     );
   }
 
-  const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/` +
-    `${encodeURIComponent(GEMINI_MODEL)}` +
-    `:generateContent` +
-    `?key=${encodeURIComponent(GEMINI_API_KEY)}`;
-
-    
-                                        
-                         
-    
-                                       
-     
-
   const body = {
-    contents: [
+    model: AURA_IA_MODEL,
+
+    messages: [
       {
         role: "user",
-
-        parts: [
-          {
-            text: contextoRAG,
-          },
-        ],
+        content: contextoRAG,
       },
     ],
 
-    generationConfig: {
-      temperature: 0.4,
-      maxOutputTokens: 2048,
-    },
+    temperature: 0.4,
+    max_tokens: 4096,
+    stream: false,
   };
 
   let ultimoErro = null;
-
-    
-                                                 
-     
 
   for (
     let tentativa = 1;
@@ -426,98 +420,87 @@ async function chamarGemini({
   ) {
     try {
       const response = await fetch(
-        url,
+        AURA_IA_URL,
         {
           method: "POST",
 
           headers: {
             "Content-Type":
               "application/json",
+
+            Accept:
+              "application/json",
+
+            Authorization:
+              `Bearer ${AURA_IA_KEY}`,
           },
 
           body: JSON.stringify(body),
+
+          signal: AbortSignal.timeout(
+            AURA_IA_TIMEOUT_MS
+          ),
         }
       );
-
-                                                     
-                
-                                                        
 
       if (response.ok) {
         const data =
           await response.json();
 
         const texto =
-          data
-            ?.candidates?.[0]
-            ?.content?.parts
-            ?.map(
-              (part) =>
-                part?.text || ""
-            )
-            .join("")
-            .trim();
+          limparRaciocinio(
+            data
+              ?.choices?.[0]
+              ?.message
+              ?.content
+          );
 
         if (!texto) {
           throw new Error(
-            "Gemini retornou uma resposta vazia."
+            "Nemotron retornou uma resposta vazia."
           );
         }
 
         return {
           resposta: texto,
-          provider: "gemini",
+          provider: "nemotron",
           tentativa,
         };
       }
 
-                                                     
-             
-                                                        
-
       const erroTexto =
         await response.text();
 
-      ultimoErro =
-        new Error(
-          `Gemini ${response.status}: ${erroTexto}`
-        );
+      const erro = new Error(
+        `Nemotron ${response.status}: ${erroTexto.slice(0, 500)}`
+      );
 
-        
-                                                     
-         
+      erro.status = response.status;
 
-      if (
-        tentativa < 2 &&
-        erroPodeTentarNovamente(
-          response.status
-        )
-      ) {
-        await esperar(
-          500 * tentativa
-        );
-
-        continue;
-      }
-
-      throw ultimoErro;
+      throw erro;
     } catch (error) {
       ultimoErro = error;
 
-      if (tentativa < 2) {
-        await esperar(
-          500 * tentativa
-        );
+      // Chave inválida (401), modelo inexistente (404) e timeout não melhoram repetindo.
+      const definitivo =
+        error?.name === "TimeoutError" ||
+        (error?.status &&
+          !erroPodeTentarNovamente(
+            error.status
+          ));
 
-        continue;
+      if (definitivo || tentativa >= 2) {
+        break;
       }
+
+      await esperar(500 * tentativa);
     }
   }
 
   throw (
     ultimoErro ||
     new Error(
-      "Erro desconhecido no Gemini."
+      "Erro desconhecido no Nemotron."
     )
   );
 }
@@ -760,7 +743,7 @@ export default async function handler(
 
     try {
       const resultado =
-        await chamarGemini({
+        await chamarNemotron({
           prompt,
 
           contextoRAG,
@@ -770,7 +753,7 @@ export default async function handler(
         uid,
         {
           provider:
-            "gemini",
+            "nemotron",
         }
       );
 
@@ -779,7 +762,7 @@ export default async function handler(
           resultado.resposta,
 
         provider:
-          "gemini",
+          "nemotron",
 
         attempts:
           resultado.tentativa,
@@ -789,10 +772,10 @@ export default async function handler(
             limiteUsuario.remaining,
         },
       });
-    } catch (geminiError) {
+    } catch (nemotronError) {
       console.error(
-        "[AURA] Gemini falhou:",
-        geminiError?.message
+        "[AURA] Nemotron falhou:",
+        nemotronError?.message
       );
 
                                                           
