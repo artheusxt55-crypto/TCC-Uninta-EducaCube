@@ -729,6 +729,29 @@ export default async function handler(
                                           
        
 
+    // Memória da AURA (Neon). Qualquer falha aqui (tabela ainda não criada,
+    // banco fora do ar...) NÃO derruba o chat: segue sem memória.
+    let memoria = null;
+
+    try {
+      const modMemoria = await import("./_lib/aura-memoria.js");
+      const comando = prompt.trim().toLowerCase();
+
+      if (modMemoria.COMANDOS_MEMORIA.has(comando)) {
+        const resposta = await modMemoria.executarComandoMemoria(comando, uid);
+
+        return res.status(200).json({
+          resposta,
+          provider: "memoria",
+          usage: { remaining: limiteUsuario.remaining },
+        });
+      }
+
+      memoria = await modMemoria.lerMemoriaParaPrompt(uid);
+    } catch (erroMemoria) {
+      console.error("[AURA] Memória indisponível:", erroMemoria?.message);
+    }
+
     const contextoRAG =
       await construirContextoRAG({
         pergunta: prompt,
@@ -736,6 +759,8 @@ export default async function handler(
         contexto,
 
         uid,
+
+        memoria,
       });
 
                                                             

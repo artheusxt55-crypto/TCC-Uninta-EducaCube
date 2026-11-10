@@ -20,7 +20,7 @@ export interface AuraFonte {
 export interface AuraResponse {
   resposta: string;
   fontesLab?: AuraFonte[];
-  provider?: "nemotron" | "groq";
+  provider?: "nemotron" | "groq" | "memoria";
   attempts?: number;
   usage?: {
     promptTokens?: number;
@@ -206,6 +206,34 @@ export async function perguntarAura(
 }
 
 
+
+/**
+ * Pede ao servidor para aprender com a última troca (preferências + resumo).
+ * Roda em segundo plano: nunca lança erro e nunca atrasa a resposta.
+ */
+export async function registrarMemoriaAura(
+  pergunta: string,
+  resposta: string
+): Promise<void> {
+  try {
+    const { token } = await obterTokenFirebase();
+
+    await fetch("/api/aura-memoria", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        acao: "atualizar",
+        pergunta,
+        resposta,
+      }),
+    });
+  } catch {
+    // memória é opcional: falhar em silêncio
+  }
+}
 
 export function salvarHistoricoLocal(
   userId: string,
