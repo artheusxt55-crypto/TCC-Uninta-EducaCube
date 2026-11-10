@@ -24,13 +24,14 @@ const auth = admin.auth();
 const AURA_IA_KEY = process.env.AURA_IA;
 
 const AURA_IA_MODEL =
-  process.env.AURA_IA_MODEL || "nvidia/nemotron-3-super-120b-a12b";
+  process.env.AURA_IA_MODEL || "nvidia/nemotron-3.5-bolt-e4b";
 
 const AURA_IA_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
 
-const AURA_IA_TIMEOUT_MS = 25000;
+const AURA_IA_TIMEOUT_MS = 20000;
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_API_KEY =
+  process.env.GROQ_API_KEY || process.env.GROQ_API_KEY2;
 
 const GROQ_MODEL =
   process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
@@ -407,7 +408,7 @@ async function chamarNemotron({
     ],
 
     temperature: 0.4,
-    max_tokens: 4096,
+    max_tokens: 2048,
     stream: false,
   };
 
