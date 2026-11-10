@@ -52,7 +52,7 @@ import MorphingSquare from "../components/MorphingSquare";
 
 import { renderAuraMarkdown } from "../components/aura-markdown";
 
-import { perguntarAura } from "../lib/aura-engine";
+import { perguntarAura, registrarMemoriaAura } from "../lib/aura-engine";
 
 import "../styles/aura-ai.css";
 
@@ -1206,6 +1206,11 @@ export default function AuraEducacube() {
 
         return next;
       });
+
+      // Aprende com a troca em segundo plano (ignora comandos e respostas de erro).
+      if (resposta.provider !== "memoria" && resposta.resposta?.trim()) {
+        void registrarMemoriaAura(promptText, resposta.resposta);
+      }
 
       setAuraState("complete");
 
