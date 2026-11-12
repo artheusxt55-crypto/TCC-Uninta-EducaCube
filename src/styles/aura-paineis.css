@@ -1,0 +1,464 @@
+/* Painéis da AURA: Estudos, Provas, Materiais, Biblioteca, Configurações e modal "Salvar". */
+
+.ap-pagina {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  width: 100%;
+  max-width: 880px;
+
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+
+  color: var(--aura-text);
+}
+
+.ap-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ap-cabecalho h2 {
+  margin: 0 0 4px;
+
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.ap-cabecalho p {
+  margin: 0;
+
+  color: var(--aura-text-soft);
+  font-size: 13px;
+}
+
+.ap-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 34px;
+  padding: 0 14px;
+
+  border: 1px solid var(--aura-border-strong);
+  border-radius: var(--aura-radius-sm);
+
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--aura-text);
+
+  font: inherit;
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.ap-botao:hover:not(:disabled) {
+  border-color: var(--aura-border-purple);
+  background: var(--aura-glow-soft);
+}
+
+.ap-botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ap-botao.primario {
+  border-color: var(--aura-border-purple);
+  background: var(--aura-purple-600);
+}
+
+.ap-botao.perigo {
+  border-color: rgba(220, 80, 80, 0.5);
+  background: rgba(220, 80, 80, 0.16);
+}
+
+.ap-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+
+  border: 0;
+  border-radius: var(--aura-radius-xs);
+
+  background: transparent;
+  color: var(--aura-text-soft);
+
+  cursor: pointer;
+}
+
+.ap-busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 0 12px;
+
+  border: 1px solid var(--aura-border);
+  border-radius: var(--aura-radius-sm);
+
+  background: var(--aura-panel);
+  color: var(--aura-text-muted);
+}
+
+.ap-busca input {
+  flex: 1;
+
+  height: 38px;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+  color: var(--aura-text);
+
+  font: inherit;
+  font-size: 13px;
+}
+
+.ap-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.ap-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  width: 100%;
+  padding: 12px 14px;
+
+  border: 1px solid var(--aura-border);
+  border-radius: var(--aura-radius-sm);
+
+  background: var(--aura-panel);
+  color: var(--aura-text);
+
+  text-align: left;
+  font: inherit;
+
+  cursor: pointer;
+}
+
+.ap-item:hover {
+  border-color: var(--aura-border-purple);
+}
+
+.ap-item-titulo {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ap-item-meta {
+  color: var(--aura-purple-300);
+  font-size: 11px;
+}
+
+.ap-item-previa {
+  overflow: hidden;
+
+  color: var(--aura-text-soft);
+  font-size: 12px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ap-vazio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 24px 0;
+
+  color: var(--aura-text-muted);
+  font-size: 13px;
+}
+
+.ap-erro {
+  margin: 0;
+  padding: 10px 12px;
+
+  border: 1px solid rgba(220, 80, 80, 0.4);
+  border-radius: var(--aura-radius-sm);
+
+  background: rgba(220, 80, 80, 0.1);
+  color: #f3b4b4;
+
+  font-size: 12px;
+}
+
+.ap-ok {
+  margin: 0;
+
+  color: var(--aura-purple-200);
+  font-size: 12px;
+}
+
+.ap-meta {
+  margin: 0 0 12px;
+
+  color: var(--aura-text-muted);
+  font-size: 12px;
+}
+
+.ap-leitor-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-bottom: 14px;
+}
+
+.ap-leitor-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ap-leitor-titulo {
+  margin: 0 0 4px;
+
+  font-size: 18px;
+}
+
+.ap-markdown {
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.ap-edicao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ap-edicao input,
+.ap-edicao textarea,
+.ap-campo input,
+.ap-campo select,
+.ap-campo textarea {
+  width: 100%;
+  padding: 9px 12px;
+
+  border: 1px solid var(--aura-border-strong);
+  border-radius: var(--aura-radius-sm);
+
+  background: var(--aura-panel);
+  color: var(--aura-text);
+
+  font: inherit;
+  font-size: 13px;
+
+  box-sizing: border-box;
+}
+
+.ap-edicao textarea,
+.ap-campo textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.ap-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  min-width: 0;
+}
+
+.ap-campo > span {
+  color: var(--aura-text-soft);
+  font-size: 12px;
+}
+
+.ap-campo small {
+  align-self: flex-end;
+
+  color: var(--aura-text-muted);
+  font-size: 10px;
+}
+
+.ap-ajuda {
+  margin: 0;
+
+  color: var(--aura-text-soft);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.ap-ajuda code {
+  padding: 1px 5px;
+
+  border-radius: 4px;
+
+  background: var(--aura-panel-3);
+  color: var(--aura-purple-200);
+}
+
+.ap-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ap-opcao {
+  min-height: 34px;
+  padding: 0 14px;
+
+  border: 1px solid var(--aura-border-strong);
+  border-radius: var(--aura-radius-sm);
+
+  background: transparent;
+  color: var(--aura-text-soft);
+
+  font: inherit;
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.ap-opcao.ativa {
+  border-color: var(--aura-border-purple);
+  background: var(--aura-purple-700);
+  color: var(--aura-text);
+}
+
+.ap-config,
+.ap-gerador-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ap-gerador {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 16px;
+
+  border: 1px solid var(--aura-border-purple-soft);
+  border-radius: var(--aura-radius-sm);
+
+  background: rgba(91, 33, 158, 0.06);
+}
+
+.ap-gerador h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin: 0;
+
+  font-size: 14px;
+}
+
+.ap-linha {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ap-previa {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding-top: 12px;
+
+  border-top: 1px solid var(--aura-border);
+}
+
+.ap-modal-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 16px;
+
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.ap-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  width: 100%;
+  max-width: 420px;
+  padding: 18px;
+
+  border: 1px solid var(--aura-border-purple);
+  border-radius: var(--aura-radius-sm);
+
+  background: var(--aura-panel-2);
+  color: var(--aura-text);
+}
+
+.ap-modal-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ap-modal-topo h3 {
+  margin: 0;
+
+  font-size: 15px;
+}
+
+.ap-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ap-gira {
+  animation: ap-gira 0.9s linear infinite;
+}
+
+@keyframes ap-gira {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .ap-pagina {
+    padding: 18px 14px 40px;
+  }
+
+  .ap-linha {
+    grid-template-columns: 1fr;
+  }
+
+  .ap-cabecalho {
+    flex-direction: column;
+  }
+}

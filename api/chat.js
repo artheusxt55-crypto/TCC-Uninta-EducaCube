@@ -695,6 +695,9 @@ export default async function handler(
 
       contexto:
         contextoOriginal = [],
+
+      anexos:
+        anexosOriginais = [],
     } = req.body || {};
 
                                                             
@@ -732,6 +735,8 @@ export default async function handler(
     // Memória da AURA (Neon). Qualquer falha aqui (tabela ainda não criada,
     // banco fora do ar...) NÃO derruba o chat: segue sem memória.
     let memoria = null;
+    let config = null;
+    let anexos = [];
 
     try {
       const modMemoria = await import("./_lib/aura-memoria.js");
@@ -752,6 +757,16 @@ export default async function handler(
       console.error("[AURA] Memória indisponível:", erroMemoria?.message);
     }
 
+    // Configurações do usuário e anexos (texto). Também fail-soft.
+    try {
+      const modDados = await import("./_lib/aura-dados.js");
+
+      anexos = modDados.limparAnexos(anexosOriginais);
+      config = await modDados.lerConfigParaPrompt(uid);
+    } catch (erroDados) {
+      console.error("[AURA] Config/anexos indisponíveis:", erroDados?.message);
+    }
+
     const contextoRAG =
       await construirContextoRAG({
         pergunta: prompt,
@@ -761,6 +776,10 @@ export default async function handler(
         uid,
 
         memoria,
+
+        config,
+
+        anexos,
       });
 
                                                             

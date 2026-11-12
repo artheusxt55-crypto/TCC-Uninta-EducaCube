@@ -3835,3 +3835,16 @@
   opacity: 1;
   visibility: visible;
 }
+
+.aura-attachment-notice {
+  margin: 0 0 8px;
+  padding: 7px 10px;
+
+  border: 1px solid rgba(220, 80, 80, 0.4);
+  border-radius: var(--aura-radius-xs);
+
+  background: rgba(220, 80, 80, 0.1);
+  color: #f3b4b4;
+
+  font-size: 11px;
+}
