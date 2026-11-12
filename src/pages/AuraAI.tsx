@@ -35,6 +35,7 @@ import {
   Pencil,
   Trash2,
   Copy,
+  Bookmark,
   RotateCcw,
   ChevronDown,
   Volume2,
@@ -52,7 +53,17 @@ import MorphingSquare from "../components/MorphingSquare";
 
 import { renderAuraMarkdown } from "../components/aura-markdown";
 
-import { perguntarAura, registrarMemoriaAura } from "../lib/aura-engine";
+import {
+  perguntarAura,
+  registrarMemoriaAura,
+  extrairPdfAura,
+} from "../lib/aura-engine";
+
+import {
+  ModalSalvarAura,
+  PainelConfigAura,
+  PainelItensAura,
+} from "../components/AuraPaineis";
 
 import "../styles/aura-ai.css";
 
@@ -79,6 +90,41 @@ interface Attachment {
   name: string;
   size: number;
   type: string;
+  /** Texto extraído do arquivo (txt, md ou PDF). Vai junto da próxima pergunta. */
+  texto?: string;
+  status?: "lendo" | "pronto" | "erro";
+}
+
+const ANEXO_TEXTO_MAX_BYTES = 1024 * 1024;
+const ANEXO_PDF_MAX_BYTES = 3 * 1024 * 1024;
+const ANEXOS_MAX = 3;
+
+function ehArquivoDeTexto(file: File): boolean {
+  return (
+    /\.(txt|md|markdown)$/i.test(file.name) ||
+    file.type === "text/plain" ||
+    file.type === "text/markdown"
+  );
+}
+
+function ehPdf(file: File): boolean {
+  return (
+    file.type === "application/pdf" || /\.pdf$/i.test(file.name)
+  );
+}
+
+function arquivoParaBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+
+    leitor.onload = () => {
+      const resultado = String(leitor.result || "");
+      resolve(resultado.slice(resultado.indexOf(",") + 1));
+    };
+
+    leitor.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
+    leitor.readAsDataURL(file);
+  });
 }
 
 interface AuraMessage {
@@ -782,6 +828,19 @@ export default function AuraEducacube() {
       null
     );
 
+  const pendingAnexosRef = useRef<
+    { nome: string; texto: string }[]
+  >([]);
+
+  const [anexoAviso, setAnexoAviso] =
+    useState("");
+
+  const [salvarMensagem, setSalvarMensagem] =
+    useState<{
+      titulo: string;
+      conteudo: string;
+    } | null>(null);
+
   const thinkingTimeoutRef =
     useRef<number | null>(null);
 
@@ -1172,7 +1231,8 @@ export default function AuraEducacube() {
       const resposta =
         await perguntarAura(
           promptText,
-          contexto
+          contexto,
+          pendingAnexosRef.current
         );
 
       if (
@@ -1325,7 +1385,10 @@ export default function AuraEducacube() {
 
     if (
       !trimmed ||
-      !isOnline
+      !isOnline ||
+      attachments.some(
+        (a) => a.status === "lendo"
+      )
     ) {
       return;
     }
@@ -1368,8 +1431,21 @@ export default function AuraEducacube() {
       return next;
     });
 
+    pendingAnexosRef.current =
+      attachments
+        .filter(
+          (a) =>
+            a.status === "pronto" &&
+            a.texto
+        )
+        .map((a) => ({
+          nome: a.name,
+          texto: a.texto as string,
+        }));
+
     setInput("");
     setAttachments([]);
+    setAnexoAviso("");
 
     runGeneration(
       conversationId,
@@ -1448,22 +1524,118 @@ export default function AuraEducacube() {
   ) {
     if (!fileList) return;
 
-    const files =
-      Array.from(fileList).map(
-        (file) => ({
-          id: generateId(),
-          name: file.name,
-          size: file.size,
-          type: file.type,
-        })
-      );
+    setAnexoAviso("");
 
-    setAttachments(
-      (previous) => [
+    const aceitos: Attachment[] = [];
+    const leituras: Promise<void>[] = [];
+    const avisos: string[] = [];
+
+    let vagas = ANEXOS_MAX - attachments.length;
+
+    for (const file of Array.from(fileList)) {
+      if (vagas <= 0) {
+        avisos.push(
+          `Máximo de ${ANEXOS_MAX} arquivos por mensagem.`
+        );
+        break;
+      }
+
+      const texto = ehArquivoDeTexto(file);
+      const pdf = ehPdf(file);
+
+      if (!texto && !pdf) {
+        avisos.push(
+          `${file.name}: só consigo ler arquivos .txt, .md e .pdf.`
+        );
+        continue;
+      }
+
+      const limite = pdf
+        ? ANEXO_PDF_MAX_BYTES
+        : ANEXO_TEXTO_MAX_BYTES;
+
+      if (file.size > limite) {
+        avisos.push(
+          `${file.name}: passa de ${
+            pdf ? "3 MB" : "1 MB"
+          }.`
+        );
+        continue;
+      }
+
+      const id = generateId();
+
+      aceitos.push({
+        id,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        status: "lendo",
+      });
+
+      vagas -= 1;
+
+      leituras.push(
+        (async () => {
+          try {
+            const conteudo = pdf
+              ? (
+                  await extrairPdfAura(
+                    await arquivoParaBase64(
+                      file
+                    )
+                  )
+                ).texto
+              : await file.text();
+
+            if (!conteudo.trim()) {
+              throw new Error(
+                "O arquivo está vazio."
+              );
+            }
+
+            setAttachments((previous) =>
+              previous.map((a) =>
+                a.id === id
+                  ? {
+                      ...a,
+                      texto: conteudo,
+                      status: "pronto",
+                    }
+                  : a
+              )
+            );
+          } catch (erro) {
+            setAttachments((previous) =>
+              previous.filter(
+                (a) => a.id !== id
+              )
+            );
+
+            setAnexoAviso(
+              `${file.name}: ${
+                erro instanceof Error
+                  ? erro.message
+                  : "não consegui ler."
+              }`
+            );
+          }
+        })()
+      );
+    }
+
+    if (avisos.length > 0) {
+      setAnexoAviso(avisos.join(" "));
+    }
+
+    if (aceitos.length > 0) {
+      setAttachments((previous) => [
         ...previous,
-        ...files,
-      ]
-    );
+        ...aceitos,
+      ]);
+
+      void Promise.all(leituras);
+    }
   }
 
   function handleFileInputChange(
@@ -1863,6 +2035,8 @@ export default function AuraEducacube() {
                                                                         
 
   function startNewConversation() {
+    setActiveNav("chat");
+
     clearGenerationTimers();
 
     if (micActive) {
@@ -1896,6 +2070,8 @@ export default function AuraEducacube() {
   }
 
   function openConversation(id: string) {
+    setActiveNav("chat");
+
     clearGenerationTimers();
 
     const conversation =
@@ -2048,6 +2224,31 @@ export default function AuraEducacube() {
                                                                      
                
                                                                         
+
+  function abrirSalvar(
+    mensagem: AuraMessage
+  ) {
+    const indice = messages.findIndex(
+      (m) => m.id === mensagem.id
+    );
+
+    const pergunta = messages
+      .slice(0, Math.max(indice, 0))
+      .reverse()
+      .find((m) => m.role === "user");
+
+    const base = (
+      pergunta?.content ||
+      mensagem.content
+    )
+      .replace(/\s+/g, " ")
+      .trim();
+
+    setSalvarMensagem({
+      titulo: base.slice(0, 80),
+      conteudo: mensagem.content,
+    });
+  }
 
   function handleNavigation(id: string) {
     setActiveNav(id);
@@ -2855,7 +3056,55 @@ export default function AuraEducacube() {
 
           {          }
 
-          <section className="aura-chat-section">
+          {activeNav === "estudos" && (
+            <PainelItensAura
+              tipo="estudo"
+              titulo="Meus Estudos"
+              descricao="Planos de aula e respostas que você salvou da AURA."
+              vazio="Nada salvo ainda. No chat, toque em Salvar numa resposta da AURA, ou crie um estudo aqui."
+            />
+          )}
+
+          {activeNav === "materiais" && (
+            <PainelItensAura
+              tipo="material"
+              titulo="Materiais"
+              descricao="Resumos, textos e materiais de apoio."
+              vazio="Nenhum material ainda. Salve respostas do chat ou crie um material aqui."
+            />
+          )}
+
+          {activeNav === "provas" && (
+            <PainelItensAura
+              tipo="prova"
+              titulo="Provas e Exercícios"
+              descricao="Gere provas com gabarito e guarde as suas."
+              vazio="Nenhuma prova salva. Use o gerador acima para criar a primeira."
+              comGerador
+            />
+          )}
+
+          {activeNav === "biblioteca" && (
+            <PainelItensAura
+              tipo="todos"
+              titulo="Biblioteca"
+              descricao="Tudo o que você salvou: estudos, provas e materiais."
+              vazio="Sua biblioteca está vazia. Salve respostas do chat para vê-las aqui."
+            />
+          )}
+
+          {activeNav === "config" && (
+            <PainelConfigAura />
+          )}
+
+          <section
+            className="aura-chat-section"
+            style={
+              activeNav === "chat"
+                ? undefined
+                : { display: "none" }
+            }
+          >
             {!hasConversation ? (
               <div className="aura-chat-scroll">
                 <div className="aura-chat-content">
@@ -3214,6 +3463,41 @@ export default function AuraEducacube() {
                                   </div>
 
                                   <div className="aura-message-actions">
+                                    <div className="aura-tooltip-trigger">
+                                      <motion.button
+                                        type="button"
+                                        className="aura-message-action"
+                                        onClick={() =>
+                                          abrirSalvar(
+                                            message
+                                          )
+                                        }
+                                        aria-label="Salvar na biblioteca"
+                                        whileHover={hoverProps(
+                                          {
+                                            scale: 1.1,
+                                          }
+                                        )}
+                                        whileTap={
+                                          reducedMotion
+                                            ? undefined
+                                            : {
+                                                scale: 0.88,
+                                              }
+                                        }
+                                      >
+                                        <Bookmark
+                                          size={
+                                            14
+                                          }
+                                        />
+                                      </motion.button>
+
+                                      <span className="aura-tooltip">
+                                        Salvar
+                                      </span>
+                                    </div>
+
                                     <div className="aura-tooltip-trigger">
                                       <motion.button
                                         type="button"
@@ -3582,10 +3866,13 @@ export default function AuraEducacube() {
                                 }
                               </span>
 
-                              <span>
-                                {formatBytes(
-                                  file.size
-                                )}
+              <span>
+                                {file.status ===
+                                "lendo"
+                                  ? "lendo..."
+                                  : formatBytes(
+                                      file.size
+                                    )}
                               </span>
 
                               <button
@@ -3607,6 +3894,15 @@ export default function AuraEducacube() {
                         )}
                       </AnimatePresence>
                     </motion.div>
+                  )}
+
+                  {anexoAviso && (
+                    <div
+                      className="aura-attachment-notice"
+                      role="alert"
+                    >
+                      {anexoAviso}
+                    </div>
                   )}
 
                   <div
@@ -3664,6 +3960,7 @@ export default function AuraEducacube() {
                         fileInputRef
                       }
                       type="file"
+                      accept=".txt,.md,.markdown,.pdf,text/plain,application/pdf"
                       multiple
                       hidden
                       onChange={
@@ -3910,6 +4207,20 @@ export default function AuraEducacube() {
               </div>
             </motion.div>
           </section>
+
+          {salvarMensagem && (
+            <ModalSalvarAura
+              tituloSugerido={
+                salvarMensagem.titulo
+              }
+              conteudo={
+                salvarMensagem.conteudo
+              }
+              onFechar={() =>
+                setSalvarMensagem(null)
+              }
+            />
+          )}
         </main>
       </div>
     </div>

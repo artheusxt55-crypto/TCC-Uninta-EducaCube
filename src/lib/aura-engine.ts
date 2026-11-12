@@ -128,9 +128,15 @@ async function obterTokenFirebase(): Promise<{
 }
 
 
+export interface AuraAnexoTexto {
+  nome: string;
+  texto: string;
+}
+
 export async function perguntarAura(
   prompt: string,
-  contexto: string[] = []
+  contexto: string[] = [],
+  anexos: AuraAnexoTexto[] = []
 ): Promise<AuraResponse> {
   const { user, token } =
     await obterTokenFirebase();
@@ -146,6 +152,7 @@ export async function perguntarAura(
     body: JSON.stringify({
       prompt,
       contexto,
+      anexos,
 
       
       clientUserId: user.uid,
@@ -206,6 +213,113 @@ export async function perguntarAura(
 }
 
 
+
+/* ---------- biblioteca, configurações e PDF (/api/aura-dados) ---------- */
+
+export type AuraTipoItem = "estudo" | "prova" | "material";
+
+export interface AuraItem {
+  id: string;
+  tipo: AuraTipoItem;
+  titulo: string;
+  conteudo: string;
+  criadoEm: string;
+  atualizadoEm: string;
+}
+
+export interface AuraConfig {
+  tom: "equilibrado" | "formal" | "descontraido";
+  nivel: "simples" | "intermediario" | "avancado";
+  tamanho: "curta" | "media" | "detalhada";
+  instrucoes: string;
+}
+
+async function chamarDados<T>(corpo: Record<string, unknown>): Promise<T> {
+  const { token } = await obterTokenFirebase();
+
+  const resposta = await fetch("/api/aura-dados", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(corpo),
+  });
+
+  let dados: any = null;
+
+  try {
+    dados = await resposta.json();
+  } catch {
+    dados = null;
+  }
+
+  if (!resposta.ok || !dados?.sucesso) {
+    throw new Error(
+      dados?.erro || "Não foi possível concluir agora. Tente novamente."
+    );
+  }
+
+  return dados as T;
+}
+
+export async function listarItensAura(
+  tipo: AuraTipoItem
+): Promise<AuraItem[]> {
+  const r = await chamarDados<{ itens: AuraItem[] }>({ acao: "listar", tipo });
+  return r.itens;
+}
+
+export async function criarItemAura(entrada: {
+  tipo: AuraTipoItem;
+  titulo: string;
+  conteudo: string;
+}): Promise<AuraItem> {
+  const r = await chamarDados<{ item: AuraItem }>({ acao: "criar", ...entrada });
+  return r.item;
+}
+
+export async function atualizarItemAura(
+  id: string,
+  titulo: string,
+  conteudo: string
+): Promise<AuraItem> {
+  const r = await chamarDados<{ item: AuraItem }>({
+    acao: "atualizar",
+    id,
+    titulo,
+    conteudo,
+  });
+  return r.item;
+}
+
+export async function excluirItemAura(id: string): Promise<void> {
+  await chamarDados({ acao: "excluir", id });
+}
+
+export async function lerConfigAura(): Promise<AuraConfig> {
+  const r = await chamarDados<{ config: AuraConfig }>({ acao: "config_ler" });
+  return r.config;
+}
+
+export async function salvarConfigAura(
+  config: AuraConfig
+): Promise<AuraConfig> {
+  const r = await chamarDados<{ config: AuraConfig }>({
+    acao: "config_salvar",
+    config,
+  });
+  return r.config;
+}
+
+export async function extrairPdfAura(
+  base64: string
+): Promise<{ texto: string; cortado: boolean }> {
+  return chamarDados<{ texto: string; cortado: boolean }>({
+    acao: "extrair_pdf",
+    base64,
+  });
+}
 
 /**
  * Pede ao servidor para aprender com a última troca (preferências + resumo).
