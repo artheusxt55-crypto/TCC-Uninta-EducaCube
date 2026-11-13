@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import {
   Bookmark,
   Check,
+  Download,
   FilePenLine,
   Loader2,
   Pencil,
@@ -28,6 +29,17 @@ import {
   type AuraItem,
   type AuraTipoItem,
 } from "../lib/aura-engine";
+
+import {
+  baixarMarkdown,
+  baixarPdf,
+  separarGabarito,
+} from "../lib/aura-export";
+
+import {
+  montarRespostas,
+  type PerguntaAura,
+} from "../lib/aura-perguntas";
 
 import "../styles/aura-paineis.css";
 
@@ -370,13 +382,21 @@ export function PainelItensAura({
 
             <div className="ap-leitor-acoes">
               {!editando && (
-                <button
-                  type="button"
-                  className="ap-botao"
-                  onClick={comecarEdicao}
-                >
-                  <Pencil size={13} /> Editar
-                </button>
+                <>
+                  <MenuBaixarAura
+                    variante="botao"
+                    titulo={aberto.titulo}
+                    conteudo={aberto.conteudo}
+                  />
+
+                  <button
+                    type="button"
+                    className="ap-botao"
+                    onClick={comecarEdicao}
+                  >
+                    <Pencil size={13} /> Editar
+                  </button>
+                </>
               )}
 
               {confirmarExcluir ? (
@@ -625,8 +645,8 @@ function GeradorDeProva({ onSalvo }: { onSalvo: (item: AuraItem) => void }) {
     const prompt =
       `Crie uma prova com ${quantidade} questões ${FORMATOS[formato]} ` +
       `sobre "${assunto}", para o ${NIVEIS[nivel]}. ` +
-      `Numere as questões e coloque o GABARITO comentado no final. ` +
-      `Responda só com a prova, sem introdução.`;
+      `Numere as questões e coloque o GABARITO comentado no final, em uma seção "## Gabarito". ` +
+      `Responda só com a prova, sem introdução e sem fazer perguntas: crie agora.`;
 
     try {
       const resposta = await perguntarAura(prompt, []);
@@ -746,6 +766,12 @@ function GeradorDeProva({ onSalvo }: { onSalvo: (item: AuraItem) => void }) {
           <div className="ap-markdown">{renderAuraMarkdown(resultado)}</div>
 
           <div className="ap-modal-acoes">
+            <MenuBaixarAura
+              variante="botao"
+              titulo={`Prova ${tema.trim()}`}
+              conteudo={resultado}
+            />
+
             <button
               type="button"
               className="ap-botao"
@@ -937,6 +963,205 @@ export function PainelConfigAura() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---------- baixar: PDF, Markdown e PDF só com as questões ---------- */
+
+export function MenuBaixarAura({
+  titulo,
+  conteudo,
+  variante = "icone",
+}: {
+  titulo: string;
+  conteudo: string;
+  variante?: "icone" | "botao";
+}) {
+  const [aberto, setAberto] = useState(false);
+  const [erro, setErro] = useState("");
+
+  const { questoes, gabarito } = useMemo(
+    () => separarGabarito(conteudo),
+    [conteudo]
+  );
+
+  useEffect(() => {
+    if (!aberto) return;
+
+    const fechar = () => setAberto(false);
+
+    document.addEventListener("click", fechar);
+
+    return () => document.removeEventListener("click", fechar);
+  }, [aberto]);
+
+  function executar(acao: () => void) {
+    try {
+      acao();
+      setErro("");
+      setAberto(false);
+    } catch {
+      setErro("Não foi possível gerar o arquivo.");
+    }
+  }
+
+  const nome = titulo.trim() || "AURA";
+
+  return (
+    <span className="ap-baixar" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        className={
+          variante === "botao" ? "ap-botao" : "aura-message-action"
+        }
+        aria-label="Baixar"
+        aria-expanded={aberto}
+        onClick={() => setAberto((v) => !v)}
+      >
+        <Download size={variante === "botao" ? 13 : 14} />
+        {variante === "botao" && " Baixar"}
+      </button>
+
+      {aberto && (
+        <div className="ap-baixar-menu" role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => executar(() => baixarPdf(nome, conteudo))}
+          >
+            PDF completo
+          </button>
+
+          {gabarito && (
+            <>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() =>
+                  executar(() => baixarPdf(nome, questoes, "-questoes"))
+                }
+              >
+                PDF só com as questões
+              </button>
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() =>
+                  executar(() => baixarPdf(nome, gabarito, "-gabarito"))
+                }
+              >
+                PDF só com o gabarito
+              </button>
+            </>
+          )}
+
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => executar(() => baixarMarkdown(nome, conteudo))}
+          >
+            Texto Markdown (.md)
+          </button>
+
+          {erro && <span className="ap-erro-mini">{erro}</span>}
+        </div>
+      )}
+    </span>
+  );
+}
+
+/* ---------- cartão de perguntas de auditoria da AURA ---------- */
+
+export function CartaoPerguntasAura({
+  perguntas,
+  onEnviar,
+}: {
+  perguntas: PerguntaAura[];
+  onEnviar: (texto: string) => void;
+}) {
+  const [respostas, setRespostas] = useState<string[]>(() =>
+    perguntas.map(() => "")
+  );
+  const [enviado, setEnviado] = useState(false);
+
+  function escolher(indice: number, valor: string) {
+    setRespostas((anterior) =>
+      anterior.map((r, i) =>
+        i === indice ? (r === valor ? "" : valor) : r
+      )
+    );
+  }
+
+  function digitar(indice: number, valor: string) {
+    setRespostas((anterior) =>
+      anterior.map((r, i) => (i === indice ? valor : r))
+    );
+  }
+
+  function enviar(decidirSozinha: boolean) {
+    if (enviado) return;
+
+    setEnviado(true);
+
+    onEnviar(
+      decidirSozinha
+        ? montarRespostas(perguntas, perguntas.map(() => ""))
+        : montarRespostas(perguntas, respostas)
+    );
+  }
+
+  return (
+    <div className="ap-perguntas" aria-label="Perguntas da AURA">
+      {perguntas.map((p, i) => (
+        <fieldset key={i} className="ap-pergunta" disabled={enviado}>
+          <legend>
+            {i + 1}. {p.pergunta}
+          </legend>
+
+          <div className="ap-opcoes">
+            {p.opcoes.map((o) => (
+              <button
+                key={o}
+                type="button"
+                className={`ap-opcao ${respostas[i] === o ? "ativa" : ""}`}
+                onClick={() => escolher(i, o)}
+              >
+                {o}
+              </button>
+            ))}
+          </div>
+
+          <input
+            value={p.opcoes.includes(respostas[i]) ? "" : respostas[i]}
+            maxLength={160}
+            placeholder="Ou escreva a sua resposta"
+            aria-label={`Resposta livre da pergunta ${i + 1}`}
+            onChange={(e) => digitar(i, e.target.value)}
+          />
+        </fieldset>
+      ))}
+
+      <div className="ap-modal-acoes">
+        <button
+          type="button"
+          className="ap-botao"
+          disabled={enviado}
+          onClick={() => enviar(true)}
+        >
+          Decida você
+        </button>
+
+        <button
+          type="button"
+          className="ap-botao primario"
+          disabled={enviado || respostas.every((r) => !r.trim())}
+          onClick={() => enviar(false)}
+        >
+          Continuar
+        </button>
+      </div>
     </div>
   );
 }

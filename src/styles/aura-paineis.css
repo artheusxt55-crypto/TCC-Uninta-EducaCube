@@ -462,3 +462,118 @@
     flex-direction: column;
   }
 }
+
+/* Baixar (PDF / Markdown) */
+.ap-baixar {
+  position: relative;
+
+  display: inline-flex;
+}
+
+.ap-baixar-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 210px;
+  padding: 4px;
+
+  border: 1px solid var(--aura-border-purple);
+  border-radius: var(--aura-radius-sm);
+
+  background: var(--aura-panel-2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.ap-pagina .ap-baixar-menu {
+  top: calc(100% + 6px);
+  bottom: auto;
+  right: 0;
+  left: auto;
+}
+
+.ap-baixar-menu button {
+  padding: 9px 12px;
+
+  border: 0;
+  border-radius: var(--aura-radius-xs);
+
+  background: transparent;
+  color: var(--aura-text);
+
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.ap-baixar-menu button:hover {
+  background: var(--aura-glow-soft);
+}
+
+.ap-erro-mini {
+  padding: 4px 12px;
+
+  color: #f3b4b4;
+  font-size: 11px;
+}
+
+/* Cartão de perguntas de auditoria */
+.ap-perguntas {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  margin-top: 14px;
+  padding: 16px;
+
+  border: 1px solid var(--aura-border-purple);
+  border-radius: var(--aura-radius-sm);
+
+  background: rgba(91, 33, 158, 0.08);
+}
+
+.ap-pergunta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+}
+
+.ap-pergunta legend {
+  margin-bottom: 8px;
+  padding: 0;
+
+  color: var(--aura-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ap-pergunta input {
+  width: 100%;
+  padding: 8px 12px;
+
+  border: 1px solid var(--aura-border-strong);
+  border-radius: var(--aura-radius-sm);
+
+  background: var(--aura-panel);
+  color: var(--aura-text);
+
+  font: inherit;
+  font-size: 12px;
+
+  box-sizing: border-box;
+}
+
+.ap-pergunta:disabled {
+  opacity: 0.6;
+}
