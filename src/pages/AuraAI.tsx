@@ -60,10 +60,14 @@ import {
 } from "../lib/aura-engine";
 
 import {
+  CartaoPerguntasAura,
+  MenuBaixarAura,
   ModalSalvarAura,
   PainelConfigAura,
   PainelItensAura,
 } from "../components/AuraPaineis";
+
+import { extrairPerguntas } from "../lib/aura-perguntas";
 
 import "../styles/aura-ai.css";
 
@@ -2225,6 +2229,28 @@ export default function AuraEducacube() {
                
                                                                         
 
+  function tituloDaMensagem(
+    mensagem: AuraMessage
+  ): string {
+    const indice = messages.findIndex(
+      (m) => m.id === mensagem.id
+    );
+
+    const pergunta = messages
+      .slice(0, Math.max(indice, 0))
+      .reverse()
+      .find((m) => m.role === "user");
+
+    return (
+      pergunta?.content ||
+      extrairPerguntas(mensagem.content)
+        .texto
+    )
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 80);
+  }
+
   function abrirSalvar(
     mensagem: AuraMessage
   ) {
@@ -2246,7 +2272,9 @@ export default function AuraEducacube() {
 
     setSalvarMensagem({
       titulo: base.slice(0, 80),
-      conteudo: mensagem.content,
+      conteudo: extrairPerguntas(
+        mensagem.content
+      ).texto,
     });
   }
 
@@ -3396,6 +3424,22 @@ export default function AuraEducacube() {
                             speakingMessageId ===
                             message.id;
 
+                          const {
+                            texto:
+                              textoVisivel,
+                            perguntas:
+                              perguntasAura,
+                          } = extrairPerguntas(
+                            message.content
+                          );
+
+                          const ehUltima =
+                            messages[
+                              messages.length -
+                                1
+                            ]?.id ===
+                            message.id;
+
                           return (
                             <motion.div
                               key={
@@ -3458,11 +3502,42 @@ export default function AuraEducacube() {
 
                                   <div className="aura-markdown">
                                     {renderAuraMarkdown(
-                                      message.content
+                                      textoVisivel
                                     )}
                                   </div>
 
+                                  {perguntasAura.length >
+                                    0 &&
+                                    ehUltima &&
+                                    !isBusy && (
+                                      <CartaoPerguntasAura
+                                        perguntas={
+                                          perguntasAura
+                                        }
+                                        onEnviar={
+                                          sendMessage
+                                        }
+                                      />
+                                    )}
+
                                   <div className="aura-message-actions">
+                                    {textoVisivel && (
+                                      <div className="aura-tooltip-trigger">
+                                        <MenuBaixarAura
+                                          titulo={tituloDaMensagem(
+                                            message
+                                          )}
+                                          conteudo={
+                                            textoVisivel
+                                          }
+                                        />
+
+                                        <span className="aura-tooltip">
+                                          Baixar
+                                        </span>
+                                      </div>
+                                    )}
+
                                     <div className="aura-tooltip-trigger">
                                       <motion.button
                                         type="button"
