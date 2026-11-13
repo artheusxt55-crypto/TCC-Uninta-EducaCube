@@ -14,8 +14,6 @@ export interface PerguntaAura {
 }
 
 const BLOCO = /```aura-perguntas\s*\n([\s\S]*?)```/i;
-// Modelos pequenos às vezes usam ```json (ou nenhuma cerca) em vez do nome certo.
-const BLOCO_JSON = /```(?:json)?\s*\n(\[\s*\{[\s\S]*?"pergunta"[\s\S]*?\])\s*```/i;
 const BLOCO_ABERTO = /```aura-perguntas[\s\S]*$/i; // resposta ainda chegando ou cortada
 
 export const MAX_PERGUNTAS = 4;
@@ -70,26 +68,81 @@ export function interpretarPerguntas(bruto: string): PerguntaAura[] {
   return saida;
 }
 
+/** Procura, em qualquer lugar do texto, um array JSON de objetos com "pergunta" (com ou sem cerca). */
+function acharArraySolto(conteudo: string): { json: string; inicio: number; fim: number } | null {
+  const candidato = /\[\s*\{/g;
+  let m: RegExpExecArray | null;
+
+  while ((m = candidato.exec(conteudo))) {
+    let profundidade = 0;
+    let emTexto = false;
+    let escapado = false;
+
+    for (let i = m.index; i < conteudo.length; i++) {
+      const c = conteudo[i];
+
+      if (emTexto) {
+        if (escapado) escapado = false;
+        else if (c === "\\") escapado = true;
+        else if (c === '"' || c === "\u201d") emTexto = false;
+        continue;
+      }
+
+      if (c === '"' || c === "\u201c") emTexto = true;
+      else if (c === "[") profundidade++;
+      else if (c === "]" && --profundidade === 0) {
+        const json = conteudo.slice(m.index, i + 1);
+
+        if (/["\u201c]pergunta["\u201d]/i.test(json)) return { json, inicio: m.index, fim: i + 1 };
+        break;
+      }
+    }
+  }
+
+  return null;
+}
+
+/** Remove "aura-perguntas" (com crases, dois-pontos ou maiúsculas) que sobrou como rótulo. */
+function limparRotulo(texto: string): string {
+  return texto
+    .replace(/(^|\n)[ \t`*_#>-]*aura[-_ ]perguntas[ \t`*_:.-]*(?=\n|$)/gi, "$1")
+    .replace(/[ \t`*_#>-]*aura[-_ ]perguntas[ \t`*_:.-]*$/i, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function removerTrecho(texto: string, inicio: number, fim: number): string {
+  let antes = texto.slice(0, inicio);
+  let depois = texto.slice(fim);
+
+  // cercas ``` que envolviam o array
+  antes = antes.replace(/```[a-z-]*[ \t]*\n?[ \t]*$/i, "");
+  depois = depois.replace(/^[ \t]*\n?[ \t]*```/, "");
+
+  // rótulo na mesma linha: "Aura-perguntas [ ... ]"
+  return limparRotulo(`${antes}\n${depois}`);
+}
+
 /** Separa o texto visível do cartão de perguntas. Nunca lança. */
 export function extrairPerguntas(conteudo: string): { texto: string; perguntas: PerguntaAura[] } {
   const achado = BLOCO.exec(conteudo);
 
   if (!achado) {
-    const alternativo = BLOCO_JSON.exec(conteudo);
+    const solto = acharArraySolto(conteudo);
 
-    if (alternativo) {
-      const perguntas = interpretarPerguntas(alternativo[1].trim());
+    if (solto) {
+      const perguntas = interpretarPerguntas(solto.json);
 
       if (perguntas.length > 0) {
-        return { texto: conteudo.replace(BLOCO_JSON, "").trim(), perguntas };
+        return { texto: removerTrecho(conteudo, solto.inicio, solto.fim), perguntas };
       }
     }
 
-    return { texto: conteudo.replace(BLOCO_ABERTO, "").trim(), perguntas: [] };
+    return { texto: limparRotulo(conteudo.replace(BLOCO_ABERTO, "")), perguntas: [] };
   }
 
   return {
-    texto: conteudo.replace(BLOCO, "").replace(BLOCO_ABERTO, "").trim(),
+    texto: limparRotulo(conteudo.replace(BLOCO, "").replace(BLOCO_ABERTO, "")),
     perguntas: interpretarPerguntas(achado[1].trim()),
   };
 }

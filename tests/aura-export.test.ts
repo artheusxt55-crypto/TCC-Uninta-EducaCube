@@ -90,3 +90,24 @@ test("perguntas: tolera ```json, aspas curvas e vírgula sobrando", () => {
   const b = interpretarPerguntas("[{\u201cpergunta\u201d:\u201cSérie?\u201d,\u201copcoes\u201d:[\u201cMédio\u201d]}]");
   assert.deepEqual(b[0].opcoes, ["Médio"]);
 });
+
+test("perguntas: aceita o formato sem cerca que o modelo escreveu de verdade", () => {
+  const bruto = 'Aura-perguntas [{"pergunta":"Para qual série?","opcoes":["Ensino Fundamental","Ensino Médio","Ensino Superior"]},{"pergunta":"Quantas questões?","opcoes":["5","10","15"]}]';
+  const r = extrairPerguntas(bruto);
+  assert.equal(r.perguntas.length, 2);
+  assert.equal(r.perguntas[0].pergunta, "Para qual série?");
+  assert.equal(r.texto, "");
+
+  const comTexto = extrairPerguntas("Antes de criar, preciso saber:\n\nAura-perguntas:\n" + bruto.replace("Aura-perguntas ", "") + "\n\nObrigada!");
+  assert.equal(comTexto.perguntas.length, 2);
+  assert.ok(!/aura-perguntas/i.test(comTexto.texto));
+  assert.ok(comTexto.texto.includes("preciso saber") && comTexto.texto.includes("Obrigada!"));
+});
+
+test("perguntas: colchetes comuns no texto não viram perguntas", () => {
+  const r = extrairPerguntas('Veja [1] e [{"nome":"x"}] sem perguntas.');
+  assert.deepEqual(r.perguntas, []);
+  assert.equal(r.texto, 'Veja [1] e [{"nome":"x"}] sem perguntas.');
+  const cerca = extrairPerguntas("Oi\n```aura-perguntas\n[{\"pergunta\":\"A?\",\"opcoes\":[]}]\n```");
+  assert.equal(cerca.texto, "Oi");
+});
