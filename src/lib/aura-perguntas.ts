@@ -14,6 +14,8 @@ export interface PerguntaAura {
 }
 
 const BLOCO = /```aura-perguntas\s*\n([\s\S]*?)```/i;
+// Modelos pequenos às vezes usam ```json (ou nenhuma cerca) em vez do nome certo.
+const BLOCO_JSON = /```(?:json)?\s*\n(\[\s*\{[\s\S]*?"pergunta"[\s\S]*?\])\s*```/i;
 const BLOCO_ABERTO = /```aura-perguntas[\s\S]*$/i; // resposta ainda chegando ou cortada
 
 export const MAX_PERGUNTAS = 4;
@@ -23,13 +25,25 @@ function limpar(valor: unknown, max: number): string {
   return typeof valor === "string" ? valor.replace(/\s+/g, " ").trim().slice(0, max) : "";
 }
 
+/** Conserta erros comuns de JSON de modelos pequenos: aspas curvas e vírgulas sobrando. */
+function repararJson(bruto: string): string {
+  return bruto
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/,\s*([\]}])/g, "$1");
+}
+
 export function interpretarPerguntas(bruto: string): PerguntaAura[] {
   let dados: unknown;
 
   try {
     dados = JSON.parse(bruto);
   } catch {
-    return [];
+    try {
+      dados = JSON.parse(repararJson(bruto));
+    } catch {
+      return [];
+    }
   }
 
   const lista = Array.isArray(dados) ? dados : (dados as { perguntas?: unknown })?.perguntas;
@@ -61,6 +75,16 @@ export function extrairPerguntas(conteudo: string): { texto: string; perguntas: 
   const achado = BLOCO.exec(conteudo);
 
   if (!achado) {
+    const alternativo = BLOCO_JSON.exec(conteudo);
+
+    if (alternativo) {
+      const perguntas = interpretarPerguntas(alternativo[1].trim());
+
+      if (perguntas.length > 0) {
+        return { texto: conteudo.replace(BLOCO_JSON, "").trim(), perguntas };
+      }
+    }
+
     return { texto: conteudo.replace(BLOCO_ABERTO, "").trim(), perguntas: [] };
   }
 

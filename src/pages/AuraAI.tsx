@@ -60,14 +60,29 @@ import {
 } from "../lib/aura-engine";
 
 import {
-  CartaoPerguntasAura,
   MenuBaixarAura,
   ModalSalvarAura,
   PainelConfigAura,
   PainelItensAura,
 } from "../components/AuraPaineis";
 
-import { extrairPerguntas } from "../lib/aura-perguntas";
+import {
+  extrairPerguntas,
+  type PerguntaAura,
+} from "../lib/aura-perguntas";
+
+import {
+  detectarCriacao,
+  montarPedido,
+  montarRespostasDoModelo,
+  passosDasPerguntas,
+  passosDe,
+  tituloDoAssistente,
+  type Criacao,
+  type PassoAssistente,
+} from "../lib/aura-assistente";
+
+import { AssistenteCriacaoAura } from "../components/AssistenteCriacaoAura";
 
 import "../styles/aura-ai.css";
 
@@ -839,6 +854,22 @@ export default function AuraEducacube() {
   const [anexoAviso, setAnexoAviso] =
     useState("");
 
+  const [assistente, setAssistente] =
+    useState<{
+      titulo: string;
+      subtitulo: string;
+      passos: PassoAssistente[];
+      previas: Record<string, string>;
+      rotuloFinal: string;
+      aoConcluir: (
+        respostas: Record<string, string>
+      ) => void;
+    } | null>(null);
+
+  const novaRespostaIdRef = useRef<
+    string | null
+  >(null);
+
   const [salvarMensagem, setSalvarMensagem] =
     useState<{
       titulo: string;
@@ -1257,6 +1288,9 @@ export default function AuraEducacube() {
           createdAt: Date.now(),
         };
 
+      novaRespostaIdRef.current =
+        assistantMessage.id;
+
       setMessages((previous) => {
         const next = [
           ...previous,
@@ -1383,7 +1417,68 @@ export default function AuraEducacube() {
          
                                                                         
 
-  function sendMessage(text: string) {
+  function abrirAssistenteDeCriacao(
+    criacao: Criacao
+  ) {
+    const { tipo } = criacao;
+
+    setAssistente({
+      titulo: tituloDoAssistente(tipo),
+      subtitulo:
+        "Responda e a AURA cria na hora.",
+      passos: passosDe(tipo),
+      previas: criacao.previas,
+      rotuloFinal:
+        tipo === "prova"
+          ? "Criar prova"
+          : tipo === "plano"
+          ? "Criar plano de aula"
+          : "Criar material",
+      aoConcluir: (respostas) => {
+        setAssistente(null);
+
+        sendMessage(
+          montarPedido(tipo, respostas),
+          { semAssistente: true }
+        );
+      },
+    });
+  }
+
+  function abrirPerguntasDoModelo(
+    perguntas: PerguntaAura[]
+  ) {
+    const passos =
+      passosDasPerguntas(perguntas);
+
+    setAssistente({
+      titulo:
+        "A AURA precisa de alguns detalhes",
+      subtitulo:
+        "Responda para ela continuar.",
+      passos,
+      previas: {},
+      rotuloFinal: "Continuar",
+      aoConcluir: (respostas) => {
+        setAssistente(null);
+
+        sendMessage(
+          montarRespostasDoModelo(
+            passos,
+            respostas
+          ),
+          { semAssistente: true }
+        );
+      },
+    });
+  }
+
+  function sendMessage(
+    text: string,
+    opcoes?: {
+      semAssistente?: boolean;
+    }
+  ) {
     const trimmed =
       text.trim();
 
@@ -1395,6 +1490,24 @@ export default function AuraEducacube() {
       )
     ) {
       return;
+    }
+
+    // Pedido de criar prova, plano ou material: abre a tela de perguntas antes de enviar.
+    if (
+      !opcoes?.semAssistente &&
+      !attachments.some(
+        (a) => a.status === "pronto"
+      )
+    ) {
+      const criacao =
+        detectarCriacao(trimmed);
+
+      if (criacao) {
+        abrirAssistenteDeCriacao(
+          criacao
+        );
+        return;
+      }
     }
 
     clearGenerationTimers();
@@ -2332,6 +2445,33 @@ export default function AuraEducacube() {
   const isBusy =
     auraState === "thinking" ||
     auraState === "generating";
+
+  // Quando a AURA responde com perguntas (bloco aura-perguntas), abre a tela de perguntas.
+  useEffect(() => {
+    if (isBusy) return;
+
+    const ultima =
+      messages[messages.length - 1];
+
+    if (
+      !ultima ||
+      ultima.role !== "assistant" ||
+      novaRespostaIdRef.current !==
+        ultima.id
+    ) {
+      return;
+    }
+
+    novaRespostaIdRef.current = null;
+
+    const { perguntas } =
+      extrairPerguntas(ultima.content);
+
+    if (perguntas.length > 0) {
+      abrirPerguntasDoModelo(perguntas);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, isBusy]);
 
                                                                      
            
@@ -3509,15 +3649,20 @@ export default function AuraEducacube() {
                                   {perguntasAura.length >
                                     0 &&
                                     ehUltima &&
-                                    !isBusy && (
-                                      <CartaoPerguntasAura
-                                        perguntas={
-                                          perguntasAura
+                                    !isBusy &&
+                                    !assistente && (
+                                      <button
+                                        type="button"
+                                        className="aura-answer-questions"
+                                        onClick={() =>
+                                          abrirPerguntasDoModelo(
+                                            perguntasAura
+                                          )
                                         }
-                                        onEnviar={
-                                          sendMessage
-                                        }
-                                      />
+                                      >
+                                        Responder às
+                                        perguntas da AURA
+                                      </button>
                                     )}
 
                                   <div className="aura-message-actions">
@@ -4282,6 +4427,29 @@ export default function AuraEducacube() {
               </div>
             </motion.div>
           </section>
+
+          <AnimatePresence>
+            {assistente && (
+              <AssistenteCriacaoAura
+                key="assistente-criacao"
+                titulo={assistente.titulo}
+                subtitulo={
+                  assistente.subtitulo
+                }
+                passos={assistente.passos}
+                previas={assistente.previas}
+                rotuloFinal={
+                  assistente.rotuloFinal
+                }
+                onConcluir={
+                  assistente.aoConcluir
+                }
+                onFechar={() =>
+                  setAssistente(null)
+                }
+              />
+            )}
+          </AnimatePresence>
 
           {salvarMensagem && (
             <ModalSalvarAura

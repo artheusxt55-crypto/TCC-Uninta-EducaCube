@@ -82,3 +82,11 @@ test("montarRespostas: junta as escolhas ou deixa a AURA decidir", () => {
   assert.equal(montarRespostas(ps, ["Médio", ""]), "1. Série? Médio");
   assert.match(montarRespostas(ps, ["", ""]), /Pode decidir você/);
 });
+
+test("perguntas: tolera ```json, aspas curvas e vírgula sobrando", () => {
+  const a = extrairPerguntas('Preciso saber:\n```json\n[{"pergunta":"Série?","opcoes":["Médio",]}]\n```');
+  assert.equal(a.perguntas.length, 1);
+  assert.equal(a.texto, "Preciso saber:");
+  const b = interpretarPerguntas("[{\u201cpergunta\u201d:\u201cSérie?\u201d,\u201copcoes\u201d:[\u201cMédio\u201d]}]");
+  assert.deepEqual(b[0].opcoes, ["Médio"]);
+});

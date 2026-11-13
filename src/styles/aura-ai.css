@@ -3848,3 +3848,25 @@
 
   font-size: 11px;
 }
+
+.aura-answer-questions {
+  align-self: flex-start;
+
+  margin-top: 12px;
+  padding: 9px 16px;
+
+  border: 1px solid var(--aura-border-purple);
+  border-radius: var(--aura-radius-sm);
+
+  background: var(--aura-purple-700);
+  color: var(--aura-text);
+
+  font: inherit;
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.aura-answer-questions:hover {
+  background: var(--aura-purple-600);
+}
