@@ -72,13 +72,8 @@ import {
 } from "../lib/aura-perguntas";
 
 import {
-  detectarCriacao,
-  montarPedido,
   montarRespostasDoModelo,
   passosDasPerguntas,
-  passosDe,
-  tituloDoAssistente,
-  type Criacao,
   type PassoAssistente,
 } from "../lib/aura-assistente";
 
@@ -1417,34 +1412,6 @@ export default function AuraEducacube() {
          
                                                                         
 
-  function abrirAssistenteDeCriacao(
-    criacao: Criacao
-  ) {
-    const { tipo } = criacao;
-
-    setAssistente({
-      titulo: tituloDoAssistente(tipo),
-      subtitulo:
-        "Responda e a AURA cria na hora.",
-      passos: passosDe(tipo),
-      previas: criacao.previas,
-      rotuloFinal:
-        tipo === "prova"
-          ? "Criar prova"
-          : tipo === "plano"
-          ? "Criar plano de aula"
-          : "Criar material",
-      aoConcluir: (respostas) => {
-        setAssistente(null);
-
-        sendMessage(
-          montarPedido(tipo, respostas),
-          { semAssistente: true }
-        );
-      },
-    });
-  }
-
   function abrirPerguntasDoModelo(
     perguntas: PerguntaAura[]
   ) {
@@ -1466,19 +1433,13 @@ export default function AuraEducacube() {
           montarRespostasDoModelo(
             passos,
             respostas
-          ),
-          { semAssistente: true }
+          )
         );
       },
     });
   }
 
-  function sendMessage(
-    text: string,
-    opcoes?: {
-      semAssistente?: boolean;
-    }
-  ) {
+  function sendMessage(text: string) {
     const trimmed =
       text.trim();
 
@@ -1490,24 +1451,6 @@ export default function AuraEducacube() {
       )
     ) {
       return;
-    }
-
-    // Pedido de criar prova, plano ou material: abre a tela de perguntas antes de enviar.
-    if (
-      !opcoes?.semAssistente &&
-      !attachments.some(
-        (a) => a.status === "pronto"
-      )
-    ) {
-      const criacao =
-        detectarCriacao(trimmed);
-
-      if (criacao) {
-        abrirAssistenteDeCriacao(
-          criacao
-        );
-        return;
-      }
     }
 
     clearGenerationTimers();
