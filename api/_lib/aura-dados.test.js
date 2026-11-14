@@ -157,14 +157,15 @@ test("limparAnexos: no máximo 3 arquivos e ignora lixo", () => {
 });
 
 test("limparAnexos: corta o texto total e marca como cortado", () => {
+  const metade = Math.floor(m.LIMITES.charsTotalAnexos / 2);
   const r = m.limparAnexos([
-    { nome: "a.txt", texto: "x".repeat(10000) },
-    { nome: "b.txt", texto: "y".repeat(10000) },
+    { nome: "a.txt", texto: "x".repeat(metade + 1000) },
+    { nome: "b.txt", texto: "y".repeat(metade + 1000) },
     { nome: "c.txt", texto: "z" },
   ]);
   assert.equal(r.length, 2);
   assert.equal(r[0].cortado, false);
-  assert.equal(r[1].texto.length, 5000);
+  assert.equal(r[1].texto.length, m.LIMITES.charsTotalAnexos - (metade + 1000));
   assert.equal(r[1].cortado, true);
 });
 

@@ -1,5 +1,6 @@
 import { sql } from "./neon.js";
 import { cifrar, decifrar } from "./cripto.js";
+import { ErroArquivo, extrairTextoOffice } from "./aura-arquivos.js";
 
 /* BIBLIOTECA E CONFIGURAÇÕES DA AURA
    - Itens (estudo | prova | material) por usuário, com título e conteúdo cifrados.
@@ -15,9 +16,10 @@ export const LIMITES = {
   charsInstrucoes: 300,
   anexosPorMensagem: 3,
   charsNomeAnexo: 120,
-  charsTotalAnexos: 15000,
+  charsTotalAnexos: 24000,
   pdfBytes: 3 * 1024 * 1024,
-  charsPdf: 20000,
+  arquivoBytes: 3 * 1024 * 1024,
+  charsPdf: 30000,
 };
 
 export const OPCOES_CONFIG = {
@@ -280,4 +282,42 @@ export async function extrairTextoPdf(base64) {
   }
 
   return { texto: texto.slice(0, LIMITES.charsPdf), cortado: texto.length > LIMITES.charsPdf };
+}
+
+/* ---------- qualquer documento (PDF, Word, PowerPoint, Excel) ---------- */
+
+const EXTENSOES_OFFICE = { docx: "docx", pptx: "pptx", xlsx: "xlsx" };
+
+/** Lê um arquivo enviado em base64 e devolve o texto. PDF, .docx, .pptx e .xlsx. */
+export async function extrairTextoArquivo(base64, nome = "") {
+  if (typeof base64 !== "string" || !base64) throw new ErroDados(400, "ARQUIVO_VAZIO", "Arquivo vazio.");
+
+  const buffer = Buffer.from(base64, "base64");
+
+  if (buffer.length === 0) throw new ErroDados(400, "ARQUIVO_VAZIO", "Arquivo vazio.");
+  if (buffer.length > LIMITES.arquivoBytes) throw new ErroDados(413, "ARQUIVO_GRANDE", "O arquivo passa de 3 MB.");
+
+  if (buffer.subarray(0, 5).toString("latin1") === "%PDF-") return extrairTextoPdf(base64);
+
+  const extensao = /\.([a-z0-9]+)$/i.exec(String(nome))?.[1]?.toLowerCase() || "";
+
+  if (buffer.readUInt32LE(0) === 0x04034b50) {
+    const tipo = EXTENSOES_OFFICE[extensao];
+
+    if (!tipo) throw new ErroDados(415, "ARQUIVO_TIPO", "Só consigo ler PDF, Word (.docx), PowerPoint (.pptx) e Excel (.xlsx).");
+
+    try {
+      const texto = extrairTextoOffice(buffer, tipo);
+      return { texto: texto.slice(0, LIMITES.charsPdf), cortado: texto.length > LIMITES.charsPdf };
+    } catch (erro) {
+      if (erro instanceof ErroArquivo) throw new ErroDados(erro.status, erro.codigo, erro.message);
+      throw erro;
+    }
+  }
+
+  if (buffer.subarray(0, 4).toString("hex") === "d0cf11e0") {
+    throw new ErroDados(415, "ARQUIVO_ANTIGO", "Este é um formato antigo do Office (.doc, .ppt ou .xls). Salve como .docx, .pptx, .xlsx ou PDF e envie de novo.");
+  }
+
+  throw new ErroDados(415, "ARQUIVO_TIPO", "Só consigo ler PDF, Word (.docx), PowerPoint (.pptx) e Excel (.xlsx).");
 }

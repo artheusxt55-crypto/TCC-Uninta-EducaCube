@@ -312,6 +312,18 @@ export async function salvarConfigAura(
   return r.config;
 }
 
+/** Extrai o texto de PDF, Word (.docx), PowerPoint (.pptx) ou Excel (.xlsx) no servidor. */
+export async function extrairArquivoAura(
+  nome: string,
+  base64: string
+): Promise<{ texto: string; cortado: boolean }> {
+  return chamarDados<{ texto: string; cortado: boolean }>({
+    acao: "extrair_arquivo",
+    nome,
+    base64,
+  });
+}
+
 export async function extrairPdfAura(
   base64: string
 ): Promise<{ texto: string; cortado: boolean }> {
