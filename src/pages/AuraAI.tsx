@@ -56,7 +56,7 @@ import { renderAuraMarkdown } from "../components/aura-markdown";
 import {
   perguntarAura,
   registrarMemoriaAura,
-  extrairPdfAura,
+  extrairArquivoAura,
 } from "../lib/aura-engine";
 
 import {
@@ -106,6 +106,8 @@ interface Attachment {
   type: string;
   /** Texto extraído do arquivo (txt, md ou PDF). Vai junto da próxima pergunta. */
   texto?: string;
+  /** O arquivo era grande e só o começo do texto foi lido. */
+  parcial?: boolean;
   status?: "lendo" | "pronto" | "erro";
 }
 
@@ -115,16 +117,38 @@ const ANEXOS_MAX = 3;
 
 function ehArquivoDeTexto(file: File): boolean {
   return (
-    /\.(txt|md|markdown)$/i.test(file.name) ||
+    /\.(txt|md|markdown|csv|tsv|json|log)$/i.test(
+      file.name
+    ) ||
     file.type === "text/plain" ||
-    file.type === "text/markdown"
+    file.type === "text/markdown" ||
+    file.type === "text/csv" ||
+    file.type === "application/json"
   );
 }
 
-function ehPdf(file: File): boolean {
-  return (
-    file.type === "application/pdf" || /\.pdf$/i.test(file.name)
+/** PDF, Word, PowerPoint e Excel: o servidor extrai o texto. */
+function ehDocumentoBinario(file: File): boolean {
+  return /\.(pdf|docx|pptx|xlsx)$/i.test(
+    file.name
   );
+}
+
+function motivoNaoSuportado(file: File): string {
+  if (/\.(doc|ppt|xls)$/i.test(file.name)) {
+    return `${file.name}: é um formato antigo do Office. Salve como .docx, .pptx, .xlsx ou PDF e envie de novo.`;
+  }
+
+  if (
+    file.type.startsWith("image/") ||
+    /\.(png|jpe?g|gif|webp|bmp|heic)$/i.test(
+      file.name
+    )
+  ) {
+    return `${file.name}: ainda não leio imagens. Envie o texto, um PDF ou um documento do Word.`;
+  }
+
+  return `${file.name}: não consigo ler esse tipo. Aceito PDF, Word (.docx), PowerPoint (.pptx), Excel (.xlsx) e texto (.txt, .md, .csv).`;
 }
 
 function arquivoParaBase64(file: File): Promise<string> {
@@ -1440,8 +1464,17 @@ export default function AuraEducacube() {
   }
 
   function sendMessage(text: string) {
+    const prontos = attachments.filter(
+      (a) =>
+        a.status === "pronto" && a.texto
+    );
+
+    // Só o arquivo, sem texto: pede um resumo.
     const trimmed =
-      text.trim();
+      text.trim() ||
+      (prontos.length > 0
+        ? "Leia o arquivo anexado e faça um resumo com os pontos principais."
+        : "");
 
     if (
       !trimmed ||
@@ -1468,7 +1501,12 @@ export default function AuraEducacube() {
       {
         id: generateId(),
         role: "user",
-        content: trimmed,
+        content:
+          prontos.length > 0
+            ? `${trimmed}\n\n📎 ${prontos
+                .map((a) => a.name)
+                .join(", ")}`
+            : trimmed,
         createdAt: Date.now(),
       };
 
@@ -1491,17 +1529,14 @@ export default function AuraEducacube() {
       return next;
     });
 
-    pendingAnexosRef.current =
-      attachments
-        .filter(
-          (a) =>
-            a.status === "pronto" &&
-            a.texto
-        )
-        .map((a) => ({
+    // O documento acompanha a conversa: perguntas seguintes ainda "enxergam" o arquivo.
+    if (prontos.length > 0) {
+      pendingAnexosRef.current =
+        prontos.map((a) => ({
           nome: a.name,
           texto: a.texto as string,
         }));
+    }
 
     setInput("");
     setAttachments([]);
@@ -1601,23 +1636,24 @@ export default function AuraEducacube() {
       }
 
       const texto = ehArquivoDeTexto(file);
-      const pdf = ehPdf(file);
+      const binario =
+        ehDocumentoBinario(file);
 
-      if (!texto && !pdf) {
+      if (!texto && !binario) {
         avisos.push(
-          `${file.name}: só consigo ler arquivos .txt, .md e .pdf.`
+          motivoNaoSuportado(file)
         );
         continue;
       }
 
-      const limite = pdf
+      const limite = binario
         ? ANEXO_PDF_MAX_BYTES
         : ANEXO_TEXTO_MAX_BYTES;
 
       if (file.size > limite) {
         avisos.push(
           `${file.name}: passa de ${
-            pdf ? "3 MB" : "1 MB"
+            binario ? "3 MB" : "1 MB"
           }.`
         );
         continue;
@@ -1638,15 +1674,24 @@ export default function AuraEducacube() {
       leituras.push(
         (async () => {
           try {
-            const conteudo = pdf
-              ? (
-                  await extrairPdfAura(
-                    await arquivoParaBase64(
-                      file
-                    )
+            let parcial = false;
+
+            let conteudo = "";
+
+            if (binario) {
+              const lido =
+                await extrairArquivoAura(
+                  file.name,
+                  await arquivoParaBase64(
+                    file
                   )
-                ).texto
-              : await file.text();
+                );
+
+              conteudo = lido.texto;
+              parcial = lido.cortado;
+            } else {
+              conteudo = await file.text();
+            }
 
             if (!conteudo.trim()) {
               throw new Error(
@@ -1660,6 +1705,7 @@ export default function AuraEducacube() {
                   ? {
                       ...a,
                       texto: conteudo,
+                      parcial,
                       status: "pronto",
                     }
                   : a
@@ -2097,6 +2143,8 @@ export default function AuraEducacube() {
   function startNewConversation() {
     setActiveNav("chat");
 
+    pendingAnexosRef.current = [];
+
     clearGenerationTimers();
 
     if (micActive) {
@@ -2131,6 +2179,8 @@ export default function AuraEducacube() {
 
   function openConversation(id: string) {
     setActiveNav("chat");
+
+    pendingAnexosRef.current = [];
 
     clearGenerationTimers();
 
@@ -4033,9 +4083,13 @@ export default function AuraEducacube() {
                                 {file.status ===
                                 "lendo"
                                   ? "lendo..."
-                                  : formatBytes(
+                                  : `${formatBytes(
                                       file.size
-                                    )}
+                                    )} · lido${
+                                      file.parcial
+                                        ? " (só o começo)"
+                                        : ""
+                                    }`}
                               </span>
 
                               <button
@@ -4123,7 +4177,7 @@ export default function AuraEducacube() {
                         fileInputRef
                       }
                       type="file"
-                      accept=".txt,.md,.markdown,.pdf,text/plain,application/pdf"
+                      accept=".pdf,.docx,.pptx,.xlsx,.txt,.md,.markdown,.csv,.tsv,.json,.log"
                       multiple
                       hidden
                       onChange={
@@ -4290,7 +4344,12 @@ export default function AuraEducacube() {
                           className="aura-send-button"
                           aria-label="Enviar mensagem"
                           disabled={
-                            !input.trim() ||
+                            (!input.trim() &&
+                              !attachments.some(
+                                (a) =>
+                                  a.status ===
+                                  "pronto"
+                              )) ||
                             !isOnline
                           }
                           onClick={() =>

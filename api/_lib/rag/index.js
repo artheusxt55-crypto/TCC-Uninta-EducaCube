@@ -99,6 +99,20 @@ ${blocos}
 `;
 }
 
+function instrucaoAnexos(anexos) {
+  if (!Array.isArray(anexos) || anexos.length === 0) return "";
+
+  const nomes = anexos.map((a) => a.nome).join(", ");
+
+  return `
+ATENÇÃO: o usuário anexou ${anexos.length === 1 ? "um arquivo" : "arquivos"} (${nomes}) e o texto
+${anexos.length === 1 ? "dele" : "deles"} está na seção "ARQUIVOS ANEXADOS PELO USUÁRIO" acima.
+Você CONSEGUE ler esse conteúdo: use-o para responder. Nunca diga que não consegue
+abrir, ver ou ler o arquivo. Se a resposta não estiver no texto do arquivo, diga isso
+claramente e não invente.
+`;
+}
+
 export async function construirContextoRAG({
   pergunta,
   contexto = [],
@@ -120,13 +134,13 @@ CONHECIMENTO DO EDUCACUBE
 ========================================
 
 ${EDUCACUBE_KNOWLEDGE}
-${secaoMemoria(memoria)}${secaoConfig(config)}${secaoAnexos(anexos)}
+${secaoMemoria(memoria)}${secaoConfig(config)}
 ========================================
 CONTEXTO DA CONVERSA
 ========================================
 
 ${historico}
-
+${secaoAnexos(anexos)}
 ========================================
 PERGUNTA ATUAL
 ========================================
@@ -148,5 +162,5 @@ o conhecimento disponível e o contexto da conversa.
 
 Não invente informações que não estejam sustentadas
 pelo conhecimento disponível ou pelo contexto fornecido.
-`;
+${instrucaoAnexos(anexos)}`;
 }

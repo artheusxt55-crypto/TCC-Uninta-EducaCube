@@ -14,6 +14,7 @@ import {
   lerConfig,
   salvarConfig,
   extrairTextoPdf,
+  extrairTextoArquivo,
 } from "./_lib/aura-dados.js";
 
 /* /api/aura-dados — biblioteca da AURA (estudos, provas, materiais), configurações e leitura de PDF.
@@ -25,6 +26,7 @@ import {
      excluir       { id }
      config_ler                                   -> { config }
      config_salvar { config }                     -> { config }
+     extrair_arquivo { nome, base64 }             -> { texto, cortado }  (PDF, .docx, .pptx, .xlsx)
      extrair_pdf   { base64 }                     -> { texto, cortado } */
 
 function lerBody(req) {
@@ -75,6 +77,9 @@ export default async function handler(req, res) {
 
         case "config_salvar":
           return res.status(200).json({ sucesso: true, config: await salvarConfig(uid, corpo.config) });
+
+        case "extrair_arquivo":
+          return res.status(200).json({ sucesso: true, ...(await extrairTextoArquivo(corpo.base64, corpo.nome)) });
 
         case "extrair_pdf":
           return res.status(200).json({ sucesso: true, ...(await extrairTextoPdf(corpo.base64)) });
