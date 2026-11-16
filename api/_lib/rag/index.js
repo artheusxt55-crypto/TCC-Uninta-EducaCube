@@ -1,6 +1,13 @@
 import { AURA_INSTRUCTIONS } from "./instructions.js";
 import { EDUCACUBE_KNOWLEDGE } from "./knowledge.js";
 
+export const MARCA_CRIACAO = "[ENTENDIMENTO DO SISTEMA";
+
+/** Pedidos de criação (prova, plano, material) NÃO usam a memória: o conteúdo vem só do pedido. */
+export function ehTurnoDeCriacao(prompt) {
+  return typeof prompt === "string" && prompt.includes(MARCA_CRIACAO);
+}
+
 function secaoMemoria(memoria) {
   if (!memoria) return "";
 

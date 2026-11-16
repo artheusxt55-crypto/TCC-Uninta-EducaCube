@@ -252,9 +252,13 @@ export function montarRespostasDoModelo(passos: PassoAssistente[], r: Record<str
 }
 
 /** Pedido de criação em qualquer tamanho (diferente de detectarCriacao, que só pega pedidos curtos). */
+const DESEJO = "(?:quer(?:o|ia|emos)|precis(?:o|a|amos|aria|ava)|necessito|gostaria|desejo|d[aá]\\s+pra|d[aá]\\s+para|tenho\\s+que\\s+(?:fazer|montar|criar)|preciso\\s+de)";
+
 export function ehPedidoDeCriacao(texto: string): boolean {
-  if (!new RegExp(`\\b${VERBO}\\b`, "i").test(texto)) return false;
-  return TIPOS.some((x) => x.regex.test(texto));
+  const t = texto.replace(/\n+📎[\s\S]*$/, "");
+  if (/^\s*(?:o\s+que|qual|quais|como|por\s+que|porque|quando|onde)\b/i.test(t)) return false;
+  if (!new RegExp(`\\b(?:${VERBO}|${DESEJO})\\b`, "i").test(t)) return false;
+  return TIPOS.some((x) => x.regex.test(t));
 }
 
 /**
@@ -383,7 +387,14 @@ export function entenderPedidoAtual<T extends { role: string; content: string }>
   const base = entenderTexto(usuario[0].content.replace(/\n+📎[\s\S]*$/, ""));
 
   for (const m of usuario.slice(1)) {
-    Object.assign(base, entenderRespostas(m.content));
+    const lidas = entenderRespostas(m.content);
+    Object.assign(base, lidas);
+
+    // Só o tema, em mensagem separada: "Vygotsky".
+    const t = m.content.replace(/\n+📎[\s\S]*$/, "").trim();
+    if (!base.tema && !Object.keys(lidas).length && t.length >= 2 && t.length <= 120 && !/\n/.test(t) && !/^\d+\./.test(t)) {
+      base.tema = limparTema(t.replace(/^(?:o\s+)?(?:tema|assunto)\s*(?:é|e|:)?\s*/i, ""));
+    }
   }
 
   return base;
@@ -406,4 +417,23 @@ export function descreverEntendimento(e: Entendimento | null, temArquivo: boolea
   return `\n\n[ENTENDIMENTO DO SISTEMA SOBRE ESTE PEDIDO DE CRIAÇÃO — dados tirados do texto do usuário: ${itens.length ? itens.join("; ") : "nenhum dado específico"}${
     temArquivo ? "; base=arquivo anexado" : ""
   }. Use esses dados e NÃO pergunte de novo por eles. O tema vem somente daqui e do pedido, nunca de conversas ou documentos anteriores.]`;
+}
+
+/**
+ * Remove perguntas da AURA sobre o que o usuário já informou (tema, série, quantidade...).
+ * É uma trava no app: mesmo que o modelo pergunte de novo, a tela não mostra.
+ */
+export function filtrarPerguntasRedundantes(perguntas: PerguntaAura[], e: Entendimento | null): PerguntaAura[] {
+  if (!e) return perguntas;
+
+  return perguntas.filter((p) => {
+    const q = p.pergunta;
+    if (e.tema && /\b(tema|assunto|t[oó]pico|conte[uú]do|mat[eé]ria|disciplina)\b/i.test(q)) return false;
+    if (e.nivel && /\b(s[eé]rie|n[ií]vel|etapa|ano|turma|p[uú]blico)\b/i.test(q)) return false;
+    if (e.quantidade && /\bquant[ao]s?\b|\bn[uú]mero\s+de\b/i.test(q)) return false;
+    if (e.dificuldade && /dificuldade/i.test(q)) return false;
+    if (e.gabarito && /gabarito/i.test(q)) return false;
+    if (e.formato && /\b(tipo|formato|estilo)\b.*quest/i.test(q)) return false;
+    return true;
+  });
 }

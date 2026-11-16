@@ -132,3 +132,34 @@ test("entenderPedidoAtual junta pedido e respostas da tela", () => {
   assert.match(descreverEntendimento(e, false), /tema="frações"/);
   assert.equal(entenderPedidoAtual([{ role: "user", content: "oi" }]), null);
 });
+
+import { filtrarPerguntasRedundantes } from "../src/lib/aura-assistente.ts";
+
+test("pedidos 'quero/preciso de uma prova' contam como criação", () => {
+  assert.equal(ehPedidoDeCriacao("Quero uma prova de matemática sobre frações"), true);
+  assert.equal(ehPedidoDeCriacao("Preciso de uma prova sobre Piaget para o ensino superior"), true);
+  assert.equal(ehPedidoDeCriacao("O que é uma prova diagnóstica?"), false);
+  assert.equal(ehPedidoDeCriacao("Você pode explicar a prova de Piaget?"), false);
+  assert.equal(entenderTexto("Quero uma prova sobre Piaget").tema, "Piaget");
+});
+
+test("tema em mensagem separada", () => {
+  const e = entenderPedidoAtual([
+    { role: "user", content: "Preciso de uma prova" },
+    { role: "assistant", content: "Qual o tema?" },
+    { role: "user", content: "Vygotsky" },
+  ]);
+  assert.equal(e?.tema, "Vygotsky");
+});
+
+test("filtra perguntas sobre o que já foi dito", () => {
+  const e = entenderTexto("Crie uma prova sobre Piaget com 10 questões");
+  const perguntas = [
+    { pergunta: "Qual é o tema da prova?", opcoes: ["a", "b"] },
+    { pergunta: "Para qual série?", opcoes: ["6º", "7º"] },
+    { pergunta: "Quantas questões?", opcoes: ["5", "10"] },
+  ];
+  const r = filtrarPerguntasRedundantes(perguntas, e);
+  assert.deepEqual(r.map((p) => p.pergunta), ["Para qual série?"]);
+  assert.equal(filtrarPerguntasRedundantes(perguntas, null).length, 3);
+});
