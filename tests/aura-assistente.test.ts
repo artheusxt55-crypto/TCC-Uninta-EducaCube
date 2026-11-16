@@ -163,3 +163,23 @@ test("filtra perguntas sobre o que já foi dito", () => {
   assert.deepEqual(r.map((p) => p.pergunta), ["Para qual série?"]);
   assert.equal(filtrarPerguntasRedundantes(perguntas, null).length, 3);
 });
+
+import { garantirPerguntaDeTema } from "../src/lib/aura-assistente.ts";
+import { extrairPerguntas } from "../src/lib/aura-perguntas.ts";
+
+test("vários arrays soltos viram várias perguntas e somem do texto", () => {
+  const msg = `Olá! Preciso de mais detalhes.\n[{"pergunta":"Quantas questões você gostaria?","opcoes":["10","15","20"]}] [{"pergunta":"Qual nível de dificuldade prefere?","opcoes":["Fácil","Médio","Difícil"]}] [{"pergunta":"Você deseja um gabarito ao final?","opcoes":["Sim","Não"]}]`;
+  const r = extrairPerguntas(msg);
+  assert.equal(r.perguntas.length, 3);
+  assert.ok(!r.texto.includes("pergunta"));
+});
+
+test("sem tema e sem arquivo, o app pergunta o tema", () => {
+  const e = entenderTexto("Preciso de uma prova para o ensino superior");
+  assert.equal(e.tema, undefined);
+  const r = garantirPerguntaDeTema([{ pergunta: "Quantas questões?", opcoes: ["10"] }], e, false);
+  assert.match(r[0].pergunta, /tema da prova/);
+  assert.equal(r[0].opcoes.length, 0);
+  assert.equal(garantirPerguntaDeTema([], e, true).length, 0);
+  assert.equal(garantirPerguntaDeTema([], entenderTexto("Crie uma prova sobre Piaget"), false).length, 0);
+});
