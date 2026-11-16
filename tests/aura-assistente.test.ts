@@ -101,3 +101,34 @@ test("cartão só para respostas de pedido de documento", () => {
   assert.equal(respostaVeioDePedidoDeDocumento(conversa, 1), false);
   assert.equal(respostaVeioDePedidoDeDocumento(conversa, 3), true);
 });
+
+import { entenderTexto, entenderPedidoAtual, descreverEntendimento } from "../src/lib/aura-assistente.ts";
+
+test("entenderTexto: tema, série e quantidade", () => {
+  const e = entenderTexto("Crie uma prova sobre Vygotsky e a zona de desenvolvimento proximal para o ensino superior com 8 questões, com gabarito");
+  assert.equal(e.tipo, "prova");
+  assert.match(e.tema || "", /^Vygotsky/);
+  assert.equal(e.nivel, "Ensino Superior");
+  assert.equal(e.quantidade, "8");
+  assert.equal(e.gabarito, "sim");
+});
+
+test("entenderTexto: 'prova de X' e 'tema:'", () => {
+  assert.equal(entenderTexto("faça uma prova de fotossíntese").tema, "fotossíntese");
+  assert.equal(entenderTexto("monte uma prova\nTema: Revolução Francesa").tema, "Revolução Francesa");
+  assert.equal(entenderTexto("faça uma prova de 10 questões").tema, undefined);
+});
+
+test("entenderPedidoAtual junta pedido e respostas da tela", () => {
+  const msgs = [
+    { role: "user", content: "Crie uma prova sobre frações" },
+    { role: "assistant", content: "perguntas" },
+    { role: "user", content: "1. Para qual série? 6º ano\n2. Quantas questões? 10 questões" },
+  ];
+  const e = entenderPedidoAtual(msgs);
+  assert.equal(e?.tema, "frações");
+  assert.equal(e?.nivel, "6º ano");
+  assert.equal(e?.quantidade, "10");
+  assert.match(descreverEntendimento(e, false), /tema="frações"/);
+  assert.equal(entenderPedidoAtual([{ role: "user", content: "oi" }]), null);
+});
