@@ -71,7 +71,7 @@ import {
   PainelDocumentoAura,
 } from "../components/PainelDocumentoAura";
 
-import { recortarContextoCriacao, respostaVeioDePedidoDeDocumento, entenderPedidoAtual, descreverEntendimento, ehPedidoDeCriacao } from "../lib/aura-assistente";
+import { recortarContextoCriacao, respostaVeioDePedidoDeDocumento, entenderPedidoAtual, descreverEntendimento, ehPedidoDeCriacao, filtrarPerguntasRedundantes } from "../lib/aura-assistente";
 
 import { detectarDocumento } from "../lib/aura-documento";
 
@@ -1353,7 +1353,14 @@ export default function AuraEducacube() {
 
       // Aprende com a troca em segundo plano (ignora comandos e respostas de erro).
       if (resposta.provider !== "memoria" && resposta.resposta?.trim()) {
-        void registrarMemoriaAura(promptText, resposta.resposta);
+        // Criações (prova, plano, material) não entram na memória: cada uma começa do zero.
+        if (
+          !entenderPedidoAtual(
+            historyForContext
+          )
+        ) {
+          void registrarMemoriaAura(promptText, resposta.resposta);
+        }
       }
 
       setAuraState("complete");
@@ -2524,11 +2531,22 @@ export default function AuraEducacube() {
 
     novaRespostaIdRef.current = null;
 
-    const { perguntas } =
+    const { perguntas: todas } =
       extrairPerguntas(ultima.content);
+
+    const perguntas =
+      filtrarPerguntasRedundantes(
+        todas,
+        entenderPedidoAtual(messages)
+      );
 
     if (perguntas.length > 0) {
       abrirPerguntasDoModelo(perguntas);
+    } else if (todas.length > 0) {
+      // Todas as perguntas eram sobre o que o usuário já disse: segue sem perguntar.
+      sendMessage(
+        "Use o que eu já informei no pedido e decida o restante. Crie agora."
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, isBusy]);

@@ -1,5 +1,5 @@
 import admin from "firebase-admin";
-import { construirContextoRAG } from "./_lib/rag/index.js";
+import { construirContextoRAG, ehTurnoDeCriacao } from "./_lib/rag/index.js";
 
                                                             
                  
@@ -752,7 +752,10 @@ export default async function handler(
         });
       }
 
-      memoria = await modMemoria.lerMemoriaParaPrompt(uid);
+      // Criação de prova/plano/material: sem memória, para não misturar assuntos antigos.
+      memoria = ehTurnoDeCriacao(prompt)
+        ? null
+        : await modMemoria.lerMemoriaParaPrompt(uid);
     } catch (erroMemoria) {
       console.error("[AURA] Memória indisponível:", erroMemoria?.message);
     }
