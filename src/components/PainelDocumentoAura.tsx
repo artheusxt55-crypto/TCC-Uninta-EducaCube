@@ -36,6 +36,7 @@ export function CartaoDocumentoAura({
       </div>
 
       <button type="button" className="ad-cartao-botao" onClick={onAbrir}>
+        <span className="ad-cartao-pdf">PDF</span>
         {ativo ? "Aberto" : "Visualizar"}
       </button>
     </div>
@@ -268,7 +269,7 @@ export function PainelDocumentoAura({
 
         <div className="ad-linha">
           <button type="button" className="ad-btn primario" onClick={baixar}>
-            <Download size={14} /> Baixar PDF
+            <Download size={14} className="ad-seta" /> Baixar PDF
           </button>
           <button type="button" className="ad-btn" onClick={() => baixarMarkdown(titulo, conteudo)}>
             Baixar .md

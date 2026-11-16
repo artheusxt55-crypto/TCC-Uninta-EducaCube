@@ -250,3 +250,38 @@ export function montarRespostasDoModelo(passos: PassoAssistente[], r: Record<str
 
   return linhas.length ? linhas.join("\n") : "Pode decidir você, escolha o que for mais adequado.";
 }
+
+/** Pedido de criação em qualquer tamanho (diferente de detectarCriacao, que só pega pedidos curtos). */
+export function ehPedidoDeCriacao(texto: string): boolean {
+  if (!new RegExp(`\\b${VERBO}\\b`, "i").test(texto)) return false;
+  return TIPOS.some((x) => x.regex.test(texto));
+}
+
+/**
+ * Recorta o histórico enviado à AURA para não misturar assuntos: a partir do ÚLTIMO pedido de
+ * criação (prova, plano, material...) só entra o que veio depois dele (perguntas, respostas, ajustes).
+ * Sem pedido de criação, mantém as últimas `limite` mensagens.
+ */
+export function recortarContextoCriacao<T extends { role: string; content: string }>(mensagens: T[], limite = 8): T[] {
+  let inicio = -1;
+
+  for (let i = mensagens.length - 1; i >= 0; i--) {
+    if (mensagens[i].role === "user" && ehPedidoDeCriacao(mensagens[i].content)) {
+      inicio = i;
+      break;
+    }
+  }
+
+  return (inicio >= 0 ? mensagens.slice(inicio) : mensagens).slice(-limite);
+}
+
+/** O usuário pediu um documento/arquivo (inclui pedidos de ajuste vindos do visualizador). */
+export function pediuDocumento(texto: string): boolean {
+  return ehPedidoDeCriacao(texto) || /\b(pdf|documento|arquivo|material)\b/i.test(texto) || /^Ajuste o documento/i.test(texto.trim());
+}
+
+/** Há, entre as mensagens do usuário logo antes da resposta, um pedido de documento? */
+export function respostaVeioDePedidoDeDocumento<T extends { role: string; content: string }>(mensagens: T[], indice: number): boolean {
+  const antes = mensagens.slice(Math.max(0, indice - 6), indice).filter((m) => m.role === "user");
+  return antes.some((m) => pediuDocumento(m.content));
+}
