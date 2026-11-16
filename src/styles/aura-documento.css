@@ -1,0 +1,38 @@
+/* Visualizador de documentos da AURA (prefixo ad-) */
+.ad-cartao{display:flex;align-items:center;gap:12px;margin:12px 0 4px;padding:12px 14px;border:1px solid rgba(140,92,214,.35);border-radius:14px;background:rgba(140,92,214,.08);max-width:460px}
+.ad-cartao.ativo{border-color:rgba(140,92,214,.8)}
+.ad-cartao-icone{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:rgba(140,92,214,.2);color:#b794f6;flex:none}
+.ad-cartao-info{display:flex;flex-direction:column;min-width:0;flex:1}
+.ad-cartao-info strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ad-cartao-info span{font-size:12px;opacity:.7}
+.ad-cartao-botao{border:0;border-radius:10px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;background:#8c5cd6;color:#fff}
+.ad-cartao-botao:hover{filter:brightness(1.1)}
+
+.ad-painel{display:flex;flex-direction:column;flex:0 0 min(46vw,640px);width:min(46vw,640px);min-width:0;height:100%;border-left:1px solid rgba(255,255,255,.1);background:#14111c;color:#eee}
+.ad-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.ad-topo-titulo{display:flex;align-items:center;gap:8px;min-width:0}
+.ad-topo-titulo strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ad-editado{font-size:11px;font-style:normal;padding:2px 8px;border-radius:99px;background:rgba(140,92,214,.3)}
+.ad-icone{display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:8px;background:transparent;color:inherit;cursor:pointer;flex:none}
+.ad-icone:hover:not(:disabled){background:rgba(255,255,255,.1)}
+.ad-icone:disabled{opacity:.35;cursor:default}
+.ad-barra{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px}
+.ad-abas,.ad-partes{display:flex;gap:4px;padding:3px;border-radius:10px;background:rgba(255,255,255,.07)}
+.ad-abas button,.ad-partes button{border:0;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;background:transparent;color:inherit}
+.ad-abas button.on,.ad-partes button.on{background:#8c5cd6;color:#fff}
+.ad-area{flex:1;min-height:0;overflow:auto;padding:16px;background:#0e0c14}
+.ad-paginas{display:flex;flex-direction:column;align-items:center;gap:14px}
+.ad-pagina{background:#fff;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.5);max-width:100%}
+.ad-md{margin:0;white-space:pre-wrap;word-break:break-word;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace}
+.ad-editor{width:100%;min-height:100%;box-sizing:border-box;resize:none;padding:12px;border-radius:10px;border:1px solid rgba(140,92,214,.5);background:#14111c;color:inherit;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace}
+.ad-rodape{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-top:1px solid rgba(255,255,255,.08)}
+.ad-linha{display:flex;flex-wrap:wrap;gap:8px}
+.ad-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer;background:transparent;color:inherit}
+.ad-btn:hover{background:rgba(255,255,255,.08)}
+.ad-btn.primario{background:#8c5cd6;border-color:#8c5cd6;color:#fff}
+.ad-ajuste{display:flex;gap:6px;align-items:center}
+.ad-ajuste input{flex:1;min-width:0;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:inherit;font-size:13px}
+
+@media (max-width:900px){
+  .ad-painel{position:fixed;inset:0;z-index:60;width:100%;flex:none;border-left:0}
+}

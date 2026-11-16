@@ -67,6 +67,13 @@ import {
 } from "../components/AuraPaineis";
 
 import {
+  CartaoDocumentoAura,
+  PainelDocumentoAura,
+} from "../components/PainelDocumentoAura";
+
+import { detectarDocumento } from "../lib/aura-documento";
+
+import {
   extrairPerguntas,
   type PerguntaAura,
 } from "../lib/aura-perguntas";
@@ -888,6 +895,12 @@ export default function AuraEducacube() {
   const novaRespostaIdRef = useRef<
     string | null
   >(null);
+
+  const [documentoAberto, setDocumentoAberto] =
+    useState<string | null>(null);
+
+  const [docsEditados, setDocsEditados] =
+    useState<Record<string, string>>({});
 
   const [salvarMensagem, setSalvarMensagem] =
     useState<{
@@ -2141,6 +2154,8 @@ export default function AuraEducacube() {
                                                                         
 
   function startNewConversation() {
+    setDocumentoAberto(null);
+    setDocsEditados({});
     setActiveNav("chat");
 
     pendingAnexosRef.current = [];
@@ -2178,6 +2193,7 @@ export default function AuraEducacube() {
   }
 
   function openConversation(id: string) {
+    setDocumentoAberto(null);
     setActiveNav("chat");
 
     pendingAnexosRef.current = [];
@@ -2356,6 +2372,32 @@ export default function AuraEducacube() {
       .trim()
       .slice(0, 80);
   }
+
+  const documentoPainel = (() => {
+    if (!documentoAberto) return null;
+
+    const mensagem = messages.find(
+      (m) => m.id === documentoAberto
+    );
+
+    if (!mensagem) return null;
+
+    const original = extrairPerguntas(
+      mensagem.content
+    ).texto;
+
+    const detectado =
+      detectarDocumento(original);
+
+    return {
+      id: mensagem.id,
+      titulo:
+        detectado?.titulo ||
+        tituloDaMensagem(mensagem),
+      conteudo:
+        docsEditados[mensagem.id] ?? original,
+    };
+  })();
 
   function abrirSalvar(
     mensagem: AuraMessage
@@ -3639,6 +3681,30 @@ export default function AuraEducacube() {
                                     )}
                                   </div>
 
+                                  {(() => {
+                                    const documento =
+                                      detectarDocumento(
+                                        textoVisivel
+                                      );
+
+                                    return documento ? (
+                                      <CartaoDocumentoAura
+                                        documento={
+                                          documento
+                                        }
+                                        ativo={
+                                          documentoAberto ===
+                                          message.id
+                                        }
+                                        onAbrir={() =>
+                                          setDocumentoAberto(
+                                            message.id
+                                          )
+                                        }
+                                      />
+                                    ) : null;
+                                  })()}
+
                                   {perguntasAura.length >
                                     0 &&
                                     ehUltima &&
@@ -4467,6 +4533,52 @@ export default function AuraEducacube() {
             />
           )}
         </main>
+
+        {documentoPainel && (
+          <PainelDocumentoAura
+            key={documentoPainel.id}
+            titulo={documentoPainel.titulo}
+            conteudo={documentoPainel.conteudo}
+            editado={
+              docsEditados[documentoPainel.id] !==
+              undefined
+            }
+            onEditar={(novo) =>
+              setDocsEditados((atual) => ({
+                ...atual,
+                [documentoPainel.id]: novo,
+              }))
+            }
+            onRestaurar={() =>
+              setDocsEditados((atual) => {
+                const copia = { ...atual };
+                delete copia[documentoPainel.id];
+                return copia;
+              })
+            }
+            onPedirAjuste={(pedido) => {
+              const editado =
+                docsEditados[documentoPainel.id];
+
+              setDocumentoAberto(null);
+
+              sendMessage(
+                editado !== undefined
+                  ? `Ajuste o documento "${documentoPainel.titulo}": ${pedido}\n\nUse esta versão atual (eu editei o texto):\n\n${editado}`
+                  : `Ajuste o documento "${documentoPainel.titulo}": ${pedido}`
+              );
+            }}
+            onSalvar={() =>
+              setSalvarMensagem({
+                titulo: documentoPainel.titulo,
+                conteudo: documentoPainel.conteudo,
+              })
+            }
+            onFechar={() =>
+              setDocumentoAberto(null)
+            }
+          />
+        )}
       </div>
     </div>
   );

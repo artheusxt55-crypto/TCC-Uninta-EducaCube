@@ -278,17 +278,37 @@ export function quebrarLinhas(palavras: Palavra[], corpo: number, largura: numbe
   return linhas;
 }
 
+export type OpPagina =
+  | { t: "texto"; x: number; y: number; fonte: "F1" | "F2" | "F3"; corpo: number; s: string; cinza?: boolean }
+  | { t: "linha"; x1: number; x2: number; y: number; cor: string; w: number };
+
+export interface PaginaPrevia {
+  largura: number;
+  altura: number;
+  ops: OpPagina[];
+}
+
 interface Pagina {
   comandos: string[];
+  ops: OpPagina[];
+}
+
+/** Layout das páginas do PDF para pré-visualização (mesma diagramação do arquivo baixado). */
+export function paginasParaPrevia(titulo: string, markdown: string): PaginaPrevia[] {
+  return construirPaginas(titulo, markdown).map((p) => ({ largura: PAGINA_L, altura: PAGINA_A, ops: p.ops }));
 }
 
 /** Gera os bytes de um PDF (A4) a partir de Markdown. */
 export function markdownParaPdf(titulo: string, markdown: string): Uint8Array {
-  const paginas: Pagina[] = [{ comandos: [] }];
+  return montarPdf(construirPaginas(titulo, markdown), titulo);
+}
+
+function construirPaginas(titulo: string, markdown: string): Pagina[] {
+  const paginas: Pagina[] = [{ comandos: [], ops: [] }];
   let y = MARGEM; // distância do topo
 
   const novaPagina = () => {
-    paginas.push({ comandos: [] });
+    paginas.push({ comandos: [], ops: [] });
     y = MARGEM;
   };
 
@@ -298,9 +318,11 @@ export function markdownParaPdf(titulo: string, markdown: string): Uint8Array {
 
   const texto = (x: number, yTopo: number, fonte: "F1" | "F2" | "F3", corpo: number, conteudo: string) => {
     const base = PAGINA_A - yTopo - corpo * 0.8;
-    paginas[paginas.length - 1].comandos.push(
+    const atual = paginas[paginas.length - 1];
+    atual.comandos.push(
       `BT /${fonte} ${corpo} Tf ${x.toFixed(2)} ${base.toFixed(2)} Td (${escaparPdf(conteudo)}) Tj ET`
     );
+    atual.ops.push({ t: "texto", x, y: base, fonte, corpo, s: conteudo });
   };
 
   const desenharLinha = (palavras: Palavra[], x: number, corpo: number) => {
@@ -325,6 +347,7 @@ export function markdownParaPdf(titulo: string, markdown: string): Uint8Array {
   paginas[0].comandos.push(
     `0.55 0.36 0.84 RG 1.2 w ${MARGEM} ${(PAGINA_A - y + 6).toFixed(2)} m ${PAGINA_L - MARGEM} ${(PAGINA_A - y + 6).toFixed(2)} l S`
   );
+  paginas[0].ops.push({ t: "linha", x1: MARGEM, x2: PAGINA_L - MARGEM, y: PAGINA_A - y + 6, cor: "#8c5cd6", w: 1.2 });
   y += 16;
 
   for (const bloco of blocosDeMarkdown(markdown)) {
@@ -338,6 +361,7 @@ export function markdownParaPdf(titulo: string, markdown: string): Uint8Array {
       paginas[paginas.length - 1].comandos.push(
         `0.7 0.7 0.7 RG 0.6 w ${MARGEM} ${(PAGINA_A - y - 6).toFixed(2)} m ${PAGINA_L - MARGEM} ${(PAGINA_A - y - 6).toFixed(2)} l S`
       );
+      paginas[paginas.length - 1].ops.push({ t: "linha", x1: MARGEM, x2: PAGINA_L - MARGEM, y: PAGINA_A - y - 6, cor: "#b3b3b3", w: 0.6 });
       y += 14;
       continue;
     }
@@ -392,9 +416,10 @@ export function markdownParaPdf(titulo: string, markdown: string): Uint8Array {
     p.comandos.push(
       `BT /F1 8 Tf 0.45 g ${(PAGINA_L / 2 - w / 2).toFixed(2)} ${(RODAPE - 6).toFixed(2)} Td (${escaparPdf(rodape)}) Tj ET`
     );
+    p.ops.push({ t: "texto", x: PAGINA_L / 2 - w / 2, y: RODAPE - 6, fonte: "F1", corpo: 8, s: rodape, cinza: true });
   });
 
-  return montarPdf(paginas, titulo);
+  return paginas;
 }
 
 function montarPdf(paginas: Pagina[], titulo: string): Uint8Array {
