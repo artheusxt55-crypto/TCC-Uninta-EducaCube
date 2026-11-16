@@ -71,7 +71,7 @@ import {
   PainelDocumentoAura,
 } from "../components/PainelDocumentoAura";
 
-import { recortarContextoCriacao, respostaVeioDePedidoDeDocumento } from "../lib/aura-assistente";
+import { recortarContextoCriacao, respostaVeioDePedidoDeDocumento, entenderPedidoAtual, descreverEntendimento, ehPedidoDeCriacao } from "../lib/aura-assistente";
 
 import { detectarDocumento } from "../lib/aura-documento";
 
@@ -1297,9 +1297,21 @@ export default function AuraEducacube() {
             }: ${message.content}`
         );
 
+      const entendimento =
+        descreverEntendimento(
+          entenderPedidoAtual(
+            historyForContext.filter(
+              (message) =>
+                message.status !== "error"
+            )
+          ),
+          pendingAnexosRef.current.length >
+            0
+        );
+
       const resposta =
         await perguntarAura(
-          promptText,
+          promptText + entendimento,
           contexto,
           pendingAnexosRef.current
         );
@@ -1543,6 +1555,17 @@ export default function AuraEducacube() {
 
       return next;
     });
+
+    // Pedido novo de criação, sem arquivo novo e sem citar o arquivo: não reaproveita anexos antigos.
+    if (
+      prontos.length === 0 &&
+      ehPedidoDeCriacao(trimmed) &&
+      !/\b(arquivo|anexo|anexad[oa]s?|document[oa]|texto|pdf|enviei|mandei|acima)\b/i.test(
+        trimmed
+      )
+    ) {
+      pendingAnexosRef.current = [];
+    }
 
     // O documento acompanha a conversa: perguntas seguintes ainda "enxergam" o arquivo.
     if (prontos.length > 0) {

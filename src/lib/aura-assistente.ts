@@ -285,3 +285,125 @@ export function respostaVeioDePedidoDeDocumento<T extends { role: string; conten
   const antes = mensagens.slice(Math.max(0, indice - 6), indice).filter((m) => m.role === "user");
   return antes.some((m) => pediuDocumento(m.content));
 }
+
+/* ---------- entendimento do pedido (tema, série, quantidade...) ---------- */
+
+export interface Entendimento {
+  tipo?: TipoCriacao;
+  tema?: string;
+  nivel?: string;
+  quantidade?: string;
+  dificuldade?: string;
+  gabarito?: string;
+  formato?: string;
+}
+
+function temaDoTexto(t: string, regexTipo?: RegExp): string {
+  const explicito = /\b(?:tema|assunto|conte[uú]do)\s*[:\-]\s*(.{2,})$/im.exec(t);
+  if (explicito) return limparTema(explicito[1]);
+
+  const sobre = /\b(?:sobre|acerca\s+de|a\s+respeito\s+de|referente\s+a|envolvendo|que\s+fale\s+de)\s+(.{2,})$/i.exec(t.replace(/\n[\s\S]*$/, ""));
+  if (sobre) return limparTema(sobre[1]);
+
+  if (regexTipo) {
+    const apos = t.split(regexTipo).slice(1).join(" ").trim();
+    const m = /^(?:de|do|da|dos|das)\s+(.{2,})$/i.exec(apos);
+    if (m) {
+      const tema = limparTema(m[1]);
+      if (tema && !/^(?:meus?|minhas?|nossos?|os|as|uns|umas?|alunos?|turma|sala|\d)/i.test(tema) && !/quest[oõ]es|perguntas|exerc[ií]cios\s*$/i.test(tema)) return tema;
+    }
+  }
+
+  return "";
+}
+
+/** Extrai o que o texto do usuário já diz sobre o que quer criar (qualquer tamanho). */
+export function entenderTexto(texto: string): Entendimento {
+  const t = texto.trim();
+  const r: Entendimento = {};
+
+  const achado = TIPOS.find((x) => x.regex.test(t));
+  if (achado) r.tipo = achado.tipo;
+
+  const tema = temaDoTexto(t, achado?.regex);
+  if (tema) r.tema = tema;
+
+  for (const [regex, nivel] of NIVEIS) {
+    if (regex.test(t)) {
+      r.nivel = nivel;
+      break;
+    }
+  }
+
+  const n = /\b(\d{1,2})\s*(?:quest[oõ]es|perguntas|exerc[ií]cios)\b/i.exec(t);
+  if (n) r.quantidade = n[1];
+
+  if (/\bsem\s+gabarito\b/i.test(t)) r.gabarito = "não";
+  else if (/\bcom\s+gabarito\b|\bgabarito\b/i.test(t)) r.gabarito = "sim";
+
+  const dif = /\b(f[aá]cil|f[aá]ceis|m[eé]dia|dif[ií]cil|dif[ií]ceis|desafiador[a]?)\b/i.exec(t);
+  if (dif) r.dificuldade = dif[1].toLowerCase();
+
+  if (/m[uú]ltipla\s+escolha/i.test(t)) r.formato = "múltipla escolha";
+  else if (/discursiv/i.test(t)) r.formato = "discursivas";
+  else if (/verdadeiro\s+ou\s+falso|\bv\s*ou\s*f\b/i.test(t)) r.formato = "verdadeiro ou falso";
+
+  return r;
+}
+
+/** Lê respostas no formato "1. Pergunta? Resposta" (tela de perguntas da AURA). */
+function entenderRespostas(texto: string): Entendimento {
+  const r: Entendimento = {};
+
+  for (const linha of texto.split("\n")) {
+    const m = /^\s*\d+\.\s*(.+?\?)\s*(.+)$/.exec(linha);
+    if (!m) continue;
+
+    const [, pergunta, resposta] = m;
+    const v = resposta.trim();
+    if (!v) continue;
+
+    if (/s[eé]rie|n[ií]vel|etapa|turma/i.test(pergunta)) r.nivel = v;
+    else if (/quant/i.test(pergunta)) r.quantidade = v.replace(/\D+/g, "") || v;
+    else if (/tema|assunto|conte[uú]do|t[oó]pico/i.test(pergunta)) r.tema = v;
+    else if (/dificuldade/i.test(pergunta)) r.dificuldade = v;
+    else if (/gabarito/i.test(pergunta)) r.gabarito = v;
+    else if (/tipo|formato|estilo/i.test(pergunta)) r.formato = v;
+  }
+
+  return r;
+}
+
+/** Junta o pedido de criação atual com as respostas dadas depois dele. */
+export function entenderPedidoAtual<T extends { role: string; content: string }>(mensagens: T[]): Entendimento | null {
+  const janela = recortarContextoCriacao(mensagens, 12);
+  const usuario = janela.filter((m) => m.role === "user");
+  if (!usuario.length || !ehPedidoDeCriacao(usuario[0].content)) return null;
+
+  const base = entenderTexto(usuario[0].content.replace(/\n+📎[\s\S]*$/, ""));
+
+  for (const m of usuario.slice(1)) {
+    Object.assign(base, entenderRespostas(m.content));
+  }
+
+  return base;
+}
+
+/** Texto curto, enviado junto do prompt, que diz à AURA o que o sistema já entendeu. */
+export function descreverEntendimento(e: Entendimento | null, temArquivo: boolean): string {
+  if (!e) return "";
+
+  const itens = [
+    e.tipo ? `tipo=${e.tipo}` : "",
+    e.tema ? `tema="${e.tema}"` : "",
+    e.nivel ? `série/nível="${e.nivel}"` : "",
+    e.quantidade ? `quantidade=${e.quantidade}` : "",
+    e.dificuldade ? `dificuldade=${e.dificuldade}` : "",
+    e.formato ? `formato=${e.formato}` : "",
+    e.gabarito ? `gabarito=${e.gabarito}` : "",
+  ].filter(Boolean);
+
+  return `\n\n[ENTENDIMENTO DO SISTEMA SOBRE ESTE PEDIDO DE CRIAÇÃO — dados tirados do texto do usuário: ${itens.length ? itens.join("; ") : "nenhum dado específico"}${
+    temArquivo ? "; base=arquivo anexado" : ""
+  }. Use esses dados e NÃO pergunte de novo por eles. O tema vem somente daqui e do pedido, nunca de conversas ou documentos anteriores.]`;
+}
