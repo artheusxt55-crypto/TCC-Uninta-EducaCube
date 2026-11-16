@@ -64,3 +64,40 @@ test("perguntas do modelo viram passos e respostas", () => {
   assert.equal(montarRespostasDoModelo(passos, { p0: "Médio", p1: "" }), "1. Série? Médio");
   assert.match(montarRespostasDoModelo(passos, {}), /Pode decidir você/);
 });
+
+import { ehPedidoDeCriacao, recortarContextoCriacao } from "../src/lib/aura-assistente.ts";
+
+test("recortarContextoCriacao: pedido novo isola o histórico anterior", () => {
+  const msgs = [
+    { role: "user", content: "Crie uma prova de matemática sobre frações" },
+    { role: "assistant", content: "# Prova de frações ..." },
+    { role: "user", content: "Faça uma prova de história sobre o Brasil Colônia" },
+  ];
+  const r = recortarContextoCriacao(msgs);
+  assert.equal(r.length, 1);
+  assert.match(r[0].content, /história/);
+});
+
+test("recortarContextoCriacao: mantém perguntas e respostas do pedido atual", () => {
+  const msgs = [
+    { role: "user", content: "Oi" },
+    { role: "user", content: "Monte uma prova de ciências" },
+    { role: "assistant", content: "perguntas" },
+    { role: "user", content: "1. Série? 6º ano" },
+  ];
+  assert.equal(recortarContextoCriacao(msgs).length, 3);
+  assert.equal(ehPedidoDeCriacao("O que é fotossíntese?"), false);
+});
+
+import { respostaVeioDePedidoDeDocumento } from "../src/lib/aura-assistente.ts";
+
+test("cartão só para respostas de pedido de documento", () => {
+  const conversa = [
+    { role: "user", content: "O que é construtivismo?" },
+    { role: "assistant", content: "resposta longa" },
+    { role: "user", content: "Crie uma prova de português" },
+    { role: "assistant", content: "# Prova" },
+  ];
+  assert.equal(respostaVeioDePedidoDeDocumento(conversa, 1), false);
+  assert.equal(respostaVeioDePedidoDeDocumento(conversa, 3), true);
+});

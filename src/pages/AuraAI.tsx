@@ -71,6 +71,8 @@ import {
   PainelDocumentoAura,
 } from "../components/PainelDocumentoAura";
 
+import { recortarContextoCriacao, respostaVeioDePedidoDeDocumento } from "../lib/aura-assistente";
+
 import { detectarDocumento } from "../lib/aura-documento";
 
 import {
@@ -1280,12 +1282,12 @@ export default function AuraEducacube() {
     setAuraState("generating");
 
     try {
-      const contexto = historyForContext
-        .filter(
+      const contexto = recortarContextoCriacao(
+        historyForContext.filter(
           (message) =>
             message.status !== "error"
         )
-        .slice(-8)
+      )
         .map(
           (message) =>
             `${
@@ -3683,9 +3685,18 @@ export default function AuraEducacube() {
 
                                   {(() => {
                                     const documento =
-                                      detectarDocumento(
-                                        textoVisivel
-                                      );
+                                      respostaVeioDePedidoDeDocumento(
+                                        messages,
+                                        messages.findIndex(
+                                          (m) =>
+                                            m.id ===
+                                            message.id
+                                        )
+                                      )
+                                        ? detectarDocumento(
+                                            textoVisivel
+                                          )
+                                        : null;
 
                                     return documento ? (
                                       <CartaoDocumentoAura

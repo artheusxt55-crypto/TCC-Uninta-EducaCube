@@ -36,3 +36,23 @@
 @media (max-width:900px){
   .ad-painel{position:fixed;inset:0;z-index:60;width:100%;flex:none;border-left:0}
 }
+
+/* animações do botão PDF */
+@keyframes ad-entra{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes ad-brilho{0%{transform:translateX(-120%) skewX(-20deg)}60%,100%{transform:translateX(260%) skewX(-20deg)}}
+@keyframes ad-pulso{0%,100%{box-shadow:0 0 0 0 rgba(140,92,214,.55)}50%{box-shadow:0 0 0 9px rgba(140,92,214,0)}}
+@keyframes ad-seta{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+.ad-cartao{animation:ad-entra .45s cubic-bezier(.2,.8,.2,1) both}
+.ad-cartao-icone{animation:ad-pulso 2.4s ease-out infinite}
+.ad-cartao-botao{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease,filter .15s ease}
+.ad-cartao-botao::after{content:"";position:absolute;inset:0 auto 0 0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);animation:ad-brilho 3s ease-in-out infinite}
+.ad-cartao-botao:hover{transform:translateY(-1px) scale(1.03)}
+.ad-cartao-botao:active{transform:scale(.95)}
+.ad-cartao-pdf{padding:1px 6px;border-radius:5px;background:rgba(255,255,255,.25);font-size:11px;letter-spacing:.5px}
+.ad-btn.primario{transition:transform .15s ease,filter .15s ease}
+.ad-btn.primario:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.ad-btn.primario:active{transform:scale(.96)}
+.ad-btn.primario:hover .ad-seta{animation:ad-seta .7s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  .ad-cartao,.ad-cartao-icone,.ad-cartao-botao::after,.ad-btn.primario:hover .ad-seta{animation:none}
+}
