@@ -237,7 +237,7 @@ export function passosDasPerguntas(perguntas: PerguntaAura[]): PassoAssistente[]
     pergunta: p.pergunta,
     opcoes: p.opcoes,
     livre: true,
-    obrigatoria: false,
+    obrigatoria: p.opcoes.length === 0,
   }));
 }
 
@@ -436,4 +436,13 @@ export function filtrarPerguntasRedundantes(perguntas: PerguntaAura[], e: Entend
     if (e.formato && /\b(tipo|formato|estilo)\b.*quest/i.test(q)) return false;
     return true;
   });
+}
+
+/** Se o tema ainda não foi dito (nem há arquivo), o app mesmo pergunta o tema: não depende do modelo. */
+export function garantirPerguntaDeTema(perguntas: PerguntaAura[], e: Entendimento | null, temArquivo: boolean): PerguntaAura[] {
+  if (!e || e.tema || temArquivo) return perguntas;
+  if (perguntas.some((p) => /\b(tema|assunto|t[oó]pico|conte[uú]do)\b/i.test(p.pergunta))) return perguntas;
+
+  const o = e.tipo === "plano" ? "do plano de aula" : e.tipo === "material" ? "do material" : "da prova";
+  return [{ pergunta: `Qual é o tema ${o}?`, opcoes: [] }, ...perguntas];
 }

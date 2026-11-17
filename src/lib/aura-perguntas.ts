@@ -128,15 +128,22 @@ export function extrairPerguntas(conteudo: string): { texto: string; perguntas: 
   const achado = BLOCO.exec(conteudo);
 
   if (!achado) {
-    const solto = acharArraySolto(conteudo);
+    // O modelo às vezes manda vários arrays seguidos, um por pergunta: junta todos.
+    let restante = conteudo;
+    const todas: PerguntaAura[] = [];
 
-    if (solto) {
+    for (let i = 0; i < 8; i++) {
+      const solto = acharArraySolto(restante);
+      if (!solto) break;
+
       const perguntas = interpretarPerguntas(solto.json);
+      if (perguntas.length === 0) break;
 
-      if (perguntas.length > 0) {
-        return { texto: removerTrecho(conteudo, solto.inicio, solto.fim), perguntas };
-      }
+      todas.push(...perguntas);
+      restante = removerTrecho(restante, solto.inicio, solto.fim);
     }
+
+    if (todas.length > 0) return { texto: limparRotulo(restante), perguntas: todas };
 
     return { texto: limparRotulo(conteudo.replace(BLOCO_ABERTO, "")), perguntas: [] };
   }

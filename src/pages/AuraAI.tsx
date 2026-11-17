@@ -71,7 +71,7 @@ import {
   PainelDocumentoAura,
 } from "../components/PainelDocumentoAura";
 
-import { recortarContextoCriacao, respostaVeioDePedidoDeDocumento, entenderPedidoAtual, descreverEntendimento, ehPedidoDeCriacao, filtrarPerguntasRedundantes } from "../lib/aura-assistente";
+import { recortarContextoCriacao, respostaVeioDePedidoDeDocumento, entenderPedidoAtual, descreverEntendimento, ehPedidoDeCriacao, filtrarPerguntasRedundantes, garantirPerguntaDeTema } from "../lib/aura-assistente";
 
 import { detectarDocumento } from "../lib/aura-documento";
 
@@ -2534,11 +2534,21 @@ export default function AuraEducacube() {
     const { perguntas: todas } =
       extrairPerguntas(ultima.content);
 
+    const entendido =
+      entenderPedidoAtual(messages);
+
     const perguntas =
-      filtrarPerguntasRedundantes(
-        todas,
-        entenderPedidoAtual(messages)
-      );
+      todas.length > 0
+        ? garantirPerguntaDeTema(
+            filtrarPerguntasRedundantes(
+              todas,
+              entendido
+            ),
+            entendido,
+            pendingAnexosRef.current.length >
+              0
+          )
+        : [];
 
     if (perguntas.length > 0) {
       abrirPerguntasDoModelo(perguntas);
